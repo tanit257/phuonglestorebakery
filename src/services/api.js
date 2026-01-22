@@ -1,0 +1,1016 @@
+import { supabase, isSupabaseConfigured } from './supabase';
+
+// ============ LOCAL STORAGE FALLBACK ============
+const localStorageDB = {
+  products: JSON.parse(localStorage.getItem('phuongle_products') || '[]'),
+  customers: JSON.parse(localStorage.getItem('phuongle_customers') || '[]'),
+  orders: JSON.parse(localStorage.getItem('phuongle_orders') || '[]'),
+  purchases: JSON.parse(localStorage.getItem('phuongle_purchases') || '[]'),
+  // Invoice mode data
+  invoice_orders: JSON.parse(localStorage.getItem('phuongle_invoice_orders') || '[]'),
+  invoice_purchases: JSON.parse(localStorage.getItem('phuongle_invoice_purchases') || '[]'),
+  invoice_inventory: JSON.parse(localStorage.getItem('phuongle_invoice_inventory') || '[]'),
+};
+
+const saveToLocalStorage = (key, data) => {
+  localStorage.setItem(`phuongle_${key}`, JSON.stringify(data));
+  localStorageDB[key] = data;
+};
+
+// ============ PRODUCTS ============
+export const productApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data;
+    }
+    return localStorageDB.products;
+  },
+
+  async create(product) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([product])
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+
+    // Check for duplicate within last 2 seconds (prevent double submission)
+    const now = new Date().getTime();
+    const recentDuplicate = localStorageDB.products.find(p =>
+      p.name === product.name &&
+      (now - new Date(p.created_at).getTime()) < 2000
+    );
+
+    if (recentDuplicate) {
+      console.log('productApi.create - Duplicate detected! Returning existing product:', recentDuplicate);
+      return recentDuplicate;
+    }
+
+    const newProduct = { ...product, id: Date.now(), created_at: new Date().toISOString() };
+    localStorageDB.products.push(newProduct);
+    saveToLocalStorage('products', localStorageDB.products);
+    return newProduct;
+  },
+
+  async update(id, updates) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('products')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.products.findIndex(p => p.id === id);
+    if (index !== -1) {
+      localStorageDB.products[index] = { ...localStorageDB.products[index], ...updates };
+      saveToLocalStorage('products', localStorageDB.products);
+      return localStorageDB.products[index];
+    }
+    throw new Error('Product not found');
+  },
+
+  async delete(id) {
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
+    localStorageDB.products = localStorageDB.products.filter(p => p.id !== id);
+    saveToLocalStorage('products', localStorageDB.products);
+    return true;
+  },
+};
+
+// ============ CUSTOMERS ============
+export const customerApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data;
+    }
+    return localStorageDB.customers;
+  },
+
+  async create(customer) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('customers')
+        .insert([customer])
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    console.log('customerApi.create - Creating customer:', customer);
+    console.log('customerApi.create - Current customers in localStorage:', localStorageDB.customers.length);
+
+    // Check for duplicate within last 2 seconds (prevent double submission)
+    const now = new Date().getTime();
+    const recentDuplicate = localStorageDB.customers.find(c =>
+      c.name === customer.name &&
+      (now - new Date(c.created_at).getTime()) < 2000
+    );
+
+    if (recentDuplicate) {
+      console.log('customerApi.create - Duplicate detected! Returning existing customer:', recentDuplicate);
+      return recentDuplicate;
+    }
+
+    const newCustomer = { ...customer, id: Date.now(), created_at: new Date().toISOString() };
+    localStorageDB.customers.push(newCustomer);
+    saveToLocalStorage('customers', localStorageDB.customers);
+    console.log('customerApi.create - After save, customers count:', localStorageDB.customers.length);
+    return newCustomer;
+  },
+
+  async update(id, updates) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('customers')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.customers.findIndex(c => c.id === id);
+    if (index !== -1) {
+      localStorageDB.customers[index] = { ...localStorageDB.customers[index], ...updates };
+      saveToLocalStorage('customers', localStorageDB.customers);
+      return localStorageDB.customers[index];
+    }
+    throw new Error('Customer not found');
+  },
+
+  async delete(id) {
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
+    localStorageDB.customers = localStorageDB.customers.filter(c => c.id !== id);
+    saveToLocalStorage('customers', localStorageDB.customers);
+    return true;
+  },
+};
+
+// ============ ORDERS ============
+export const orderApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          customer:customers(id, name, phone),
+          order_items(
+            id,
+            quantity,
+            unit_price,
+            subtotal,
+            product:products(id, name, unit)
+          )
+        `)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    }
+    return localStorageDB.orders;
+  },
+
+  async create(order) {
+    if (isSupabaseConfigured()) {
+      // Create order
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          customer_id: order.customer_id,
+          total: order.total,
+          paid: false,
+        }])
+        .select()
+        .single();
+      
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = order.items.map(item => ({
+        order_id: orderData.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: item.subtotal,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      return orderData;
+    }
+
+    // Local storage
+    const newOrder = {
+      ...order,
+      id: Date.now(),
+      paid: false,
+      created_at: new Date().toISOString(),
+    };
+    localStorageDB.orders.unshift(newOrder);
+    saveToLocalStorage('orders', localStorageDB.orders);
+    return newOrder;
+  },
+
+  async markAsPaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ paid: true, paid_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      localStorageDB.orders[index] = {
+        ...localStorageDB.orders[index],
+        paid: true,
+        paid_at: new Date().toISOString(),
+      };
+      saveToLocalStorage('orders', localStorageDB.orders);
+      return localStorageDB.orders[index];
+    }
+    throw new Error('Order not found');
+  },
+
+  async markAsUnpaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ paid: false, paid_at: null })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      localStorageDB.orders[index] = {
+        ...localStorageDB.orders[index],
+        paid: false,
+        paid_at: null,
+      };
+      saveToLocalStorage('orders', localStorageDB.orders);
+      return localStorageDB.orders[index];
+    }
+    throw new Error('Order not found');
+  },
+
+  async update(id, updates) {
+    if (isSupabaseConfigured()) {
+      // Update order total if items changed
+      if (updates.items) {
+        const { error: orderError } = await supabase
+          .from('orders')
+          .update({ total: updates.total })
+          .eq('id', id);
+        if (orderError) throw orderError;
+
+        // Delete old items
+        await supabase
+          .from('order_items')
+          .delete()
+          .eq('order_id', id);
+
+        // Insert new items
+        const orderItems = updates.items.map(item => ({
+          order_id: id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          subtotal: item.subtotal,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
+        if (itemsError) throw itemsError;
+      }
+
+      return true;
+    }
+
+    // Local storage
+    const index = localStorageDB.orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      localStorageDB.orders[index] = {
+        ...localStorageDB.orders[index],
+        ...updates,
+      };
+      saveToLocalStorage('orders', localStorageDB.orders);
+      return localStorageDB.orders[index];
+    }
+    throw new Error('Order not found');
+  },
+
+  async delete(id) {
+    if (isSupabaseConfigured()) {
+      // Delete order items first
+      await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', id);
+
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
+    localStorageDB.orders = localStorageDB.orders.filter(o => o.id !== id);
+    saveToLocalStorage('orders', localStorageDB.orders);
+    return true;
+  },
+};
+
+// ============ PURCHASES ============
+export const purchaseApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('purchases')
+        .select(`
+          *,
+          supplier:customers(id, name, phone),
+          purchase_items(
+            id,
+            quantity,
+            unit_price,
+            subtotal,
+            product:products(id, name, unit)
+          )
+        `)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    }
+    return localStorageDB.purchases;
+  },
+
+  async create(purchase) {
+    if (isSupabaseConfigured()) {
+      // Create purchase
+      const { data: purchaseData, error: purchaseError } = await supabase
+        .from('purchases')
+        .insert([{
+          supplier_id: purchase.supplier_id,
+          total: purchase.total,
+          paid: false,
+        }])
+        .select()
+        .single();
+
+      if (purchaseError) throw purchaseError;
+
+      // Create purchase items
+      const purchaseItems = purchase.items.map(item => ({
+        purchase_id: purchaseData.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: item.subtotal,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('purchase_items')
+        .insert(purchaseItems);
+
+      if (itemsError) throw itemsError;
+
+      // Update product stock
+      for (const item of purchase.items) {
+        const { data: product } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.product_id)
+          .single();
+
+        if (product) {
+          await supabase
+            .from('products')
+            .update({ stock: product.stock + item.quantity })
+            .eq('id', item.product_id);
+        }
+      }
+
+      return purchaseData;
+    }
+
+    // Local storage
+    const newPurchase = {
+      ...purchase,
+      id: Date.now(),
+      paid: false,
+      created_at: new Date().toISOString(),
+    };
+    localStorageDB.purchases.unshift(newPurchase);
+    saveToLocalStorage('purchases', localStorageDB.purchases);
+
+    // Update product stock in local storage
+    for (const item of purchase.items) {
+      const productIndex = localStorageDB.products.findIndex(p => p.id === item.product_id);
+      if (productIndex !== -1) {
+        localStorageDB.products[productIndex].stock += item.quantity;
+        // Save purchase price history
+        if (!localStorageDB.products[productIndex].purchase_history) {
+          localStorageDB.products[productIndex].purchase_history = [];
+        }
+        localStorageDB.products[productIndex].purchase_history.push({
+          date: newPurchase.created_at,
+          price: item.unit_price,
+          quantity: item.quantity,
+        });
+      }
+    }
+    saveToLocalStorage('products', localStorageDB.products);
+
+    return newPurchase;
+  },
+
+  async markAsPaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('purchases')
+        .update({ paid: true, paid_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.purchases.findIndex(p => p.id === id);
+    if (index !== -1) {
+      localStorageDB.purchases[index] = {
+        ...localStorageDB.purchases[index],
+        paid: true,
+        paid_at: new Date().toISOString(),
+      };
+      saveToLocalStorage('purchases', localStorageDB.purchases);
+      return localStorageDB.purchases[index];
+    }
+    throw new Error('Purchase not found');
+  },
+
+  async markAsUnpaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('purchases')
+        .update({ paid: false, paid_at: null })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.purchases.findIndex(p => p.id === id);
+    if (index !== -1) {
+      localStorageDB.purchases[index] = {
+        ...localStorageDB.purchases[index],
+        paid: false,
+        paid_at: null,
+      };
+      saveToLocalStorage('purchases', localStorageDB.purchases);
+      return localStorageDB.purchases[index];
+    }
+    throw new Error('Purchase not found');
+  },
+
+  async delete(id) {
+    if (isSupabaseConfigured()) {
+      // Delete purchase items first
+      await supabase
+        .from('purchase_items')
+        .delete()
+        .eq('purchase_id', id);
+
+      const { error } = await supabase
+        .from('purchases')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
+    localStorageDB.purchases = localStorageDB.purchases.filter(p => p.id !== id);
+    saveToLocalStorage('purchases', localStorageDB.purchases);
+    return true;
+  },
+};
+
+// ============ INVOICE ORDERS ============
+export const invoiceOrderApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_orders')
+        .select(`
+          *,
+          customer:customers(id, name, phone),
+          invoice_order_items(
+            id,
+            quantity,
+            unit_price,
+            subtotal,
+            product:products(id, name, unit)
+          )
+        `)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data.map(order => ({
+        ...order,
+        order_items: order.invoice_order_items,
+      }));
+    }
+    return localStorageDB.invoice_orders;
+  },
+
+  async create(order) {
+    if (isSupabaseConfigured()) {
+      const { data: orderData, error: orderError } = await supabase
+        .from('invoice_orders')
+        .insert([{
+          customer_id: order.customer_id,
+          total: order.total,
+          paid: false,
+          note: order.note || null,
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      const orderItems = order.items.map(item => ({
+        order_id: orderData.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: item.subtotal,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('invoice_order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Update invoice inventory
+      for (const item of order.items) {
+        const { data: inv } = await supabase
+          .from('invoice_inventory')
+          .select('stock')
+          .eq('product_id', item.product_id)
+          .single();
+
+        if (inv) {
+          await supabase
+            .from('invoice_inventory')
+            .update({ stock: Math.max(0, inv.stock - item.quantity) })
+            .eq('product_id', item.product_id);
+        }
+      }
+
+      return orderData;
+    }
+
+    // Local storage
+    const newOrder = {
+      ...order,
+      id: Date.now(),
+      paid: false,
+      created_at: new Date().toISOString(),
+    };
+    localStorageDB.invoice_orders.unshift(newOrder);
+    saveToLocalStorage('invoice_orders', localStorageDB.invoice_orders);
+
+    // Update invoice inventory
+    for (const item of order.items) {
+      const invIndex = localStorageDB.invoice_inventory.findIndex(i => i.product_id === item.product_id);
+      if (invIndex !== -1) {
+        localStorageDB.invoice_inventory[invIndex].stock = Math.max(0, localStorageDB.invoice_inventory[invIndex].stock - item.quantity);
+        saveToLocalStorage('invoice_inventory', localStorageDB.invoice_inventory);
+      }
+    }
+
+    return newOrder;
+  },
+
+  async markAsPaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_orders')
+        .update({ paid: true, paid_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.invoice_orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      localStorageDB.invoice_orders[index] = {
+        ...localStorageDB.invoice_orders[index],
+        paid: true,
+        paid_at: new Date().toISOString(),
+      };
+      saveToLocalStorage('invoice_orders', localStorageDB.invoice_orders);
+      return localStorageDB.invoice_orders[index];
+    }
+    throw new Error('Invoice order not found');
+  },
+
+  async markAsUnpaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_orders')
+        .update({ paid: false, paid_at: null })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.invoice_orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      localStorageDB.invoice_orders[index] = {
+        ...localStorageDB.invoice_orders[index],
+        paid: false,
+        paid_at: null,
+      };
+      saveToLocalStorage('invoice_orders', localStorageDB.invoice_orders);
+      return localStorageDB.invoice_orders[index];
+    }
+    throw new Error('Invoice order not found');
+  },
+
+  async update(id, updates) {
+    if (isSupabaseConfigured()) {
+      if (updates.items) {
+        const { error: orderError } = await supabase
+          .from('invoice_orders')
+          .update({ total: updates.total })
+          .eq('id', id);
+        if (orderError) throw orderError;
+
+        await supabase
+          .from('invoice_order_items')
+          .delete()
+          .eq('order_id', id);
+
+        const orderItems = updates.items.map(item => ({
+          order_id: id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          subtotal: item.subtotal,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('invoice_order_items')
+          .insert(orderItems);
+        if (itemsError) throw itemsError;
+      }
+      return true;
+    }
+
+    const index = localStorageDB.invoice_orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      localStorageDB.invoice_orders[index] = {
+        ...localStorageDB.invoice_orders[index],
+        ...updates,
+      };
+      saveToLocalStorage('invoice_orders', localStorageDB.invoice_orders);
+      return localStorageDB.invoice_orders[index];
+    }
+    throw new Error('Invoice order not found');
+  },
+
+  async delete(id) {
+    if (isSupabaseConfigured()) {
+      await supabase
+        .from('invoice_order_items')
+        .delete()
+        .eq('order_id', id);
+
+      const { error } = await supabase
+        .from('invoice_orders')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
+    localStorageDB.invoice_orders = localStorageDB.invoice_orders.filter(o => o.id !== id);
+    saveToLocalStorage('invoice_orders', localStorageDB.invoice_orders);
+    return true;
+  },
+};
+
+// ============ INVOICE PURCHASES ============
+export const invoicePurchaseApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_purchases')
+        .select(`
+          *,
+          supplier:customers(id, name, phone),
+          invoice_purchase_items(
+            id,
+            quantity,
+            unit_price,
+            subtotal,
+            product:products(id, name, unit)
+          )
+        `)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data.map(purchase => ({
+        ...purchase,
+        purchase_items: purchase.invoice_purchase_items,
+      }));
+    }
+    return localStorageDB.invoice_purchases;
+  },
+
+  async create(purchase) {
+    if (isSupabaseConfigured()) {
+      const { data: purchaseData, error: purchaseError } = await supabase
+        .from('invoice_purchases')
+        .insert([{
+          supplier_id: purchase.supplier_id,
+          total: purchase.total,
+          paid: false,
+          note: purchase.note || null,
+        }])
+        .select()
+        .single();
+
+      if (purchaseError) throw purchaseError;
+
+      const purchaseItems = purchase.items.map(item => ({
+        purchase_id: purchaseData.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: item.subtotal,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('invoice_purchase_items')
+        .insert(purchaseItems);
+
+      if (itemsError) throw itemsError;
+
+      // Update invoice inventory
+      for (const item of purchase.items) {
+        const { data: inv } = await supabase
+          .from('invoice_inventory')
+          .select('stock')
+          .eq('product_id', item.product_id)
+          .single();
+
+        if (inv) {
+          await supabase
+            .from('invoice_inventory')
+            .update({ stock: inv.stock + item.quantity })
+            .eq('product_id', item.product_id);
+        } else {
+          await supabase
+            .from('invoice_inventory')
+            .insert([{ product_id: item.product_id, stock: item.quantity }]);
+        }
+      }
+
+      return purchaseData;
+    }
+
+    // Local storage
+    const newPurchase = {
+      ...purchase,
+      id: Date.now(),
+      paid: false,
+      created_at: new Date().toISOString(),
+    };
+    localStorageDB.invoice_purchases.unshift(newPurchase);
+    saveToLocalStorage('invoice_purchases', localStorageDB.invoice_purchases);
+
+    // Update invoice inventory
+    for (const item of purchase.items) {
+      const invIndex = localStorageDB.invoice_inventory.findIndex(i => i.product_id === item.product_id);
+      if (invIndex !== -1) {
+        localStorageDB.invoice_inventory[invIndex].stock += item.quantity;
+      } else {
+        localStorageDB.invoice_inventory.push({
+          id: Date.now() + Math.random(),
+          product_id: item.product_id,
+          stock: item.quantity,
+          created_at: new Date().toISOString(),
+        });
+      }
+    }
+    saveToLocalStorage('invoice_inventory', localStorageDB.invoice_inventory);
+
+    return newPurchase;
+  },
+
+  async markAsPaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_purchases')
+        .update({ paid: true, paid_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.invoice_purchases.findIndex(p => p.id === id);
+    if (index !== -1) {
+      localStorageDB.invoice_purchases[index] = {
+        ...localStorageDB.invoice_purchases[index],
+        paid: true,
+        paid_at: new Date().toISOString(),
+      };
+      saveToLocalStorage('invoice_purchases', localStorageDB.invoice_purchases);
+      return localStorageDB.invoice_purchases[index];
+    }
+    throw new Error('Invoice purchase not found');
+  },
+
+  async markAsUnpaid(id) {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_purchases')
+        .update({ paid: false, paid_at: null })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const index = localStorageDB.invoice_purchases.findIndex(p => p.id === id);
+    if (index !== -1) {
+      localStorageDB.invoice_purchases[index] = {
+        ...localStorageDB.invoice_purchases[index],
+        paid: false,
+        paid_at: null,
+      };
+      saveToLocalStorage('invoice_purchases', localStorageDB.invoice_purchases);
+      return localStorageDB.invoice_purchases[index];
+    }
+    throw new Error('Invoice purchase not found');
+  },
+
+  async delete(id) {
+    if (isSupabaseConfigured()) {
+      await supabase
+        .from('invoice_purchase_items')
+        .delete()
+        .eq('purchase_id', id);
+
+      const { error } = await supabase
+        .from('invoice_purchases')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    }
+    localStorageDB.invoice_purchases = localStorageDB.invoice_purchases.filter(p => p.id !== id);
+    saveToLocalStorage('invoice_purchases', localStorageDB.invoice_purchases);
+    return true;
+  },
+};
+
+// ============ INVOICE INVENTORY ============
+export const invoiceInventoryApi = {
+  async getAll() {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from('invoice_inventory')
+        .select(`
+          *,
+          product:products(id, name, unit, price, invoice_price)
+        `);
+      if (error) throw error;
+      return data;
+    }
+    return localStorageDB.invoice_inventory;
+  },
+
+  async updateStock(productId, stock) {
+    if (isSupabaseConfigured()) {
+      const { data: existing } = await supabase
+        .from('invoice_inventory')
+        .select('id')
+        .eq('product_id', productId)
+        .single();
+
+      if (existing) {
+        const { data, error } = await supabase
+          .from('invoice_inventory')
+          .update({ stock })
+          .eq('product_id', productId)
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      } else {
+        const { data, error } = await supabase
+          .from('invoice_inventory')
+          .insert([{ product_id: productId, stock }])
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      }
+    }
+
+    const index = localStorageDB.invoice_inventory.findIndex(i => i.product_id === productId);
+    if (index !== -1) {
+      localStorageDB.invoice_inventory[index].stock = stock;
+    } else {
+      localStorageDB.invoice_inventory.push({
+        id: Date.now(),
+        product_id: productId,
+        stock,
+        created_at: new Date().toISOString(),
+      });
+    }
+    saveToLocalStorage('invoice_inventory', localStorageDB.invoice_inventory);
+    return localStorageDB.invoice_inventory.find(i => i.product_id === productId);
+  },
+};
+
+// ============ SEED DATA ============
+export const seedData = async (products, customers) => {
+  if (isSupabaseConfigured()) {
+    // Check if data already exists
+    const { data: existingProducts } = await supabase.from('products').select('id').limit(1);
+    if (existingProducts && existingProducts.length > 0) return;
+
+    // Seed products with invoice_price
+    const productsWithInvoicePrice = products.map(p => ({
+      ...p,
+      invoice_price: Math.round(p.price * 0.8), // Invoice price is 80% of real price by default
+    }));
+    await supabase.from('products').insert(productsWithInvoicePrice);
+
+    // Seed customers
+    await supabase.from('customers').insert(customers);
+  } else {
+    // Local storage seed
+    if (localStorageDB.products.length === 0) {
+      const seededProducts = products.map((p, i) => ({
+        ...p,
+        id: Date.now() + i,
+        invoice_price: Math.round(p.price * 0.8),
+        created_at: new Date().toISOString(),
+      }));
+      saveToLocalStorage('products', seededProducts);
+    }
+    if (localStorageDB.customers.length === 0) {
+      const seededCustomers = customers.map((c, i) => ({
+        ...c,
+        id: Date.now() + i + 1000,
+        created_at: new Date().toISOString(),
+      }));
+      saveToLocalStorage('customers', seededCustomers);
+    }
+  }
+};

@@ -1,0 +1,119 @@
+import React from 'react';
+import { X, ChevronRight, User } from 'lucide-react';
+import { CardTitle } from '../ui/Card';
+import { Button } from '../ui/Button';
+
+/**
+ * Common component for selecting customers/suppliers
+ * Used in both CreateOrderPage and CreatePurchasePage
+ *
+ * Supports two display modes:
+ * - 'full': Shows full list with title (default, for selection)
+ * - 'compact': Shows only selected customer in a compact bar (for sticky header)
+ */
+export const CustomerSelector = ({
+  title = 'Chọn khách hàng',
+  selectedCustomer,
+  customers,
+  onSelect,
+  onDeselect,
+  emptyMessage = 'Chưa có khách hàng nào',
+  emptyActionLabel = 'Thêm khách hàng',
+  onEmptyAction,
+  bgColor = 'violet',
+  displayMode = 'full', // 'full' | 'compact'
+}) => {
+  const colorClasses = {
+    violet: {
+      bg: 'bg-violet-50',
+      hover: 'hover:bg-violet-100',
+      border: 'border-violet-200',
+      text: 'text-violet-700',
+      icon: 'text-violet-500',
+    },
+    emerald: {
+      bg: 'bg-emerald-50',
+      hover: 'hover:bg-emerald-100',
+      border: 'border-emerald-200',
+      text: 'text-emerald-700',
+      icon: 'text-emerald-500',
+    },
+  };
+
+  const colors = colorClasses[bgColor] || colorClasses.violet;
+
+  // Compact mode: only show selected customer in a single line
+  if (displayMode === 'compact' && selectedCustomer) {
+    return (
+      <div className={`flex items-center justify-between px-4 py-3 ${colors.bg} border-b ${colors.border}`}>
+        <div className="flex items-center gap-3">
+          <div className={`w-8 h-8 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
+            <User size={16} className={colors.icon} />
+          </div>
+          <div>
+            <p className={`font-medium ${colors.text}`}>{selectedCustomer.name}</p>
+            <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+          </div>
+        </div>
+        <button
+          onClick={onDeselect}
+          className={`p-2 ${colors.hover} rounded-lg transition-colors`}
+          title="Đổi khách hàng"
+        >
+          <X size={18} className="text-gray-500" />
+        </button>
+      </div>
+    );
+  }
+
+  // Full mode: show title and list/selected customer
+  return (
+    <>
+      <CardTitle>{title}</CardTitle>
+
+      {selectedCustomer ? (
+        <div className={`flex items-center justify-between p-3 ${colors.bg} rounded-xl mt-3`}>
+          <div>
+            <p className="font-medium text-gray-800">{selectedCustomer.name}</p>
+            <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+          </div>
+          <button
+            onClick={onDeselect}
+            className={`p-2 ${colors.hover} rounded-lg transition-colors`}
+          >
+            <X size={18} />
+          </button>
+        </div>
+      ) : (
+        <div className="mt-3 space-y-2 max-h-[400px] overflow-y-auto">
+          {customers.length > 0 ? (
+            customers.map(customer => (
+              <button
+                key={customer.id}
+                onClick={() => onSelect(customer)}
+                className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"
+              >
+                <div className="text-left">
+                  <p className="font-medium text-gray-800">{customer.name}</p>
+                  <p className="text-xs text-gray-500">{customer.phone}</p>
+                </div>
+                <ChevronRight size={18} className="text-gray-400" />
+              </button>
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-400 mb-3">{emptyMessage}</p>
+              {onEmptyAction && (
+                <Button variant="secondary" onClick={onEmptyAction}>
+                  {emptyActionLabel}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CustomerSelector;
