@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ChevronRight, User } from 'lucide-react';
+import { Pencil, ChevronRight, User } from 'lucide-react';
 import { CardTitle } from '../ui/Card';
 import { Button } from '../ui/Button';
 
@@ -38,6 +38,13 @@ export const CustomerSelector = ({
       text: 'text-emerald-700',
       icon: 'text-emerald-500',
     },
+    rose: {
+      bg: 'bg-rose-50',
+      hover: 'hover:bg-rose-100',
+      border: 'border-rose-200',
+      text: 'text-rose-700',
+      icon: 'text-rose-500',
+    },
   };
 
   const colors = colorClasses[bgColor] || colorClasses.violet;
@@ -46,21 +53,24 @@ export const CustomerSelector = ({
   if (displayMode === 'compact' && selectedCustomer) {
     return (
       <div className={`flex items-center justify-between px-4 py-3 ${colors.bg} border-b ${colors.border}`}>
-        <div className="flex items-center gap-3">
+        <button
+          onClick={onDeselect}
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
           <div className={`w-8 h-8 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
             <User size={16} className={colors.icon} />
           </div>
-          <div>
+          <div className="text-left">
             <p className={`font-medium ${colors.text}`}>{selectedCustomer.name}</p>
             <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
           </div>
-        </div>
+        </button>
         <button
           onClick={onDeselect}
-          className={`p-2 ${colors.hover} rounded-lg transition-colors`}
-          title="Đổi khách hàng"
+          className={`flex items-center gap-1.5 px-3 py-1.5 ${colors.hover} rounded-lg transition-colors text-sm ${colors.text}`}
         >
-          <X size={18} className="text-gray-500" />
+          <Pencil size={14} />
+          <span>Đổi khách</span>
         </button>
       </div>
     );
@@ -73,15 +83,19 @@ export const CustomerSelector = ({
 
       {selectedCustomer ? (
         <div className={`flex items-center justify-between p-3 ${colors.bg} rounded-xl mt-3`}>
-          <div>
-            <p className="font-medium text-gray-800">{selectedCustomer.name}</p>
-            <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
-          </div>
           <button
             onClick={onDeselect}
-            className={`p-2 ${colors.hover} rounded-lg transition-colors`}
+            className="text-left hover:opacity-80 transition-opacity"
           >
-            <X size={18} />
+            <p className="font-medium text-gray-800">{selectedCustomer.name}</p>
+            <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+          </button>
+          <button
+            onClick={onDeselect}
+            className={`flex items-center gap-1.5 px-3 py-1.5 ${colors.hover} rounded-lg transition-colors text-sm ${colors.text}`}
+          >
+            <Pencil size={14} />
+            <span>Đổi khách</span>
           </button>
         </div>
       ) : (

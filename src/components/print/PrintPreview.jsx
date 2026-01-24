@@ -132,13 +132,23 @@ export const PrintPreview = ({ order, customer, onClose, onPrint, onPrintOnly })
                 </thead>
                 <tbody>
                   {items.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-200">
-                      <td className="py-2">{index + 1}</td>
-                      <td className="py-2">{item.product_name || item.product?.name}</td>
-                      <td className="text-right py-2">{item.quantity}</td>
-                      <td className="text-right py-2">{formatCurrency(item.unit_price)}</td>
-                      <td className="text-right py-2 font-medium">{formatCurrency(item.subtotal)}</td>
-                    </tr>
+                    <React.Fragment key={index}>
+                      <tr className={item.note ? '' : 'border-b border-gray-200'}>
+                        <td className="py-2">{index + 1}</td>
+                        <td className="py-2">{item.product_name || item.product?.name}</td>
+                        <td className="text-right py-2">{item.quantity}</td>
+                        <td className="text-right py-2">{formatCurrency(item.unit_price)}</td>
+                        <td className="text-right py-2 font-medium">{formatCurrency(item.subtotal)}</td>
+                      </tr>
+                      {item.note && (
+                        <tr className="border-b border-gray-200">
+                          <td></td>
+                          <td colSpan="4" className="pb-2 text-xs text-gray-600 italic">
+                            Ghi chú: {item.note}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>

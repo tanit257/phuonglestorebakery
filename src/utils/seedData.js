@@ -160,8 +160,10 @@ export const generateSeedData = () => {
   ];
 
   // Generate orders across multiple months
+  // Thêm nhiều đơn hàng thực tế cho Anh Quân (cust-1) và Anh Tuấn (cust-3)
   const orders = [
-    // Month 5 ago - Anh Quân
+    // ============ Month 5 ago ============
+    // Anh Quân - 5 đơn
     {
       id: 'order-1',
       customer_id: 'cust-1',
@@ -171,7 +173,7 @@ export const generateSeedData = () => {
       ],
       total: 365000,
       paid: true,
-      created_at: getDateMonthsAgo(5, 5)
+      created_at: getDateMonthsAgo(5, 2)
     },
     {
       id: 'order-2',
@@ -181,35 +183,257 @@ export const generateSeedData = () => {
       ],
       total: 450000,
       paid: false,
-      created_at: getDateMonthsAgo(5, 20)
+      created_at: getDateMonthsAgo(5, 8)
     },
-
-    // Month 4 ago - Chị Hương
     {
       id: 'order-3',
-      customer_id: 'cust-2',
+      customer_id: 'cust-1',
       items: [
-        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 2, unit_price: 200000, subtotal: 400000 },
-        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 10, unit_price: 35000, subtotal: 350000 }
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 20, unit_price: 35000, subtotal: 700000 },
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 10, unit_price: 30000, subtotal: 300000 }
       ],
-      total: 750000,
-      paid: false,
-      created_at: getDateMonthsAgo(4, 8)
+      total: 1000000,
+      paid: true,
+      created_at: getDateMonthsAgo(5, 15)
     },
     {
       id: 'order-4',
-      customer_id: 'cust-2',
+      customer_id: 'cust-1',
       items: [
-        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 5, unit_price: 45000, subtotal: 225000 }
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 2, unit_price: 200000, subtotal: 400000 }
       ],
-      total: 225000,
-      paid: true,
-      created_at: getDateMonthsAgo(4, 25)
+      total: 400000,
+      paid: false,
+      created_at: getDateMonthsAgo(5, 20)
     },
-
-    // Month 3 ago - Anh Tuấn
     {
       id: 'order-5',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 3, unit_price: 180000, subtotal: 540000 }
+      ],
+      total: 540000,
+      paid: true,
+      created_at: getDateMonthsAgo(5, 26)
+    },
+    // Anh Tuấn - 4 đơn
+    {
+      id: 'order-6',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 8, unit_price: 25000, subtotal: 200000 },
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 5, unit_price: 45000, subtotal: 225000 }
+      ],
+      total: 425000,
+      paid: true,
+      created_at: getDateMonthsAgo(5, 5)
+    },
+    {
+      id: 'order-7',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 6, unit_price: 75000, subtotal: 450000 }
+      ],
+      total: 450000,
+      paid: false,
+      created_at: getDateMonthsAgo(5, 12)
+    },
+    {
+      id: 'order-8',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 4, unit_price: 120000, subtotal: 480000 },
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 6, unit_price: 55000, subtotal: 330000 }
+      ],
+      total: 810000,
+      paid: true,
+      created_at: getDateMonthsAgo(5, 22)
+    },
+    {
+      id: 'order-9',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 15, unit_price: 35000, subtotal: 525000 }
+      ],
+      total: 525000,
+      paid: false,
+      created_at: getDateMonthsAgo(5, 28)
+    },
+
+    // ============ Month 4 ago ============
+    // Anh Quân - 6 đơn
+    {
+      id: 'order-10',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 12, unit_price: 30000, subtotal: 360000 }
+      ],
+      total: 360000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 3)
+    },
+    {
+      id: 'order-11',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 8, unit_price: 45000, subtotal: 360000 },
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 10, unit_price: 25000, subtotal: 250000 }
+      ],
+      total: 610000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 7)
+    },
+    {
+      id: 'order-12',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 5, unit_price: 150000, subtotal: 750000 }
+      ],
+      total: 750000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 12)
+    },
+    {
+      id: 'order-13',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 10, unit_price: 75000, subtotal: 750000 }
+      ],
+      total: 750000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 18)
+    },
+    {
+      id: 'order-14',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 25, unit_price: 35000, subtotal: 875000 },
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 3, unit_price: 120000, subtotal: 360000 }
+      ],
+      total: 1235000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 22)
+    },
+    {
+      id: 'order-15',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 4, unit_price: 180000, subtotal: 720000 }
+      ],
+      total: 720000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 28)
+    },
+    // Anh Tuấn - 5 đơn
+    {
+      id: 'order-16',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 3, unit_price: 200000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 4)
+    },
+    {
+      id: 'order-17',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 15, unit_price: 25000, subtotal: 375000 },
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 8, unit_price: 30000, subtotal: 240000 }
+      ],
+      total: 615000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 10)
+    },
+    {
+      id: 'order-18',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 4, unit_price: 150000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 16)
+    },
+    {
+      id: 'order-19',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 10, unit_price: 55000, subtotal: 550000 }
+      ],
+      total: 550000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 23)
+    },
+    {
+      id: 'order-20',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 20, unit_price: 35000, subtotal: 700000 },
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 6, unit_price: 45000, subtotal: 270000 }
+      ],
+      total: 970000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 29)
+    },
+
+    // ============ Month 3 ago ============
+    // Anh Quân - 5 đơn
+    {
+      id: 'order-21',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 5, unit_price: 120000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 2)
+    },
+    {
+      id: 'order-22',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 20, unit_price: 25000, subtotal: 500000 },
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 2, unit_price: 200000, subtotal: 400000 }
+      ],
+      total: 900000,
+      paid: false,
+      created_at: getDateMonthsAgo(3, 8)
+    },
+    {
+      id: 'order-23',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 8, unit_price: 75000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 15)
+    },
+    {
+      id: 'order-24',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 6, unit_price: 150000, subtotal: 900000 }
+      ],
+      total: 900000,
+      paid: false,
+      created_at: getDateMonthsAgo(3, 21)
+    },
+    {
+      id: 'order-25',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 30, unit_price: 35000, subtotal: 1050000 }
+      ],
+      total: 1050000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 27)
+    },
+    // Anh Tuấn - 6 đơn
+    {
+      id: 'order-26',
       customer_id: 'cust-3',
       items: [
         { product_id: 'prod-8', product_name: 'Gà', quantity: 4, unit_price: 180000, subtotal: 720000 },
@@ -217,68 +441,373 @@ export const generateSeedData = () => {
       ],
       total: 870000,
       paid: false,
-      created_at: getDateMonthsAgo(3, 10)
+      created_at: getDateMonthsAgo(3, 3)
+    },
+    {
+      id: 'order-27',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 3, unit_price: 120000, subtotal: 360000 }
+      ],
+      total: 360000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 7)
+    },
+    {
+      id: 'order-28',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 10, unit_price: 45000, subtotal: 450000 },
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 12, unit_price: 25000, subtotal: 300000 }
+      ],
+      total: 750000,
+      paid: false,
+      created_at: getDateMonthsAgo(3, 13)
+    },
+    {
+      id: 'order-29',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 4, unit_price: 200000, subtotal: 800000 }
+      ],
+      total: 800000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 18)
+    },
+    {
+      id: 'order-30',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 5, unit_price: 75000, subtotal: 375000 }
+      ],
+      total: 375000,
+      paid: false,
+      created_at: getDateMonthsAgo(3, 23)
+    },
+    {
+      id: 'order-31',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 3, unit_price: 150000, subtotal: 450000 },
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 5, unit_price: 55000, subtotal: 275000 }
+      ],
+      total: 725000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 28)
     },
 
-    // Month 2 ago - Chị Linh
+    // ============ Month 2 ago ============
+    // Anh Quân - 6 đơn
     {
-      id: 'order-6',
-      customer_id: 'cust-4',
+      id: 'order-32',
+      customer_id: 'cust-1',
       items: [
-        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 6, unit_price: 75000, subtotal: 450000 },
-        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 8, unit_price: 25000, subtotal: 200000 }
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 15, unit_price: 30000, subtotal: 450000 }
       ],
-      total: 650000,
+      total: 450000,
+      paid: true,
+      created_at: getDateMonthsAgo(2, 2)
+    },
+    {
+      id: 'order-33',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 5, unit_price: 180000, subtotal: 900000 }
+      ],
+      total: 900000,
       paid: false,
+      created_at: getDateMonthsAgo(2, 6)
+    },
+    {
+      id: 'order-34',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 18, unit_price: 35000, subtotal: 630000 },
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 7, unit_price: 45000, subtotal: 315000 }
+      ],
+      total: 945000,
+      paid: true,
       created_at: getDateMonthsAgo(2, 12)
     },
     {
-      id: 'order-7',
-      customer_id: 'cust-4',
+      id: 'order-35',
+      customer_id: 'cust-1',
       items: [
-        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 3, unit_price: 55000, subtotal: 165000 }
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 4, unit_price: 120000, subtotal: 480000 }
       ],
-      total: 165000,
+      total: 480000,
       paid: false,
+      created_at: getDateMonthsAgo(2, 17)
+    },
+    {
+      id: 'order-36',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 8, unit_price: 55000, subtotal: 440000 }
+      ],
+      total: 440000,
+      paid: true,
       created_at: getDateMonthsAgo(2, 22)
     },
-
-    // Month 1 ago - Anh Minh
     {
-      id: 'order-8',
-      customer_id: 'cust-5',
+      id: 'order-37',
+      customer_id: 'cust-1',
       items: [
-        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 5, unit_price: 120000, subtotal: 600000 },
-        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 4, unit_price: 150000, subtotal: 600000 }
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 3, unit_price: 200000, subtotal: 600000 },
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 2, unit_price: 150000, subtotal: 300000 }
       ],
-      total: 1200000,
+      total: 900000,
+      paid: false,
+      created_at: getDateMonthsAgo(2, 28)
+    },
+    // Anh Tuấn - 5 đơn
+    {
+      id: 'order-38',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 25, unit_price: 25000, subtotal: 625000 }
+      ],
+      total: 625000,
       paid: true,
-      created_at: getDateMonthsAgo(1, 5)
+      created_at: getDateMonthsAgo(2, 4)
     },
     {
-      id: 'order-9',
-      customer_id: 'cust-5',
+      id: 'order-39',
+      customer_id: 'cust-3',
       items: [
-        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 3, unit_price: 200000, subtotal: 600000 }
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 22, unit_price: 35000, subtotal: 770000 },
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 10, unit_price: 30000, subtotal: 300000 }
       ],
-      total: 600000,
+      total: 1070000,
+      paid: false,
+      created_at: getDateMonthsAgo(2, 10)
+    },
+    {
+      id: 'order-40',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 7, unit_price: 75000, subtotal: 525000 }
+      ],
+      total: 525000,
+      paid: true,
+      created_at: getDateMonthsAgo(2, 15)
+    },
+    {
+      id: 'order-41',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 3, unit_price: 180000, subtotal: 540000 }
+      ],
+      total: 540000,
+      paid: false,
+      created_at: getDateMonthsAgo(2, 21)
+    },
+    {
+      id: 'order-42',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 5, unit_price: 120000, subtotal: 600000 },
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 4, unit_price: 45000, subtotal: 180000 }
+      ],
+      total: 780000,
+      paid: true,
+      created_at: getDateMonthsAgo(2, 27)
+    },
+
+    // ============ Month 1 ago ============
+    // Anh Quân - 5 đơn
+    {
+      id: 'order-43',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 18, unit_price: 25000, subtotal: 450000 }
+      ],
+      total: 450000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 3)
+    },
+    {
+      id: 'order-44',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 4, unit_price: 150000, subtotal: 600000 },
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 3, unit_price: 120000, subtotal: 360000 }
+      ],
+      total: 960000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 9)
+    },
+    {
+      id: 'order-45',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 12, unit_price: 75000, subtotal: 900000 }
+      ],
+      total: 900000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 15)
+    },
+    {
+      id: 'order-46',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 28, unit_price: 35000, subtotal: 980000 }
+      ],
+      total: 980000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 21)
+    },
+    {
+      id: 'order-47',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 6, unit_price: 180000, subtotal: 1080000 }
+      ],
+      total: 1080000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 27)
+    },
+    // Anh Tuấn - 6 đơn
+    {
+      id: 'order-48',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 5, unit_price: 200000, subtotal: 1000000 }
+      ],
+      total: 1000000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 2)
+    },
+    {
+      id: 'order-49',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 12, unit_price: 30000, subtotal: 360000 },
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 15, unit_price: 25000, subtotal: 375000 }
+      ],
+      total: 735000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 7)
+    },
+    {
+      id: 'order-50',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 12, unit_price: 55000, subtotal: 660000 }
+      ],
+      total: 660000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 12)
+    },
+    {
+      id: 'order-51',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 5, unit_price: 150000, subtotal: 750000 }
+      ],
+      total: 750000,
       paid: false,
       created_at: getDateMonthsAgo(1, 18)
     },
-
-    // Current month - Multiple customers
     {
-      id: 'order-10',
+      id: 'order-52',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 25, unit_price: 35000, subtotal: 875000 },
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 6, unit_price: 75000, subtotal: 450000 }
+      ],
+      total: 1325000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 23)
+    },
+    {
+      id: 'order-53',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 8, unit_price: 45000, subtotal: 360000 }
+      ],
+      total: 360000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 28)
+    },
+
+    // ============ Current month ============
+    // Anh Quân - 7 đơn
+    {
+      id: 'order-54',
       customer_id: 'cust-1',
       items: [
         { product_id: 'prod-6', product_name: 'Bột mì', quantity: 15, unit_price: 35000, subtotal: 525000 }
       ],
       total: 525000,
       paid: false,
-      created_at: getDateMonthsAgo(0, 3)
+      created_at: getDateMonthsAgo(0, 2)
     },
     {
-      id: 'order-11',
+      id: 'order-55',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 6, unit_price: 120000, subtotal: 720000 }
+      ],
+      total: 720000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 5)
+    },
+    {
+      id: 'order-56',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 22, unit_price: 25000, subtotal: 550000 },
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 10, unit_price: 30000, subtotal: 300000 }
+      ],
+      total: 850000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 8)
+    },
+    {
+      id: 'order-57',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 4, unit_price: 200000, subtotal: 800000 }
+      ],
+      total: 800000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 11)
+    },
+    {
+      id: 'order-58',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 5, unit_price: 180000, subtotal: 900000 }
+      ],
+      total: 900000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 14)
+    },
+    {
+      id: 'order-59',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 3, unit_price: 150000, subtotal: 450000 },
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 5, unit_price: 75000, subtotal: 375000 }
+      ],
+      total: 825000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 17)
+    },
+    {
+      id: 'order-60',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 10, unit_price: 45000, subtotal: 450000 }
+      ],
+      total: 450000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 20)
+    },
+    // Anh Tuấn - 8 đơn
+    {
+      id: 'order-61',
       customer_id: 'cust-3',
       items: [
         { product_id: 'prod-8', product_name: 'Gà', quantity: 2, unit_price: 180000, subtotal: 360000 },
@@ -286,24 +815,87 @@ export const generateSeedData = () => {
       ],
       total: 660000,
       paid: false,
+      created_at: getDateMonthsAgo(0, 1)
+    },
+    {
+      id: 'order-62',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 20, unit_price: 25000, subtotal: 500000 }
+      ],
+      total: 500000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 4)
+    },
+    {
+      id: 'order-63',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 18, unit_price: 35000, subtotal: 630000 }
+      ],
+      total: 630000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 7)
+    },
+    {
+      id: 'order-64',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 4, unit_price: 120000, subtotal: 480000 },
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 2, unit_price: 200000, subtotal: 400000 }
+      ],
+      total: 880000,
+      paid: true,
       created_at: getDateMonthsAgo(0, 10)
     },
     {
-      id: 'order-12',
-      customer_id: 'cust-2',
+      id: 'order-65',
+      customer_id: 'cust-3',
       items: [
-        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 10, unit_price: 30000, subtotal: 300000 },
-        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 8, unit_price: 45000, subtotal: 360000 }
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 14, unit_price: 30000, subtotal: 420000 }
       ],
-      total: 660000,
+      total: 420000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 13)
+    },
+    {
+      id: 'order-66',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 9, unit_price: 55000, subtotal: 495000 }
+      ],
+      total: 495000,
       paid: true,
       created_at: getDateMonthsAgo(0, 15)
+    },
+    {
+      id: 'order-67',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 4, unit_price: 150000, subtotal: 600000 },
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 5, unit_price: 45000, subtotal: 225000 }
+      ],
+      total: 825000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 18)
+    },
+    {
+      id: 'order-68',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 8, unit_price: 75000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 21)
     }
   ];
 
   // Invoice orders (using invoice_price) - Đơn hàng hóa đơn cho sổ sách thuế
+  // Thêm nhiều đơn hàng để test filter theo tháng và khách hàng
   const invoiceOrders = [
-    // Month 5 ago - Anh Quân
+    // ============ Month 5 ago ============
+    // Anh Quân - 3 đơn
     {
       id: 'inv-order-1',
       customer_id: 'cust-1',
@@ -323,38 +915,169 @@ export const generateSeedData = () => {
       ],
       total: 360000,
       paid: false,
-      created_at: getDateMonthsAgo(5, 20)
+      created_at: getDateMonthsAgo(5, 12)
     },
-
-    // Month 4 ago - Chị Hương
     {
       id: 'inv-order-3',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 20, unit_price: 28000, subtotal: 560000 }
+      ],
+      total: 560000,
+      paid: true,
+      created_at: getDateMonthsAgo(5, 20)
+    },
+    // Chị Hương - 2 đơn
+    {
+      id: 'inv-order-4',
       customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 8, unit_price: 24000, subtotal: 192000 }
+      ],
+      total: 192000,
+      paid: true,
+      created_at: getDateMonthsAgo(5, 8)
+    },
+    {
+      id: 'inv-order-5',
+      customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 6, unit_price: 36000, subtotal: 216000 },
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 4, unit_price: 44000, subtotal: 176000 }
+      ],
+      total: 392000,
+      paid: false,
+      created_at: getDateMonthsAgo(5, 25)
+    },
+
+    // ============ Month 4 ago ============
+    // Anh Tuấn - 3 đơn
+    {
+      id: 'inv-order-6',
+      customer_id: 'cust-3',
       items: [
         { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 2, unit_price: 160000, subtotal: 320000 },
         { product_id: 'prod-6', product_name: 'Bột mì', quantity: 10, unit_price: 28000, subtotal: 280000 }
       ],
       total: 600000,
       paid: false,
-      created_at: getDateMonthsAgo(4, 8)
+      created_at: getDateMonthsAgo(4, 3)
+    },
+    {
+      id: 'inv-order-7',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 5, unit_price: 144000, subtotal: 720000 }
+      ],
+      total: 720000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 15)
+    },
+    {
+      id: 'inv-order-8',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 8, unit_price: 60000, subtotal: 480000 }
+      ],
+      total: 480000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 28)
+    },
+    // Chị Linh - 2 đơn
+    {
+      id: 'inv-order-9',
+      customer_id: 'cust-4',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 15, unit_price: 20000, subtotal: 300000 },
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 10, unit_price: 24000, subtotal: 240000 }
+      ],
+      total: 540000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 10)
+    },
+    {
+      id: 'inv-order-10',
+      customer_id: 'cust-4',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 3, unit_price: 96000, subtotal: 288000 }
+      ],
+      total: 288000,
+      paid: false,
+      created_at: getDateMonthsAgo(4, 22)
+    },
+    // Anh Minh - 1 đơn
+    {
+      id: 'inv-order-11',
+      customer_id: 'cust-5',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 6, unit_price: 120000, subtotal: 720000 }
+      ],
+      total: 720000,
+      paid: true,
+      created_at: getDateMonthsAgo(4, 18)
     },
 
-    // Month 3 ago - Anh Tuấn
+    // ============ Month 3 ago ============
+    // Anh Quân - 2 đơn
     {
-      id: 'inv-order-4',
-      customer_id: 'cust-3',
+      id: 'inv-order-12',
+      customer_id: 'cust-1',
       items: [
         { product_id: 'prod-8', product_name: 'Gà', quantity: 4, unit_price: 144000, subtotal: 576000 },
         { product_id: 'prod-2', product_name: 'Đường đen', quantity: 5, unit_price: 24000, subtotal: 120000 }
       ],
       total: 696000,
       paid: false,
+      created_at: getDateMonthsAgo(3, 5)
+    },
+    {
+      id: 'inv-order-13',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 3, unit_price: 160000, subtotal: 480000 }
+      ],
+      total: 480000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 18)
+    },
+    // Chị Hương - 2 đơn
+    {
+      id: 'inv-order-14',
+      customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 25, unit_price: 28000, subtotal: 700000 }
+      ],
+      total: 700000,
+      paid: false,
       created_at: getDateMonthsAgo(3, 10)
     },
-
-    // Month 2 ago - Chị Linh
     {
-      id: 'inv-order-5',
+      id: 'inv-order-15',
+      customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 5, unit_price: 60000, subtotal: 300000 },
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 6, unit_price: 44000, subtotal: 264000 }
+      ],
+      total: 564000,
+      paid: true,
+      created_at: getDateMonthsAgo(3, 25)
+    },
+    // Anh Tuấn - 1 đơn
+    {
+      id: 'inv-order-16',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 10, unit_price: 36000, subtotal: 360000 }
+      ],
+      total: 360000,
+      paid: false,
+      created_at: getDateMonthsAgo(3, 20)
+    },
+
+    // ============ Month 2 ago ============
+    // Chị Linh - 3 đơn
+    {
+      id: 'inv-order-17',
       customer_id: 'cust-4',
       items: [
         { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 6, unit_price: 60000, subtotal: 360000 },
@@ -362,12 +1085,67 @@ export const generateSeedData = () => {
       ],
       total: 520000,
       paid: false,
+      created_at: getDateMonthsAgo(2, 5)
+    },
+    {
+      id: 'inv-order-18',
+      customer_id: 'cust-4',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 4, unit_price: 120000, subtotal: 480000 }
+      ],
+      total: 480000,
+      paid: true,
       created_at: getDateMonthsAgo(2, 12)
     },
-
-    // Month 1 ago - Anh Minh
     {
-      id: 'inv-order-6',
+      id: 'inv-order-19',
+      customer_id: 'cust-4',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 3, unit_price: 144000, subtotal: 432000 }
+      ],
+      total: 432000,
+      paid: false,
+      created_at: getDateMonthsAgo(2, 22)
+    },
+    // Anh Minh - 2 đơn
+    {
+      id: 'inv-order-20',
+      customer_id: 'cust-5',
+      items: [
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 4, unit_price: 96000, subtotal: 384000 },
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 2, unit_price: 160000, subtotal: 320000 }
+      ],
+      total: 704000,
+      paid: true,
+      created_at: getDateMonthsAgo(2, 8)
+    },
+    {
+      id: 'inv-order-21',
+      customer_id: 'cust-5',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 30, unit_price: 28000, subtotal: 840000 }
+      ],
+      total: 840000,
+      paid: false,
+      created_at: getDateMonthsAgo(2, 18)
+    },
+    // Anh Quân - 1 đơn
+    {
+      id: 'inv-order-22',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 12, unit_price: 24000, subtotal: 288000 },
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 8, unit_price: 36000, subtotal: 288000 }
+      ],
+      total: 576000,
+      paid: true,
+      created_at: getDateMonthsAgo(2, 28)
+    },
+
+    // ============ Month 1 ago ============
+    // Anh Minh - 2 đơn
+    {
+      id: 'inv-order-23',
       customer_id: 'cust-5',
       items: [
         { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 5, unit_price: 96000, subtotal: 480000 },
@@ -377,10 +1155,64 @@ export const generateSeedData = () => {
       paid: true,
       created_at: getDateMonthsAgo(1, 5)
     },
-
-    // Current month - Multiple customers
     {
-      id: 'inv-order-7',
+      id: 'inv-order-24',
+      customer_id: 'cust-5',
+      items: [
+        { product_id: 'prod-9', product_name: 'Phô mai cream', quantity: 10, unit_price: 60000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 15)
+    },
+    // Chị Hương - 2 đơn
+    {
+      id: 'inv-order-25',
+      customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 20, unit_price: 20000, subtotal: 400000 }
+      ],
+      total: 400000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 8)
+    },
+    {
+      id: 'inv-order-26',
+      customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-8', product_name: 'Gà', quantity: 6, unit_price: 144000, subtotal: 864000 }
+      ],
+      total: 864000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 22)
+    },
+    // Anh Tuấn - 2 đơn
+    {
+      id: 'inv-order-27',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 8, unit_price: 44000, subtotal: 352000 },
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 15, unit_price: 28000, subtotal: 420000 }
+      ],
+      total: 772000,
+      paid: true,
+      created_at: getDateMonthsAgo(1, 12)
+    },
+    {
+      id: 'inv-order-28',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 4, unit_price: 160000, subtotal: 640000 }
+      ],
+      total: 640000,
+      paid: false,
+      created_at: getDateMonthsAgo(1, 28)
+    },
+
+    // ============ Current month ============
+    // Anh Quân - 3 đơn
+    {
+      id: 'inv-order-29',
       customer_id: 'cust-1',
       items: [
         { product_id: 'prod-6', product_name: 'Bột mì', quantity: 15, unit_price: 28000, subtotal: 420000 }
@@ -390,7 +1222,29 @@ export const generateSeedData = () => {
       created_at: getDateMonthsAgo(0, 3)
     },
     {
-      id: 'inv-order-8',
+      id: 'inv-order-30',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 10, unit_price: 20000, subtotal: 200000 },
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 3, unit_price: 96000, subtotal: 288000 }
+      ],
+      total: 488000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 8)
+    },
+    {
+      id: 'inv-order-31',
+      customer_id: 'cust-1',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 5, unit_price: 120000, subtotal: 600000 }
+      ],
+      total: 600000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 15)
+    },
+    // Anh Tuấn - 2 đơn
+    {
+      id: 'inv-order-32',
       customer_id: 'cust-3',
       items: [
         { product_id: 'prod-8', product_name: 'Gà', quantity: 2, unit_price: 144000, subtotal: 288000 },
@@ -398,7 +1252,63 @@ export const generateSeedData = () => {
       ],
       total: 528000,
       paid: false,
+      created_at: getDateMonthsAgo(0, 5)
+    },
+    {
+      id: 'inv-order-33',
+      customer_id: 'cust-3',
+      items: [
+        { product_id: 'prod-2', product_name: 'Đường đen', quantity: 15, unit_price: 24000, subtotal: 360000 }
+      ],
+      total: 360000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 12)
+    },
+    // Chị Linh - 2 đơn
+    {
+      id: 'inv-order-34',
+      customer_id: 'cust-4',
+      items: [
+        { product_id: 'prod-7', product_name: 'Bột Khai', quantity: 12, unit_price: 36000, subtotal: 432000 }
+      ],
+      total: 432000,
+      paid: false,
+      created_at: getDateMonthsAgo(0, 7)
+    },
+    {
+      id: 'inv-order-35',
+      customer_id: 'cust-4',
+      items: [
+        { product_id: 'prod-5', product_name: 'Hạt hạnh nhân', quantity: 3, unit_price: 160000, subtotal: 480000 },
+        { product_id: 'prod-10', product_name: 'Ba Hưng', quantity: 5, unit_price: 44000, subtotal: 220000 }
+      ],
+      total: 700000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 18)
+    },
+    // Anh Minh - 1 đơn
+    {
+      id: 'inv-order-36',
+      customer_id: 'cust-5',
+      items: [
+        { product_id: 'prod-6', product_name: 'Bột mì', quantity: 20, unit_price: 28000, subtotal: 560000 },
+        { product_id: 'prod-1', product_name: 'Đường trắng', quantity: 12, unit_price: 20000, subtotal: 240000 }
+      ],
+      total: 800000,
+      paid: false,
       created_at: getDateMonthsAgo(0, 10)
+    },
+    // Chị Hương - 1 đơn
+    {
+      id: 'inv-order-37',
+      customer_id: 'cust-2',
+      items: [
+        { product_id: 'prod-4', product_name: 'Socola đen', quantity: 3, unit_price: 120000, subtotal: 360000 },
+        { product_id: 'prod-3', product_name: 'Bột cacao', quantity: 2, unit_price: 96000, subtotal: 192000 }
+      ],
+      total: 552000,
+      paid: true,
+      created_at: getDateMonthsAgo(0, 20)
     }
   ];
 

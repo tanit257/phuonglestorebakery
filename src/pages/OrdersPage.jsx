@@ -1,15 +1,79 @@
 import React, { useState } from 'react';
-import { Package, Check, Trash2, ChevronDown, ChevronUp, Edit, X, Printer, Eye, Copy, FileText } from 'lucide-react';
+import { Package, Trash2, ChevronDown, ChevronUp, Edit, X, Printer, Eye, Copy, FileText, MoreVertical, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
 import { useMode } from '../contexts/ModeContext';
 import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { formatCurrency, formatDate, formatDateTime } from '../utils/formatters';
 import { PrintPreview } from '../components/print/PrintPreview';
 import { CUSTOMER_TYPE_LABELS } from '../utils/constants';
+
+const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handlePaymentToggle = () => {
+    if (order.paid) {
+      onMarkAsUnpaid(order.id);
+    } else {
+      onMarkAsPaid(order.id);
+    }
+    setIsOpen(false);
+  };
+
+  const handleDelete = () => {
+    onDelete(order.id);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+        aria-label="Thêm hành động"
+      >
+        <MoreVertical size={18} />
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
+            <button
+              onClick={handlePaymentToggle}
+              className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+            >
+              {order.paid ? (
+                <>
+                  <X size={16} className="text-rose-500" />
+                  <span>Đánh dấu chưa thanh toán</span>
+                </>
+              ) : (
+                <>
+                  <DollarSign size={16} className="text-emerald-500" />
+                  <span>Đánh dấu đã thanh toán</span>
+                </>
+              )}
+            </button>
+            <div className="border-t border-gray-100 my-1" />
+            <button
+              onClick={handleDelete}
+              className="w-full px-4 py-2.5 text-left text-sm hover:bg-rose-50 text-rose-600 flex items-center gap-3"
+            >
+              <Trash2 size={16} />
+              <span>Xóa đơn hàng</span>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPrint, onView, customers, isInvoiceMode }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -17,8 +81,19 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
   const items = order.order_items || order.items || [];
   const customer = order.customer || customers.find(c => c.id === order.customer_id);
 
+  const handleCardClick = (e) => {
+    // Không toggle nếu click vào các button actions
+    if (e.target.closest('button') || e.target.closest('.actions-area')) {
+      return;
+    }
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <Card className={`overflow-hidden ${isInvoiceMode ? 'border-violet-200' : ''}`}>
+    <Card
+      className={`overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${isInvoiceMode ? 'border-violet-200' : ''}`}
+      onClick={handleCardClick}
+    >
       {/* Mode indicator */}
       <div className={`
         -mx-4 -mt-4 mb-3 px-4 py-1.5 text-xs font-medium flex items-center gap-1.5
@@ -33,7 +108,7 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
 
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex-1">
           <p className="font-semibold text-gray-800">
             {customer?.name || order.customer_name || 'Khách hàng'}
           </p>
@@ -49,14 +124,11 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
         </span>
       </div>
 
-      {/* Toggle Items */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between py-3 text-sm text-gray-500 hover:text-gray-700"
-      >
+      {/* Toggle Items Indicator */}
+      <div className="flex items-center justify-between py-3 text-sm text-gray-500">
         <span>{items.length} sản phẩm</span>
         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-      </button>
+      </div>
 
       {/* Items List */}
       {isExpanded && (
@@ -66,9 +138,14 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
               key={idx}
               className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded-lg"
             >
-              <span className="text-gray-600">
-                {item.product?.name || item.product_name} x {item.quantity}
-              </span>
+              <div className="flex-1">
+                <span className="text-gray-700">
+                  {item.product?.name || item.product_name} x {item.quantity}
+                </span>
+                <span className="text-gray-400 text-xs ml-2">
+                  @ {formatCurrency(item.unit_price)}
+                </span>
+              </div>
               <span className="text-gray-800 font-medium">
                 {formatCurrency(item.subtotal)}
               </span>
@@ -86,7 +163,7 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 actions-area" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => onView(order)}
             className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -108,25 +185,6 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
           >
             <Edit size={18} aria-hidden="true" />
           </button>
-          {!order.paid ? (
-            <Button
-              size="sm"
-              variant="success"
-              icon={Check}
-              onClick={() => onMarkAsPaid(order.id)}
-            >
-              Đã thanh toán
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={X}
-              onClick={() => onMarkAsUnpaid(order.id)}
-            >
-              Chưa thanh toán
-            </Button>
-          )}
           <button
             onClick={() => onDelete(order.id)}
             className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
@@ -134,6 +192,12 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
           >
             <Trash2 size={18} aria-hidden="true" />
           </button>
+          <MoreActionsMenu
+            order={order}
+            onMarkAsPaid={onMarkAsPaid}
+            onMarkAsUnpaid={onMarkAsUnpaid}
+            onDelete={onDelete}
+          />
         </div>
       </div>
 
@@ -176,14 +240,12 @@ const OrdersPage = () => {
     setSelectedCustomer: setStoreCustomer,
     clearCart,
     addToCart,
-    updateCartQuantity,
     updateCartItemDiscount,
     updateCartItemPrice,
     // Invoice cart actions
     setInvoiceSelectedCustomer,
     clearInvoiceCart,
     addToInvoiceCart,
-    updateInvoiceCartQuantity,
     updateInvoiceCartItemPrice,
   } = useStore();
 
@@ -321,39 +383,35 @@ const OrdersPage = () => {
   const handleCopyOrder = (order) => {
     if (isInvoiceMode) {
       clearInvoiceCart();
-      const customer = order.customer || customers.find(c => c.id === order.customer_id);
+      const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
       if (customer) {
         setInvoiceSelectedCustomer(customer);
       }
       const items = order.order_items || order.items || [];
       items.forEach(item => {
-        const product = item.product || products.find(p => p.id === item.product_id);
+        const product = item.product || products.find(p => String(p.id) === String(item.product_id));
         if (product) {
           addToInvoiceCart(product, item.quantity);
-          if (item.unit_price !== (product.invoice_price || product.price)) {
-            updateInvoiceCartItemPrice(product.id, item.unit_price);
-          }
-          updateInvoiceCartQuantity(product.id, item.quantity);
+          // Luôn cập nhật giá tùy chỉnh từ đơn hàng gốc
+          updateInvoiceCartItemPrice(product.id, item.unit_price);
         }
       });
     } else {
       clearCart();
-      const customer = order.customer || customers.find(c => c.id === order.customer_id);
+      const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
       if (customer) {
         setStoreCustomer(customer);
       }
       const items = order.order_items || order.items || [];
       items.forEach(item => {
-        const product = item.product || products.find(p => p.id === item.product_id);
+        const product = item.product || products.find(p => String(p.id) === String(item.product_id));
         if (product) {
           addToCart(product, item.quantity);
-          if (item.unit_price !== product.price) {
-            updateCartItemPrice(product.id, item.unit_price);
-          }
+          // Luôn cập nhật giá tùy chỉnh từ đơn hàng gốc
+          updateCartItemPrice(product.id, item.unit_price);
           if (item.discount && item.discount > 0) {
             updateCartItemDiscount(product.id, item.discount, item.discountType || 'percent');
           }
-          updateCartQuantity(product.id, item.quantity);
         }
       });
     }
@@ -609,11 +667,11 @@ const OrdersPage = () => {
               <div className="mb-6 p-4 bg-violet-50 rounded-xl">
                 <h4 className="font-semibold text-gray-900 mb-2">Khách hàng</h4>
                 <p className="text-gray-700">
-                  {viewingOrder.customer?.name || customers.find(c => c.id === viewingOrder.customer_id)?.name || 'N/A'}
+                  {viewingOrder.customer?.name || viewingOrder.customer_name || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.name || 'N/A'}
                 </p>
-                {viewingOrder.customer?.phone && (
+                {(viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone) && (
                   <p className="text-sm text-gray-600 mt-1">
-                    ☎ {viewingOrder.customer.phone}
+                    ☎ {viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone}
                   </p>
                 )}
               </div>

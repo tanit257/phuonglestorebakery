@@ -20,9 +20,17 @@ export const ProductSelector = ({
   const colorClasses = {
     violet: 'bg-violet-500 hover:bg-violet-600',
     emerald: 'bg-emerald-500 hover:bg-emerald-600',
+    rose: 'bg-rose-500 hover:bg-rose-600',
   };
 
   const buttonColor = colorClasses[plusButtonColor] || colorClasses.violet;
+
+  const iconColorMap = {
+    violet: 'text-violet-500',
+    emerald: 'text-emerald-500',
+    rose: 'text-rose-500',
+  };
+  const iconColor = iconColorMap[plusButtonColor] || iconColorMap.violet;
 
   return (
     <>
@@ -49,7 +57,7 @@ export const ProductSelector = ({
                 {showStock && ` • Tồn kho: ${product.stock}`}
               </p>
             </div>
-            <Plus size={18} className={`${buttonColor.includes('violet') ? 'text-violet-500' : 'text-emerald-500'} flex-shrink-0`} />
+            <Plus size={18} className={`${iconColor} flex-shrink-0`} />
           </button>
         ))}
 

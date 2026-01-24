@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useStore } from './hooks/useStore';
 import { VoiceProvider } from './contexts/VoiceContext';
 import { ModeProvider } from './contexts/ModeContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Layout components
 import Sidebar from './components/layout/Sidebar';
@@ -11,7 +12,11 @@ import Notification from './components/layout/Notification';
 import VoiceButton from './components/voice/VoiceButton';
 import VoiceDisplay from './components/voice/VoiceDisplay';
 
+// Auth components
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
 // Pages
+import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import CreateOrderPage from './pages/CreateOrderPage';
 import OrdersPage from './pages/OrdersPage';
@@ -51,7 +56,8 @@ const ErrorScreen = ({ error }) => (
   </div>
 );
 
-function App() {
+// Protected Layout Component
+const ProtectedLayout = ({ children }) => {
   const { isLoading, error, initialize } = useStore();
 
   // Initialize data on mount
@@ -88,20 +94,43 @@ function App() {
 
           {/* Main Content - with padding for sidebar */}
           <main className="lg:ml-64 min-h-screen pb-20 lg:pb-6">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/create-order" element={<CreateOrderPage />} />
-              <Route path="/orders" element={<OrdersPage />} />
-              <Route path="/create-purchase" element={<CreatePurchasePage />} />
-              <Route path="/purchases" element={<PurchasesPage />} />
-              <Route path="/debt" element={<DebtPage />} />
-              <Route path="/customers" element={<CustomersPage />} />
-              <Route path="/products" element={<ProductsPage />} />
-            </Routes>
+            {children}
           </main>
         </div>
       </VoiceProvider>
     </ModeProvider>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        {/* Public route */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/create-order" element={<CreateOrderPage />} />
+                  <Route path="/orders" element={<OrdersPage />} />
+                  <Route path="/create-purchase" element={<CreatePurchasePage />} />
+                  <Route path="/purchases" element={<PurchasesPage />} />
+                  <Route path="/debt" element={<DebtPage />} />
+                  <Route path="/customers" element={<CustomersPage />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                </Routes>
+              </ProtectedLayout>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </AuthProvider>
   );
 }
 

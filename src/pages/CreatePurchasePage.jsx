@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { Header } from '../components/layout/Header';
-import { Card } from '../components/ui/Card';
+import { Card, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { formatCurrency } from '../utils/formatters';
 import { CUSTOMER_TYPES } from '../utils/constants';
@@ -78,90 +78,96 @@ const CreatePurchasePage = () => {
 
       <div className="px-4 lg:px-8 py-4 lg:py-6">
         <div className="page-container">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
-            {/* Supplier Selection - only show when no supplier selected */}
-            {!selectedSupplier && (
-              <Card className="lg:col-span-2">
-                <CustomerSelector
-                  title="Chọn nhà cung cấp"
-                  selectedCustomer={selectedSupplier}
-                  customers={suppliers}
-                  onSelect={setSelectedSupplier}
-                  onDeselect={() => setSelectedSupplier(null)}
-                  emptyMessage="Chưa có nhà cung cấp nào"
-                  emptyActionLabel="Thêm nhà cung cấp"
-                  onEmptyAction={() => navigate('/customers')}
-                  bgColor="emerald"
-                />
-              </Card>
-            )}
-
-            {/* Product Selection - full width when supplier selected */}
-            <Card className={selectedSupplier ? 'lg:col-span-2' : ''}>
-              <ProductSelector
-                title="Chọn sản phẩm"
-                products={filteredProducts}
-                searchTerm={searchTerm}
-                onSearchChange={(e) => setSearchTerm(e.target.value)}
-                onProductSelect={(product) => addToPurchaseCart(product, 1)}
-                showStock={true}
-                plusButtonColor="emerald"
+          {/* Supplier Selection - full width, only show when no supplier selected */}
+          {!selectedSupplier && (
+            <Card className="mb-4">
+              <CustomerSelector
+                title="Chọn nhà cung cấp"
+                selectedCustomer={selectedSupplier}
+                customers={suppliers}
+                onSelect={setSelectedSupplier}
+                onDeselect={() => setSelectedSupplier(null)}
+                emptyMessage="Chưa có nhà cung cấp nào"
+                emptyActionLabel="Thêm nhà cung cấp"
+                onEmptyAction={() => navigate('/customers')}
+                bgColor="emerald"
               />
             </Card>
-          </div>
-
-          {/* Purchase Cart */}
-          {purchaseCart.length > 0 && (
-            <Card className="mt-4">
-              <CardTitle>Danh sách sản phẩm nhập ({purchaseCart.length})</CardTitle>
-
-              <div className="mt-3">
-                <CartItemList
-                  items={purchaseCart}
-                  onUpdateQuantity={updatePurchaseCartQuantity}
-                  onUpdatePrice={updatePurchaseCartPrice}
-                  onRemove={removeFromPurchaseCart}
-                  priceLabel="Giá nhập"
-                  emptyMessage="Chưa có sản phẩm nào"
-                />
-              </div>
-
-              {/* Total */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-bold text-gray-900">TỔNG CỘNG:</span>
-                  <span className="text-2xl font-bold text-emerald-600">
-                    {formatCurrency(purchaseTotal)}
-                  </span>
-                </div>
-
-                <Button
-                  fullWidth
-                  icon={Package}
-                  onClick={handleCreatePurchase}
-                  disabled={!selectedSupplier}
-                >
-                  Tạo phiếu nhập hàng
-                </Button>
-                {!selectedSupplier && (
-                  <p className="text-xs text-gray-400 text-center mt-2">
-                    Vui lòng chọn nhà cung cấp
-                  </p>
-                )}
-              </div>
-            </Card>
           )}
 
-          {/* Empty State */}
-          {purchaseCart.length === 0 && (
-            <div className="mt-8 text-center py-12">
-              <Package size={48} className="mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-400">Chưa có sản phẩm nào</p>
-              <p className="text-sm text-gray-300 mt-1">
-                Chọn sản phẩm bên trên để thêm vào phiếu nhập
-              </p>
+          {/* Two-column layout: Cart (left) | Products (right) */}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
+            {/* LEFT COLUMN: Purchase Cart */}
+            <div className="space-y-4">
+              {purchaseCart.length > 0 ? (
+                <Card>
+                  <CardTitle>Danh sách sản phẩm nhập ({purchaseCart.length})</CardTitle>
+
+                  <div className="mt-3">
+                    <CartItemList
+                      items={purchaseCart}
+                      onUpdateQuantity={updatePurchaseCartQuantity}
+                      onUpdatePrice={updatePurchaseCartPrice}
+                      onRemove={removeFromPurchaseCart}
+                      priceLabel="Giá nhập"
+                      emptyMessage="Chưa có sản phẩm nào"
+                    />
+                  </div>
+
+                  {/* Total */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-gray-600">Tổng cộng:</span>
+                      <span className="text-2xl font-bold text-emerald-600">
+                        {formatCurrency(purchaseTotal)}
+                      </span>
+                    </div>
+
+                    <Button
+                      fullWidth
+                      size="lg"
+                      icon={Package}
+                      onClick={handleCreatePurchase}
+                      disabled={!selectedSupplier}
+                    >
+                      Tạo phiếu nhập hàng
+                    </Button>
+                    {!selectedSupplier && (
+                      <p className="text-xs text-center text-rose-500 mt-2">
+                        Vui lòng chọn nhà cung cấp để tạo phiếu
+                      </p>
+                    )}
+                  </div>
+                </Card>
+              ) : (
+                <Card>
+                  <CardTitle>Danh sách sản phẩm nhập</CardTitle>
+                  <div className="text-center py-12">
+                    <Package size={48} className="mx-auto text-gray-300 mb-3" />
+                    <p className="text-gray-400">Chưa có sản phẩm nào</p>
+                    <p className="text-sm text-gray-300 mt-1">
+                      Tìm và thêm sản phẩm bên phải
+                    </p>
+                  </div>
+                </Card>
+              )}
             </div>
-          )}
+
+            {/* RIGHT COLUMN: Product Selection */}
+            <div>
+              <Card>
+                <ProductSelector
+                  title="Chọn sản phẩm"
+                  products={filteredProducts}
+                  searchTerm={searchTerm}
+                  onSearchChange={(e) => setSearchTerm(e.target.value)}
+                  onProductSelect={(product) => addToPurchaseCart(product, 1)}
+                  showStock={true}
+                  plusButtonColor="emerald"
+                />
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

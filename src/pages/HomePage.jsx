@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Mic, TrendingUp, CreditCard, Bell, Plus, Package,
-  ChevronRight, Calendar, FileText, ArrowLeftRight
+  ChevronRight, Calendar, FileText, ArrowLeftRight, X, Copy
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { useVoiceContext } from '../contexts/VoiceContext';
 import { useMode } from '../contexts/ModeContext';
 import { Card } from '../components/ui/Card';
 import { VoiceCommandsPanel } from '../components/voice/VoiceCommandsPanel';
-import { formatCurrency, formatDate } from '../utils/formatters';
+import { formatCurrency, formatDate, formatDateTime } from '../utils/formatters';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { startListening, isSupported } = useVoiceContext();
   const { isInvoiceMode, toggleMode, config } = useMode();
+  const [viewingOrder, setViewingOrder] = useState(null);
 
   const {
     orders,
     invoiceOrders,
+    customers,
+    products,
     getTodayRevenue,
     getTodayOrders,
     getTotalDebt,
@@ -27,6 +30,17 @@ const HomePage = () => {
     getInvoiceTodayOrders,
     getInvoiceTotalDebt,
     getInvoiceOverdueOrders,
+    // Cart actions for copy
+    setSelectedCustomer,
+    clearCart,
+    addToCart,
+    updateCartItemDiscount,
+    updateCartItemPrice,
+    // Invoice cart actions
+    setInvoiceSelectedCustomer,
+    clearInvoiceCart,
+    addToInvoiceCart,
+    updateInvoiceCartItemPrice,
   } = useStore();
 
   // Mode-specific data
@@ -36,6 +50,44 @@ const HomePage = () => {
   const totalDebt = isInvoiceMode ? getInvoiceTotalDebt() : getTotalDebt();
   const overdueOrders = isInvoiceMode ? getInvoiceOverdueOrders() : getOverdueOrders();
   const unpaidOrders = currentOrders.filter(o => !o.paid);
+
+  const handleCopyOrder = (order) => {
+    if (isInvoiceMode) {
+      clearInvoiceCart();
+      const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
+      if (customer) {
+        setInvoiceSelectedCustomer(customer);
+      }
+      const items = order.order_items || order.items || [];
+      items.forEach(item => {
+        const product = item.product || products.find(p => String(p.id) === String(item.product_id));
+        if (product) {
+          addToInvoiceCart(product, item.quantity);
+          updateInvoiceCartItemPrice(product.id, item.unit_price);
+        }
+      });
+    } else {
+      clearCart();
+      const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
+      if (customer) {
+        setSelectedCustomer(customer);
+      }
+      const items = order.order_items || order.items || [];
+      items.forEach(item => {
+        const product = item.product || products.find(p => String(p.id) === String(item.product_id));
+        if (product) {
+          addToCart(product, item.quantity);
+          updateCartItemPrice(product.id, item.unit_price);
+          if (item.discount && item.discount > 0) {
+            updateCartItemDiscount(product.id, item.discount, item.discountType || 'percent');
+          }
+        }
+      });
+    }
+
+    setViewingOrder(null);
+    navigate('/create-order');
+  };
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-rose-50/50' : 'bg-gray-50'}`}>
@@ -259,7 +311,8 @@ const HomePage = () => {
                   {currentOrders.slice(0, 8).map(order => (
                     <div
                       key={order.id}
-                      className={`flex items-center justify-between p-3 rounded-xl transition-colors border ${
+                      onClick={() => setViewingOrder(order)}
+                      className={`flex items-center justify-between p-3 rounded-xl transition-colors border cursor-pointer ${
                         isInvoiceMode
                           ? 'hover:bg-rose-50 border-rose-100'
                           : 'hover:bg-gray-50 border-gray-100'
@@ -314,6 +367,126 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* View Order Detail Modal */}
+      {viewingOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Chi tiết đơn hàng</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {formatDateTime(viewingOrder.created_at)} • #{viewingOrder.id}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingOrder(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {/* Customer Info */}
+              <div className={`mb-6 p-4 rounded-xl ${isInvoiceMode ? 'bg-rose-50' : 'bg-violet-50'}`}>
+                <h4 className="font-semibold text-gray-900 mb-2">Khách hàng</h4>
+                <p className="text-gray-700">
+                  {viewingOrder.customer?.name || viewingOrder.customer_name || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.name || 'N/A'}
+                </p>
+                {(viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone) && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    ☎ {viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone}
+                  </p>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3">
+                {(viewingOrder.items || viewingOrder.order_items || []).map((item, index) => (
+                  <div key={index} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">
+                        {item.product_name || item.product?.name}
+                      </p>
+                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                        <span>SL: {item.quantity}</span>
+                        <span>•</span>
+                        <span>Đơn giá: {formatCurrency(item.unit_price)}</span>
+                        {item.discount > 0 && (
+                          <>
+                            <span>•</span>
+                            <span className="text-emerald-600">
+                              Giảm: {item.discount}{item.discountType === 'percent' ? '%' : 'đ'}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right ml-4">
+                      <p className="font-semibold text-gray-900">
+                        {formatCurrency(item.subtotal)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              <div className="mt-6 pt-4 border-t-2 border-gray-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-gray-900">TỔNG CỘNG:</span>
+                  <span className={`text-2xl font-bold ${isInvoiceMode ? 'text-rose-600' : 'text-violet-600'}`}>
+                    {formatCurrency(viewingOrder.total)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Payment Status */}
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Trạng thái thanh toán:</span>
+                  <span className={`text-sm px-3 py-1 rounded-full font-medium ${
+                    viewingOrder.paid
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-rose-100 text-rose-700'
+                  }`}>
+                    {viewingOrder.paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                  </span>
+                </div>
+                {viewingOrder.paid && viewingOrder.paid_at && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Thanh toán lúc: {formatDateTime(viewingOrder.paid_at)}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3">
+              <button
+                onClick={() => handleCopyOrder(viewingOrder)}
+                className={`flex-1 px-4 py-2 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
+                  isInvoiceMode
+                    ? 'bg-rose-500 hover:bg-rose-600'
+                    : 'bg-violet-500 hover:bg-violet-600'
+                }`}
+              >
+                <Copy size={18} />
+                Copy đơn hàng
+              </button>
+              <button
+                onClick={() => setViewingOrder(null)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

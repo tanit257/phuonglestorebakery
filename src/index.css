@@ -54,6 +54,17 @@ textarea:focus {
   outline: none;
 }
 
+/* Hide number input spinner buttons */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* Disable tap highlight on mobile */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -128,5 +139,5 @@ textarea:focus {
 
 /* Consistent container for all pages */
 .page-container {
-  @apply max-w-7xl mx-auto;
+  @apply max-w-7xl 2xl:max-w-[100rem] mx-auto;
 }

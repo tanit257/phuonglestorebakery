@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { productApi, customerApi, orderApi, purchaseApi, invoiceOrderApi, invoicePurchaseApi, invoiceInventoryApi, seedData } from '../services/api';
-import { SAMPLE_PRODUCTS, SAMPLE_CUSTOMERS, OVERDUE_DAYS } from '../utils/constants';
 
 export const useStore = create((set, get) => ({
   // ============ STATE ============
@@ -45,7 +44,7 @@ export const useStore = create((set, get) => ({
       set({ isLoading: true, error: null });
 
       // Seed initial data if needed
-      await seedData(SAMPLE_PRODUCTS, SAMPLE_CUSTOMERS);
+      // await seedData(SAMPLE_PRODUCTS, SAMPLE_CUSTOMERS);
 
       // Load all data including invoice mode data
       let [products, customers, orders, purchases, invoiceOrders, invoicePurchases, invoiceInventory] = await Promise.all([
@@ -233,20 +232,26 @@ export const useStore = create((set, get) => ({
     set({ isCreatingOrder: true });
     
     try {
+      // Normalize items: use customPrice as unit_price if set
+      const normalizedItems = cart.map(item => ({
+        ...item,
+        unit_price: item.customPrice || item.unit_price,
+      }));
+
       const order = {
         customer_id: selectedCustomer.id,
         customer_name: selectedCustomer.name,
-        items: cart,
+        items: normalizedItems,
         total: cart.reduce((sum, item) => sum + item.subtotal, 0),
       };
-      
+
       const newOrder = await orderApi.create(order);
-      
+
       // Add full order data for local display
       const fullOrder = {
         ...newOrder,
         customer: selectedCustomer,
-        order_items: cart.map(item => ({
+        order_items: normalizedItems.map(item => ({
           ...item,
           product: get().products.find(p => p.id === item.product_id),
         })),
@@ -366,6 +371,7 @@ export const useStore = create((set, get) => ({
             discount: 0,
             discountType: 'percent', // 'percent' or 'fixed'
             customPrice: null, // Override price per unit
+            note: '', // Note for this item
             subtotal: quantity * product.price,
             product,
           },
@@ -424,7 +430,7 @@ export const useStore = create((set, get) => ({
         if (item.product_id !== productId) return item;
         const effectivePrice = customPrice || item.unit_price;
         const baseSubtotal = item.quantity * effectivePrice;
-        const discountAmount = item.discountType === 'percent' 
+        const discountAmount = item.discountType === 'percent'
           ? baseSubtotal * (item.discount / 100)
           : item.discount;
         return {
@@ -433,6 +439,15 @@ export const useStore = create((set, get) => ({
           subtotal: Math.max(0, baseSubtotal - discountAmount),
         };
       }),
+    }));
+  },
+
+  // Update note for cart item
+  updateCartItemNote: (productId, note) => {
+    set(state => ({
+      cart: state.cart.map(item =>
+        item.product_id === productId ? { ...item, note } : item
+      ),
     }));
   },
   
@@ -714,10 +729,16 @@ export const useStore = create((set, get) => ({
     set({ isCreatingInvoiceOrder: true });
 
     try {
+      // Normalize items: use customPrice as unit_price if set
+      const normalizedItems = invoiceCart.map(item => ({
+        ...item,
+        unit_price: item.customPrice || item.unit_price,
+      }));
+
       const order = {
         customer_id: invoiceSelectedCustomer.id,
         customer_name: invoiceSelectedCustomer.name,
-        items: invoiceCart,
+        items: normalizedItems,
         total: invoiceCart.reduce((sum, item) => sum + item.subtotal, 0),
       };
 
@@ -726,7 +747,7 @@ export const useStore = create((set, get) => ({
       const fullOrder = {
         ...newOrder,
         customer: invoiceSelectedCustomer,
-        order_items: invoiceCart.map(item => ({
+        order_items: normalizedItems.map(item => ({
           ...item,
           product: get().products.find(p => p.id === item.product_id),
         })),
@@ -859,6 +880,7 @@ export const useStore = create((set, get) => ({
             discount: 0,
             discountType: 'percent',
             customPrice: null,
+            note: '', // Note for this item
             subtotal: quantity * invoicePrice,
             product,
           },
@@ -905,6 +927,15 @@ export const useStore = create((set, get) => ({
           subtotal: Math.max(0, baseSubtotal - discountAmount),
         };
       }),
+    }));
+  },
+
+  // Update note for invoice cart item
+  updateInvoiceCartItemNote: (productId, note) => {
+    set(state => ({
+      invoiceCart: state.invoiceCart.map(item =>
+        item.product_id === productId ? { ...item, note } : item
+      ),
     }));
   },
 

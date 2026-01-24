@@ -10,16 +10,24 @@ import {
   Truck,
   TrendingUp,
   Warehouse,
-  ArrowLeftRight
+  ArrowLeftRight,
+  LogOut
 } from 'lucide-react';
 import { useMode, MODES } from '../../contexts/ModeContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mode, toggleMode, config } = useMode();
+  const { signOut, user } = useAuth();
 
   const isInvoice = mode === MODES.INVOICE;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   const menuItems = [
     { path: '/', icon: Home, label: 'Trang chủ' },
@@ -141,21 +149,41 @@ export const Sidebar = () => {
 
       {/* Footer */}
       <div className={`
-        px-6 py-4 border-t transition-colors duration-300
+        px-3 py-4 border-t transition-colors duration-300
         ${isInvoice ? 'border-violet-200' : 'border-gray-200'}
       `}>
+        {/* User info */}
+        {user && (
+          <div className={`
+            mb-3 px-3 py-2 rounded-lg text-xs
+            ${isInvoice ? 'bg-violet-50 text-violet-600' : 'bg-gray-50 text-gray-600'}
+          `}>
+            <p className="truncate font-medium">{user.email}</p>
+          </div>
+        )}
+
+        {/* Logout button */}
+        <button
+          onClick={handleSignOut}
+          className={`
+            w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+            font-medium text-sm transition-all duration-200
+            ${isInvoice
+              ? 'text-violet-600 hover:bg-violet-100 border border-violet-200'
+              : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+            }
+          `}
+        >
+          <LogOut size={18} />
+          <span>Đăng xuất</span>
+        </button>
+
+        {/* Copyright */}
         <div className={`
-          text-xs text-center transition-colors duration-300
-          ${isInvoice ? 'text-violet-500' : 'text-gray-500'}
+          text-xs text-center mt-3 transition-colors duration-300
+          ${isInvoice ? 'text-violet-400' : 'text-gray-400'}
         `}>
           <p>© 2026 Phương Lê Store</p>
-          <p className="mt-1 flex items-center justify-center gap-1">
-            <span className={`
-              inline-block w-2 h-2 rounded-full
-              ${isInvoice ? 'bg-violet-400' : 'bg-blue-400'}
-            `} />
-            Mode: {config.name}
-          </p>
         </div>
       </div>
     </aside>
