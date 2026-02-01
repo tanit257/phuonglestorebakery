@@ -3,6 +3,27 @@ import { supabase, isSupabaseConfigured } from '../services/supabase';
 
 const AuthContext = createContext(null);
 
+/**
+ * Check if dev mode is enabled
+ * SECURITY: Dev mode requires EXPLICIT opt-in:
+ * 1. VITE_DEV_MODE must be set to 'true'
+ * 2. AND must be running in development mode (not production build)
+ *
+ * This prevents accidental dev mode in production deployments
+ */
+const isDevMode = () => {
+  const devModeFlag = import.meta.env.VITE_DEV_MODE === 'true';
+  const isDevelopmentBuild = import.meta.env.DEV === true;
+  return devModeFlag && isDevelopmentBuild;
+};
+
+// Mock user for dev mode
+const DEV_USER = {
+  id: 'dev-user-id',
+  email: 'dev@phuongle.store',
+  role: 'authenticated',
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
@@ -10,6 +31,14 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Dev mode: bypass authentication
+    if (isDevMode()) {
+      setUser(DEV_USER);
+      setSession({ user: DEV_USER });
+      setIsLoading(false);
+      return;
+    }
+
     if (!isSupabaseConfigured()) {
       setIsLoading(false);
       return;
@@ -27,7 +56,6 @@ export const AuthProvider = ({ children }) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
       } catch (err) {
-        console.error('Auth initialization error:', err);
         setError(err.message);
       } finally {
         setIsLoading(false);
@@ -51,6 +79,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signIn = async (email, password) => {
+    // Dev mode: auto sign in
+    if (isDevMode()) {
+      setUser(DEV_USER);
+      setSession({ user: DEV_USER });
+      return { data: { user: DEV_USER, session: { user: DEV_USER } }, error: null };
+    }
+
     if (!isSupabaseConfigured()) {
       return { error: { message: 'Supabase chưa được cấu hình' } };
     }
@@ -79,6 +114,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = async () => {
+    // Dev mode: simple sign out
+    if (isDevMode()) {
+      setUser(null);
+      setSession(null);
+      return { error: null };
+    }
+
     if (!isSupabaseConfigured()) {
       return { error: { message: 'Supabase chưa được cấu hình' } };
     }
@@ -112,6 +154,7 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     error,
     isAuthenticated: !!user,
+    isDevMode: isDevMode(),
     signIn,
     signOut,
     clearError,

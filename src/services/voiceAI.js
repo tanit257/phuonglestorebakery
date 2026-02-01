@@ -3,6 +3,9 @@
 
 // Normalize Vietnamese text for matching
 const normalizeText = (text) => {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
   return text
     .toLowerCase()
     .normalize('NFD')
@@ -14,8 +17,14 @@ const normalizeText = (text) => {
 
 // Calculate similarity score between two strings using multiple algorithms
 const calculateMatchScore = (searchText, itemText) => {
+  // Guard against null/undefined inputs
+  if (!searchText || !itemText) return 0;
+
   const search = normalizeText(searchText);
   const item = normalizeText(itemText);
+
+  // Guard against empty normalized strings
+  if (!search || !item) return 0;
 
   // Exact match - highest score
   if (search === item) return 1.0;
@@ -31,8 +40,8 @@ const calculateMatchScore = (searchText, itemText) => {
   const itemWords = item.split(' ').filter(w => w.length > 1);
 
   // Keep original text for contradiction checking (preserve Vietnamese tones)
-  const searchWordsOriginal = searchText.toLowerCase().split(' ').filter(w => w.length > 1);
-  const itemWordsOriginal = itemText.toLowerCase().split(' ').filter(w => w.length > 1);
+  const searchWordsOriginal = String(searchText).toLowerCase().split(' ').filter(w => w.length > 1);
+  const itemWordsOriginal = String(itemText).toLowerCase().split(' ').filter(w => w.length > 1);
 
   let wordMatchScore = 0;
   let penaltyScore = 0;
@@ -95,11 +104,16 @@ const calculateMatchScore = (searchText, itemText) => {
 const findBestMatch = (searchText, items, nameKey = 'name', minScore = 0.6) => {
   if (!searchText || !items || items.length === 0) return null;
 
-  // Calculate scores for all items
-  const scoredItems = items.map(item => ({
-    item,
-    score: calculateMatchScore(searchText, item[nameKey])
-  }));
+  // Filter out items without the nameKey field and calculate scores
+  const scoredItems = items
+    .filter(item => item && item[nameKey])
+    .map(item => ({
+      item,
+      score: calculateMatchScore(searchText, item[nameKey])
+    }));
+
+  // Return null if no valid items after filtering
+  if (scoredItems.length === 0) return null;
 
   // Sort by score descending
   scoredItems.sort((a, b) => b.score - a.score);
@@ -107,14 +121,7 @@ const findBestMatch = (searchText, items, nameKey = 'name', minScore = 0.6) => {
   // Return best match if score is above threshold
   const best = scoredItems[0];
 
-  // Debug logging
-  console.log('Search:', searchText);
-  console.log('Top 3 matches:', scoredItems.slice(0, 3).map(s => ({
-    name: s.item[nameKey],
-    score: (s.score * 100).toFixed(1) + '%'
-  })));
-
-  return best.score >= minScore ? best.item : null;
+  return best && best.score >= minScore ? best.item : null;
 };
 
 // Parse quantity from text
@@ -156,19 +163,30 @@ const parseQuantity = (text) => {
 };
 
 // Parse items from order text
-const parseOrderItems = (text, products) => {
+const parseOrderItems = (text, products, customerName = null) => {
   const items = [];
 
   // First, remove common command words and customer references
   let cleanText = text
-    // Remove leading command words
-    .replace(/^(tạo đơn|tao don|đơn hàng|don hang|thêm|them|bỏ vào|bo vao|cho vào|cho vao)\s*/i, '')
-    // Remove customer reference patterns (more specific)
+    // Remove leading command phrases (more comprehensive)
+    .replace(/^(tạo đơn hàng|tao don hang|tạo đơn|tao don|đơn hàng|don hang|thêm|them|bỏ vào|bo vao|cho vào|cho vao)\s*/i, '')
+    // Remove standalone "hàng" that might be left over from "đơn hàng"
+    .replace(/^hàng\s+/i, '')
+    // Remove customer reference patterns - ENHANCED to catch more patterns
     .replace(/(cho|của|cua)\s+(anh|chị|em|cô|chú|bác|tiệm|tiem)\s+[^\s,và]+/gi, '')
     .replace(/(khách|khach)\s+(hàng|hang)?\s*(anh|chị|em|cô|chú|bác)?\s+[^\s,và]+/gi, '')
+    // Remove "anh/chị/em/cô/chú/bác + name" pattern (without cho/của prefix)
+    .replace(/\b(anh|chị|em|cô|chú|bác)\s+[A-ZÀ-Ỹa-zà-ỹ]+\b/gi, '')
     .trim();
 
-  console.log('After removing commands/customer, cleanText:', cleanText);
+  // If customerName is provided, also remove it from cleanText
+  if (customerName) {
+    const customerNameLower = customerName.toLowerCase();
+    cleanText = cleanText.replace(new RegExp(customerNameLower, 'gi'), '').trim();
+  }
+
+  // Remove any leftover short words that are likely not product names (< 2 chars after split)
+  // This helps avoid matching leftover particles like "hàng" with products
 
   // Split by common separators (comma, "và", "với") OR by quantity patterns
   // This regex splits when it finds a number followed by units (kg, g, etc) and then another number
@@ -181,18 +199,12 @@ const parseOrderItems = (text, products) => {
     const quantityParts = cleanText.split(/(?=\d+(?:[.,]\d+)?\s*(?:kg|g|hộp|gói|chai|lít|vỉ|lọ|cái|túi))/i).map(s => s.trim()).filter(Boolean);
     if (quantityParts.length > 1) {
       parts = quantityParts;
-      console.log('Split by quantity pattern into:', parts);
     }
   }
 
-  console.log('Parsing order items from parts:', parts);
-
   for (const part of parts) {
-    console.log(`\n--- Processing part: "${part}" ---`);
-
     // Extract quantity from this part
     const quantity = parseQuantity(part);
-    console.log(`Extracted quantity: ${quantity}`);
 
     // Remove quantity-related words to get cleaner product name
     const productText = part
@@ -201,18 +213,17 @@ const parseOrderItems = (text, products) => {
       .replace(/\s*(một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười)\s*/gi, '') // Remove number words
       .trim();
 
-    console.log(`Cleaned product text: "${productText}"`);
-
-    if (!productText || productText.length < 2) {
-      console.log('Product text too short, skipping...');
+    // Skip common Vietnamese particles/noise words that are NOT product names
+    const noiseWords = ['hàng', 'hang', 'cái', 'cai', 'con', 'chiếc', 'chiec', 'với', 'voi', 'và', 'va'];
+    if (!productText || productText.length < 3 || noiseWords.includes(productText.toLowerCase())) {
       continue;
     }
 
     // Use improved fuzzy matching to find the best product
-    const product = findBestMatch(productText, products, 'name', 0.5);
+    // Increase minScore to 0.6 to reduce false positives
+    const product = findBestMatch(productText, products, 'name', 0.6);
 
     if (product) {
-      console.log(`✓ MATCHED: "${productText}" -> "${product.name}" (qty: ${quantity})`);
       items.push({
         product_id: product.id,
         product_name: product.name,
@@ -220,8 +231,6 @@ const parseOrderItems = (text, products) => {
         unit_price: product.price,
         subtotal: quantity * product.price,
       });
-    } else {
-      console.log(`✗ NO MATCH found for "${productText}"`);
     }
   }
 
@@ -285,42 +294,64 @@ export const processVoiceCommand = (transcript, products, customers) => {
     ['mua', 'bán', 'ban', 'đặt', 'dat'].some(kw => normalizedText.includes(kw));
   
   if (isCreateOrder) {
-    // Find customer
+    // Find customer - IMPROVED matching logic
     let customer = null;
-    const forKeywords = ['cho', 'của', 'cua', 'tiệm', 'tiem', 'khách', 'khach'];
-    
-    for (const kw of forKeywords) {
-      const kwIndex = normalizedText.indexOf(kw);
-      if (kwIndex !== -1) {
-        // Get text after keyword
-        const afterKeyword = text.substring(kwIndex + kw.length + 1);
-        customer = findBestMatch(afterKeyword.split(',')[0], customers);
-        if (customer) break;
+
+    // Pattern 1: "anh/chị/em/cô/chú/bác + name" (e.g., "anh Quân", "chị Hoa")
+    const honorificPattern = /\b(anh|chị|em|cô|chú|bác)\s+([A-ZÀ-Ỹa-zà-ỹ]+)\b/gi;
+    const honorificMatch = text.match(honorificPattern);
+
+    if (honorificMatch && honorificMatch.length > 0) {
+      // Extract the name part (after honorific)
+      const fullMatch = honorificMatch[0];
+      const namePart = fullMatch.replace(/^(anh|chị|em|cô|chú|bác)\s+/i, '').trim();
+
+      // Find customer by short_name first (more accurate)
+      customer = findBestMatch(namePart, customers, 'short_name', 0.7);
+
+      // If not found, try with full honorific
+      if (!customer) {
+        customer = findBestMatch(fullMatch, customers, 'short_name', 0.6);
       }
     }
-    
-    // If no keyword found, try to match customer name directly
+
+    // Pattern 2: Keywords like "cho", "của", "tiệm", "khách"
+    if (!customer) {
+      const forKeywords = ['cho', 'của', 'cua', 'tiệm', 'tiem', 'khách', 'khach'];
+
+      for (const kw of forKeywords) {
+        const kwIndex = normalizedText.indexOf(kw);
+        if (kwIndex !== -1) {
+          const afterKeyword = text.substring(kwIndex + kw.length + 1);
+          customer = findBestMatch(afterKeyword.split(',')[0].split(' với ')[0], customers, 'short_name', 0.6);
+          if (customer) break;
+        }
+      }
+    }
+
+    // Pattern 3: Direct name match (fallback)
     if (!customer) {
       for (const c of customers) {
-        if (normalizedText.includes(normalizeText(c.name))) {
+        if (!c || !c.short_name) continue;
+        if (normalizedText.includes(normalizeText(c.short_name))) {
           customer = c;
           break;
         }
       }
     }
-    
-    // Parse items
-    const items = parseOrderItems(text, products);
+
+    // Parse items - pass customer name to exclude from product matching
+    const items = parseOrderItems(text, products, customer?.short_name);
     
     return {
       action: 'create_order',
       data: {
         customer_id: customer?.id || null,
-        customer_name: customer?.name || null,
+        customer_name: customer?.short_name || null,
         items,
       },
-      message: customer 
-        ? `Tạo đơn cho ${customer.name} với ${items.length} sản phẩm`
+      message: customer
+        ? `Tạo đơn cho ${customer.short_name} với ${items.length} sản phẩm`
         : items.length > 0 
           ? `Tìm thấy ${items.length} sản phẩm. Vui lòng chọn khách hàng.`
           : 'Vui lòng nói rõ tên khách hàng và sản phẩm.',
@@ -335,7 +366,7 @@ export const processVoiceCommand = (transcript, products, customers) => {
     // Find customer
     let customer = null;
     for (const c of customers) {
-      if (normalizedText.includes(normalizeText(c.name))) {
+      if (normalizedText.includes(normalizeText(c.short_name))) {
         customer = c;
         break;
       }
@@ -362,13 +393,13 @@ export const processVoiceCommand = (transcript, products, customers) => {
       action: 'view_debt',
       data: {
         customer_id: customer?.id || null,
-        customer_name: customer?.name || null,
+        customer_name: customer?.short_name || null,
         period,
         month,
         year,
       },
-      message: customer 
-        ? `Xem công nợ của ${customer.name}${month ? ` tháng ${month}` : ''}${year !== new Date().getFullYear() ? ` năm ${year}` : ''}`
+      message: customer
+        ? `Xem công nợ của ${customer.short_name}${month ? ` tháng ${month}` : ''}${year !== new Date().getFullYear() ? ` năm ${year}` : ''}`
         : 'Xem tổng công nợ tất cả khách hàng',
     };
   }
@@ -418,11 +449,11 @@ export const processVoiceCommand = (transcript, products, customers) => {
       action: 'search_customer',
       data: {
         customer_id: customer?.id || null,
-        customer_name: customer?.name || null,
+        customer_name: customer?.short_name || null,
         search_term: text,
       },
-      message: customer 
-        ? `Tìm thấy: ${customer.name} - ${customer.phone}`
+      message: customer
+        ? `Tìm thấy: ${customer.short_name} - ${customer.phone}`
         : 'Không tìm thấy khách hàng',
     };
   }
@@ -502,7 +533,6 @@ export const createSpeechRecognition = (onTranscriptUpdate) => {
   };
 
   recognition.onerror = (event) => {
-    console.error('Speech recognition error:', event.error);
     if (onTranscriptUpdate) {
       onTranscriptUpdate({
         error: event.error,
@@ -566,7 +596,9 @@ export const suggestCorrections = (transcript, products, customers) => {
 
   // Find similar product names
   products.forEach(product => {
+    if (!product || !product.name) return;
     const productName = normalizeText(product.name);
+    if (!productName) return;
     const similarity = calculateSimilarity(normalizedText, productName);
     if (similarity > 0.6) {
       suggestions.push({
@@ -581,15 +613,17 @@ export const suggestCorrections = (transcript, products, customers) => {
 
   // Find similar customer names
   customers.forEach(customer => {
-    const customerName = normalizeText(customer.name);
+    if (!customer || !customer.short_name) return;
+    const customerName = normalizeText(customer.short_name);
+    if (!customerName) return;
     const similarity = calculateSimilarity(normalizedText, customerName);
     if (similarity > 0.6) {
       suggestions.push({
         type: 'customer',
         original: transcript,
-        suggested: customer.name,
+        suggested: customer.short_name,
         similarity,
-        context: `Có phải khách hàng "${customer.name}"?`
+        context: `Có phải khách hàng "${customer.short_name}"?`
       });
     }
   });

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { productApi, customerApi, orderApi, purchaseApi, invoiceOrderApi, invoicePurchaseApi, invoiceInventoryApi, seedData } from '../services/api';
+import { OVERDUE_DAYS, RETAIL_CUSTOMER_NAME, CUSTOMER_TYPES } from '../utils/constants';
 
 export const useStore = create((set, get) => ({
   // ============ STATE ============
@@ -21,9 +22,9 @@ export const useStore = create((set, get) => ({
   purchaseCart: [],
   selectedSupplier: null,
 
-  // Multi-cart state for handling multiple orders simultaneously
-  carts: [], // Array of {id, customer, items, createdAt}
-  activeCartId: null, // Currently active cart ID
+  // Draft cart state for handling multiple orders simultaneously
+  draftCarts: [], // Array of {id, customerId, customer, items, total, createdAt, updatedAt}
+  activeDraftId: null, // Currently active draft ID
 
   // ============ INVOICE MODE STATE ============
   invoiceOrders: [],
@@ -37,6 +38,10 @@ export const useStore = create((set, get) => ({
   invoiceSelectedCustomer: null,
   invoicePurchaseCart: [],
   invoiceSelectedSupplier: null,
+
+  // Invoice draft cart state
+  invoiceDraftCarts: [],
+  activeInvoiceDraftId: null,
   
   // ============ INITIALIZATION ============
   initialize: async () => {
@@ -68,13 +73,17 @@ export const useStore = create((set, get) => ({
         invoiceOrders = seedDataResult.invoiceOrders || [];
         invoiceInventory = seedDataResult.invoiceInventory || [];
 
-        // Save to localStorage
-        localStorage.setItem('products', JSON.stringify(products));
-        localStorage.setItem('customers', JSON.stringify(customers));
-        localStorage.setItem('orders', JSON.stringify(orders));
-        localStorage.setItem('invoiceOrders', JSON.stringify(invoiceOrders));
-        localStorage.setItem('invoiceInventory', JSON.stringify(invoiceInventory));
+        // Save to localStorage (must match keys in api.js: phuongle_xxx)
+        localStorage.setItem('phuongle_products', JSON.stringify(products));
+        localStorage.setItem('phuongle_customers', JSON.stringify(customers));
+        localStorage.setItem('phuongle_orders', JSON.stringify(orders));
+        localStorage.setItem('phuongle_invoice_orders', JSON.stringify(invoiceOrders));
+        localStorage.setItem('phuongle_invoice_inventory', JSON.stringify(invoiceInventory));
       }
+
+      // Load draft carts from localStorage
+      const loadedDraftCarts = get().loadDraftsFromStorage();
+      const loadedInvoiceDraftCarts = get().loadInvoiceDraftsFromStorage();
 
       set({
         products,
@@ -84,10 +93,13 @@ export const useStore = create((set, get) => ({
         invoiceOrders,
         invoicePurchases,
         invoiceInventory,
+        draftCarts: loadedDraftCarts.drafts,
+        activeDraftId: loadedDraftCarts.activeId,
+        invoiceDraftCarts: loadedInvoiceDraftCarts.drafts,
+        activeInvoiceDraftId: loadedInvoiceDraftCarts.activeId,
         isLoading: false,
       });
     } catch (error) {
-      console.error('Initialize error:', error);
       set({ error: error.message, isLoading: false });
     }
   },
@@ -109,7 +121,6 @@ export const useStore = create((set, get) => ({
         // Check if product already exists in state (prevent duplicate)
         const exists = state.products.some(p => p.id === newProduct.id);
         if (exists) {
-          console.warn('Product already exists in state! Skipping duplicate.');
           return state; // Return unchanged state
         }
 
@@ -154,22 +165,15 @@ export const useStore = create((set, get) => ({
   // ============ CUSTOMERS ============
   addCustomer: async (customer) => {
     try {
-      console.log('useStore.addCustomer called with:', customer);
       const newCustomer = await customerApi.create(customer);
-      console.log('customerApi.create returned:', newCustomer);
 
       set(state => {
-        console.log('Current customers count:', state.customers.length);
-        console.log('Current customers IDs:', state.customers.map(c => c.id));
-
         // Check if customer already exists in state (prevent duplicate)
         const exists = state.customers.some(c => c.id === newCustomer.id);
         if (exists) {
-          console.warn('Customer already exists in state! Skipping duplicate.');
           return state; // Return unchanged state
         }
 
-        console.log('Adding new customer with ID:', newCustomer.id);
         return { customers: [...state.customers, newCustomer] };
       });
 
@@ -207,12 +211,55 @@ export const useStore = create((set, get) => ({
       throw error;
     }
   },
-  
+
+  importCustomers: async (categorized, mode) => {
+    try {
+      const { newCustomers, duplicateCustomers } = categorized;
+      let addedCount = 0;
+      let updatedCount = 0;
+
+      // Add new customers
+      for (const customer of newCustomers) {
+        await customerApi.create(customer);
+        addedCount++;
+      }
+
+      // Update duplicates if mode is 'override'
+      if (mode === 'override') {
+        for (const customer of duplicateCustomers) {
+          await customerApi.update(customer.existingId, {
+            short_name: customer.short_name,
+            full_name: customer.full_name,
+            type: customer.type,
+            phone: customer.phone,
+            email: customer.email,
+            address: customer.address,
+            billing_address: customer.billing_address,
+            tax_code: customer.tax_code,
+          });
+          updatedCount++;
+        }
+      }
+
+      // Reload customers from API
+      const customers = await customerApi.getAll();
+      set({ customers });
+
+      const message = mode === 'override'
+        ? `Import thành công: ${addedCount} mới, ${updatedCount} cập nhật`
+        : `Import thành công: ${addedCount} khách hàng mới`;
+
+      get().showNotification(message, 'success');
+    } catch (error) {
+      get().showNotification('Lỗi khi import khách hàng', 'error');
+      throw error;
+    }
+  },
+
   // ============ ORDERS ============
   createOrder: async () => {
     // Prevent duplicate orders from double-clicking
     if (get().isCreatingOrder) {
-      console.log('Order creation already in progress');
       return null;
     }
     
@@ -256,13 +303,46 @@ export const useStore = create((set, get) => ({
           product: get().products.find(p => p.id === item.product_id),
         })),
       };
-      
+
+      // Update stock after successful order creation
+      const updatedProducts = get().products.map(product => {
+        const orderItem = cart.find(item => String(item.product_id) === String(product.id));
+        if (orderItem) {
+          return {
+            ...product,
+            stock: Math.max(0, product.stock - orderItem.quantity),
+          };
+        }
+        return product;
+      });
+
+      // Update stock in database
+      for (const item of cart) {
+        const product = updatedProducts.find(p => String(p.id) === String(item.product_id));
+        if (product) {
+          await productApi.update(item.product_id, { stock: product.stock });
+        }
+      }
+
+      // Delete active draft after successful order creation
+      const { activeDraftId, draftCarts } = get();
+      const newDraftCarts = activeDraftId
+        ? draftCarts.filter(d => d.id !== activeDraftId)
+        : draftCarts;
+
+      // Switch to next draft if available
+      const nextDraft = newDraftCarts[0];
+
       set(state => ({
         orders: [fullOrder, ...state.orders],
-        cart: [],
-        selectedCustomer: null,
+        products: updatedProducts,
+        cart: nextDraft ? [...nextDraft.items] : [],
+        selectedCustomer: nextDraft ? nextDraft.customer : null,
+        draftCarts: newDraftCarts,
+        activeDraftId: nextDraft ? nextDraft.id : null,
       }));
-      
+
+      get().saveDraftsToStorage();
       get().showNotification('Tạo đơn hàng thành công!', 'success');
       return fullOrder;
     } catch (error) {
@@ -340,12 +420,19 @@ export const useStore = create((set, get) => ({
   },
 
   // ============ CART ============
-  setSelectedCustomer: (customer) => set({ selectedCustomer: customer }),
+  setSelectedCustomer: (customer) => {
+    set({ selectedCustomer: customer });
+
+    // Create draft if customer is selected and no active draft
+    if (customer && !get().activeDraftId) {
+      get().createDraftCart(customer);
+    }
+  },
   
   addToCart: (product, quantity = 1) => {
     set(state => {
       const existing = state.cart.find(item => item.product_id === product.id);
-      
+
       if (existing) {
         return {
           cart: state.cart.map(item =>
@@ -359,7 +446,7 @@ export const useStore = create((set, get) => ({
           ),
         };
       }
-      
+
       return {
         cart: [
           ...state.cart,
@@ -378,6 +465,9 @@ export const useStore = create((set, get) => ({
         ],
       };
     });
+
+    // Sync to draft cart
+    setTimeout(() => get().syncActiveDraft(), 0);
   },
   
   updateCartQuantity: (productId, quantity) => {
@@ -385,13 +475,13 @@ export const useStore = create((set, get) => ({
       get().removeFromCart(productId);
       return;
     }
-    
+
     set(state => ({
       cart: state.cart.map(item => {
         if (item.product_id !== productId) return item;
         const effectivePrice = item.customPrice || item.unit_price;
         const baseSubtotal = quantity * effectivePrice;
-        const discountAmount = item.discountType === 'percent' 
+        const discountAmount = item.discountType === 'percent'
           ? baseSubtotal * (item.discount / 100)
           : item.discount;
         return {
@@ -401,6 +491,9 @@ export const useStore = create((set, get) => ({
         };
       }),
     }));
+
+    // Sync to draft cart
+    setTimeout(() => get().syncActiveDraft(), 0);
   },
   
   // Update discount for cart item
@@ -410,7 +503,7 @@ export const useStore = create((set, get) => ({
         if (item.product_id !== productId) return item;
         const effectivePrice = item.customPrice || item.unit_price;
         const baseSubtotal = item.quantity * effectivePrice;
-        const discountAmount = discountType === 'percent' 
+        const discountAmount = discountType === 'percent'
           ? baseSubtotal * (discount / 100)
           : discount;
         return {
@@ -421,6 +514,9 @@ export const useStore = create((set, get) => ({
         };
       }),
     }));
+
+    // Sync to draft cart
+    setTimeout(() => get().syncActiveDraft(), 0);
   },
   
   // Update custom price for cart item
@@ -440,6 +536,9 @@ export const useStore = create((set, get) => ({
         };
       }),
     }));
+
+    // Sync to draft cart
+    setTimeout(() => get().syncActiveDraft(), 0);
   },
 
   // Update note for cart item
@@ -449,21 +548,35 @@ export const useStore = create((set, get) => ({
         item.product_id === productId ? { ...item, note } : item
       ),
     }));
+
+    // Sync to draft cart
+    setTimeout(() => get().syncActiveDraft(), 0);
   },
   
   removeFromCart: (productId) => {
     set(state => ({
       cart: state.cart.filter(item => item.product_id !== productId),
     }));
+
+    // Sync to draft cart
+    setTimeout(() => get().syncActiveDraft(), 0);
   },
   
-  clearCart: () => set({ cart: [], selectedCustomer: null }),
+  clearCart: () => {
+    const { activeDraftId } = get();
+
+    // Delete active draft when clearing cart
+    if (activeDraftId) {
+      get().deleteDraftCart(activeDraftId);
+    } else {
+      set({ cart: [], selectedCustomer: null });
+    }
+  },
 
   // ============ PURCHASES ============
   createPurchase: async () => {
     // Prevent duplicate purchases from double-clicking
     if (get().isCreatingPurchase) {
-      console.log('Purchase creation already in progress');
       return null;
     }
 
@@ -710,7 +823,6 @@ export const useStore = create((set, get) => ({
   // ============ INVOICE MODE - ORDERS ============
   createInvoiceOrder: async () => {
     if (get().isCreatingInvoiceOrder) {
-      console.log('Invoice order creation already in progress');
       return null;
     }
 
@@ -765,13 +877,25 @@ export const useStore = create((set, get) => ({
         }
       }
 
+      // Delete active invoice draft after successful order creation
+      const { activeInvoiceDraftId, invoiceDraftCarts } = get();
+      const newInvoiceDraftCarts = activeInvoiceDraftId
+        ? invoiceDraftCarts.filter(d => d.id !== activeInvoiceDraftId)
+        : invoiceDraftCarts;
+
+      // Switch to next draft if available
+      const nextDraft = newInvoiceDraftCarts[0];
+
       set(state => ({
         invoiceOrders: [fullOrder, ...state.invoiceOrders],
         invoiceInventory: updatedInventory,
-        invoiceCart: [],
-        invoiceSelectedCustomer: null,
+        invoiceCart: nextDraft ? [...nextDraft.items] : [],
+        invoiceSelectedCustomer: nextDraft ? nextDraft.customer : null,
+        invoiceDraftCarts: newInvoiceDraftCarts,
+        activeInvoiceDraftId: nextDraft ? nextDraft.id : null,
       }));
 
+      get().saveInvoiceDraftsToStorage();
       get().showNotification('Tạo đơn hàng hóa đơn thành công!', 'success');
       return fullOrder;
     } catch (error) {
@@ -848,7 +972,14 @@ export const useStore = create((set, get) => ({
   },
 
   // ============ INVOICE MODE - CART ============
-  setInvoiceSelectedCustomer: (customer) => set({ invoiceSelectedCustomer: customer }),
+  setInvoiceSelectedCustomer: (customer) => {
+    set({ invoiceSelectedCustomer: customer });
+
+    // Create draft if customer is selected and no active draft
+    if (customer && !get().activeInvoiceDraftId) {
+      get().createInvoiceDraftCart(customer);
+    }
+  },
 
   addToInvoiceCart: (product, quantity = 1) => {
     set(state => {
@@ -887,6 +1018,9 @@ export const useStore = create((set, get) => ({
         ],
       };
     });
+
+    // Sync to invoice draft cart
+    setTimeout(() => get().syncActiveInvoiceDraft(), 0);
   },
 
   updateInvoiceCartQuantity: (productId, quantity) => {
@@ -910,6 +1044,9 @@ export const useStore = create((set, get) => ({
         };
       }),
     }));
+
+    // Sync to invoice draft cart
+    setTimeout(() => get().syncActiveInvoiceDraft(), 0);
   },
 
   updateInvoiceCartItemPrice: (productId, customPrice) => {
@@ -928,6 +1065,9 @@ export const useStore = create((set, get) => ({
         };
       }),
     }));
+
+    // Sync to invoice draft cart
+    setTimeout(() => get().syncActiveInvoiceDraft(), 0);
   },
 
   // Update note for invoice cart item
@@ -937,20 +1077,34 @@ export const useStore = create((set, get) => ({
         item.product_id === productId ? { ...item, note } : item
       ),
     }));
+
+    // Sync to invoice draft cart
+    setTimeout(() => get().syncActiveInvoiceDraft(), 0);
   },
 
   removeFromInvoiceCart: (productId) => {
     set(state => ({
       invoiceCart: state.invoiceCart.filter(item => item.product_id !== productId),
     }));
+
+    // Sync to invoice draft cart
+    setTimeout(() => get().syncActiveInvoiceDraft(), 0);
   },
 
-  clearInvoiceCart: () => set({ invoiceCart: [], invoiceSelectedCustomer: null }),
+  clearInvoiceCart: () => {
+    const { activeInvoiceDraftId } = get();
+
+    // Delete active draft when clearing cart
+    if (activeInvoiceDraftId) {
+      get().deleteInvoiceDraftCart(activeInvoiceDraftId);
+    } else {
+      set({ invoiceCart: [], invoiceSelectedCustomer: null });
+    }
+  },
 
   // ============ INVOICE MODE - PURCHASES ============
   createInvoicePurchase: async () => {
     if (get().isCreatingInvoicePurchase) {
-      console.log('Invoice purchase creation already in progress');
       return null;
     }
 
@@ -1227,5 +1381,830 @@ export const useStore = create((set, get) => ({
     return get().invoicePurchases
       .filter(p => (String(p.supplier_id) === String(supplierId) || String(p.supplier?.id) === String(supplierId)) && !p.paid)
       .reduce((sum, p) => sum + p.total, 0);
+  },
+
+  // ============ DRAFT CART MANAGEMENT (REAL MODE) ============
+
+  // Load drafts from localStorage
+  loadDraftsFromStorage: () => {
+    try {
+      const draftsJson = localStorage.getItem('draftCarts');
+      const activeIdJson = localStorage.getItem('activeDraftId');
+
+      if (!draftsJson) {
+        return { drafts: [], activeId: null };
+      }
+
+      const drafts = JSON.parse(draftsJson);
+      const activeId = activeIdJson ? JSON.parse(activeIdJson) : null;
+
+      // Clean up stale drafts (older than 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const validDrafts = drafts.filter(draft => {
+        const draftDate = new Date(draft.createdAt);
+        return draftDate > sevenDaysAgo;
+      });
+
+      // Limit to max 10 drafts
+      const limitedDrafts = validDrafts.slice(0, 10);
+
+      // If active draft was removed, clear activeId
+      const validActiveId = limitedDrafts.find(d => d.id === activeId) ? activeId : null;
+
+      return { drafts: limitedDrafts, activeId: validActiveId };
+    } catch {
+      return { drafts: [], activeId: null };
+    }
+  },
+
+  // Save drafts to localStorage
+  saveDraftsToStorage: () => {
+    try {
+      const { draftCarts, activeDraftId } = get();
+      localStorage.setItem('draftCarts', JSON.stringify(draftCarts));
+      localStorage.setItem('activeDraftId', JSON.stringify(activeDraftId));
+    } catch (error) {
+      // Handle quota exceeded
+      if (error.name === 'QuotaExceededError') {
+        get().showNotification('Bộ nhớ đầy. Vui lòng xóa bớt đơn nháp.', 'error');
+      }
+    }
+  },
+
+  // Create new draft cart
+  createDraftCart: (customer) => {
+    const { draftCarts, cart } = get();
+
+    // Check if draft already exists for this customer
+    const existingDraft = draftCarts.find(d => d.customerId === customer.id);
+    if (existingDraft) {
+      // Switch to existing draft instead
+      get().switchDraftCart(existingDraft.id);
+      get().showNotification(`Đã chuyển sang đơn của ${customer.short_name || customer.name}`, 'info');
+      return existingDraft;
+    }
+
+    // Create new draft
+    const newDraft = {
+      id: `draft_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      customerId: customer.id,
+      customer,
+      items: [...cart], // Copy current cart items
+      total: get().getCartTotal(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    set(state => ({
+      draftCarts: [...state.draftCarts, newDraft],
+      activeDraftId: newDraft.id,
+      cart: newDraft.items,
+      selectedCustomer: customer,
+    }));
+
+    get().saveDraftsToStorage();
+    get().showNotification('Đã tạo đơn nháp mới', 'success');
+    return newDraft;
+  },
+
+  // Start creating a new draft (clear current selection to allow new draft)
+  startNewDraft: () => {
+    const { activeDraftId } = get();
+
+    // Save current draft before starting new one
+    if (activeDraftId) {
+      get().syncActiveDraft();
+    }
+
+    // Clear selection to show customer selector
+    set({
+      activeDraftId: null,
+      cart: [],
+      selectedCustomer: null,
+    });
+
+    get().saveDraftsToStorage();
+  },
+
+  // Switch to different draft cart
+  switchDraftCart: (draftId) => {
+    const { draftCarts, activeDraftId } = get();
+
+    // Save current draft before switching
+    if (activeDraftId) {
+      get().syncActiveDraft();
+    }
+
+    const targetDraft = draftCarts.find(d => d.id === draftId);
+    if (!targetDraft) {
+      get().showNotification('Không tìm thấy đơn nháp', 'error');
+      return;
+    }
+
+    set({
+      activeDraftId: draftId,
+      cart: [...targetDraft.items],
+      selectedCustomer: targetDraft.customer,
+    });
+
+    get().saveDraftsToStorage();
+    get().showNotification(`Đã chuyển sang ${targetDraft.customer.short_name || targetDraft.customer.name}`, 'success');
+  },
+
+  // Update active draft with current cart state
+  syncActiveDraft: () => {
+    const { activeDraftId, cart, selectedCustomer } = get();
+
+    if (!activeDraftId) return;
+
+    set(state => ({
+      draftCarts: state.draftCarts.map(draft =>
+        draft.id === activeDraftId
+          ? {
+              ...draft,
+              items: [...cart],
+              total: get().getCartTotal(),
+              customer: selectedCustomer || draft.customer,
+              updatedAt: new Date().toISOString(),
+            }
+          : draft
+      ),
+    }));
+
+    get().saveDraftsToStorage();
+  },
+
+  // Delete draft cart (no confirmation - handle in UI layer)
+  deleteDraftCart: (draftId) => {
+    const { draftCarts, activeDraftId } = get();
+
+    const draft = draftCarts.find(d => d.id === draftId);
+    if (!draft) return;
+
+    const newDraftCarts = draftCarts.filter(d => d.id !== draftId);
+
+    // If deleting active draft, switch to another or clear
+    if (activeDraftId === draftId) {
+      const nextDraft = newDraftCarts[0];
+      if (nextDraft) {
+        set({
+          draftCarts: newDraftCarts,
+          activeDraftId: nextDraft.id,
+          cart: [...nextDraft.items],
+          selectedCustomer: nextDraft.customer,
+        });
+      } else {
+        set({
+          draftCarts: [],
+          activeDraftId: null,
+          cart: [],
+          selectedCustomer: null,
+        });
+      }
+    } else {
+      set({ draftCarts: newDraftCarts });
+    }
+
+    get().saveDraftsToStorage();
+    get().showNotification('Đã xóa đơn nháp', 'success');
+  },
+
+  // ============ INVOICE DRAFT CART MANAGEMENT ============
+
+  // Load invoice drafts from localStorage
+  loadInvoiceDraftsFromStorage: () => {
+    try {
+      const draftsJson = localStorage.getItem('invoiceDraftCarts');
+      const activeIdJson = localStorage.getItem('activeInvoiceDraftId');
+
+      if (!draftsJson) {
+        return { drafts: [], activeId: null };
+      }
+
+      const drafts = JSON.parse(draftsJson);
+      const activeId = activeIdJson ? JSON.parse(activeIdJson) : null;
+
+      // Clean up stale drafts (older than 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const validDrafts = drafts.filter(draft => {
+        const draftDate = new Date(draft.createdAt);
+        return draftDate > sevenDaysAgo;
+      });
+
+      // Limit to max 10 drafts
+      const limitedDrafts = validDrafts.slice(0, 10);
+
+      // If active draft was removed, clear activeId
+      const validActiveId = limitedDrafts.find(d => d.id === activeId) ? activeId : null;
+
+      return { drafts: limitedDrafts, activeId: validActiveId };
+    } catch {
+      return { drafts: [], activeId: null };
+    }
+  },
+
+  // Save invoice drafts to localStorage
+  saveInvoiceDraftsToStorage: () => {
+    try {
+      const { invoiceDraftCarts, activeInvoiceDraftId } = get();
+      localStorage.setItem('invoiceDraftCarts', JSON.stringify(invoiceDraftCarts));
+      localStorage.setItem('activeInvoiceDraftId', JSON.stringify(activeInvoiceDraftId));
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        get().showNotification('Bộ nhớ đầy. Vui lòng xóa bớt đơn nháp.', 'error');
+      }
+    }
+  },
+
+  // Create new invoice draft cart
+  createInvoiceDraftCart: (customer) => {
+    const { invoiceDraftCarts, invoiceCart } = get();
+
+    // Check if draft already exists for this customer
+    const existingDraft = invoiceDraftCarts.find(d => d.customerId === customer.id);
+    if (existingDraft) {
+      get().switchInvoiceDraftCart(existingDraft.id);
+      get().showNotification(`Đã chuyển sang đơn của ${customer.short_name || customer.name}`, 'info');
+      return existingDraft;
+    }
+
+    const newDraft = {
+      id: `invoice_draft_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      customerId: customer.id,
+      customer,
+      items: [...invoiceCart],
+      total: get().getInvoiceCartTotal(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    set(state => ({
+      invoiceDraftCarts: [...state.invoiceDraftCarts, newDraft],
+      activeInvoiceDraftId: newDraft.id,
+      invoiceCart: newDraft.items,
+      invoiceSelectedCustomer: customer,
+    }));
+
+    get().saveInvoiceDraftsToStorage();
+    get().showNotification('Đã tạo đơn nháp mới (Hóa đơn)', 'success');
+    return newDraft;
+  },
+
+  // Switch to different invoice draft cart
+  switchInvoiceDraftCart: (draftId) => {
+    const { invoiceDraftCarts, activeInvoiceDraftId } = get();
+
+    // Save current draft before switching
+    if (activeInvoiceDraftId) {
+      get().syncActiveInvoiceDraft();
+    }
+
+    const targetDraft = invoiceDraftCarts.find(d => d.id === draftId);
+    if (!targetDraft) {
+      get().showNotification('Không tìm thấy đơn nháp', 'error');
+      return;
+    }
+
+    set({
+      activeInvoiceDraftId: draftId,
+      invoiceCart: [...targetDraft.items],
+      invoiceSelectedCustomer: targetDraft.customer,
+    });
+
+    get().saveInvoiceDraftsToStorage();
+    get().showNotification(`Đã chuyển sang ${targetDraft.customer.short_name || targetDraft.customer.name}`, 'success');
+  },
+
+  // Update active invoice draft with current cart state
+  syncActiveInvoiceDraft: () => {
+    const { activeInvoiceDraftId, invoiceCart, invoiceSelectedCustomer } = get();
+
+    if (!activeInvoiceDraftId) return;
+
+    set(state => ({
+      invoiceDraftCarts: state.invoiceDraftCarts.map(draft =>
+        draft.id === activeInvoiceDraftId
+          ? {
+              ...draft,
+              items: [...invoiceCart],
+              total: get().getInvoiceCartTotal(),
+              customer: invoiceSelectedCustomer || draft.customer,
+              updatedAt: new Date().toISOString(),
+            }
+          : draft
+      ),
+    }));
+
+    get().saveInvoiceDraftsToStorage();
+  },
+
+  // Start creating a new invoice draft
+  startNewInvoiceDraft: () => {
+    const { activeInvoiceDraftId } = get();
+
+    // Save current draft before starting new one
+    if (activeInvoiceDraftId) {
+      get().syncActiveInvoiceDraft();
+    }
+
+    // Clear selection to show customer selector
+    set({
+      activeInvoiceDraftId: null,
+      invoiceCart: [],
+      invoiceSelectedCustomer: null,
+    });
+
+    get().saveInvoiceDraftsToStorage();
+  },
+
+  // Delete invoice draft cart (no confirmation - handle in UI layer)
+  deleteInvoiceDraftCart: (draftId) => {
+    const { invoiceDraftCarts, activeInvoiceDraftId } = get();
+
+    const draft = invoiceDraftCarts.find(d => d.id === draftId);
+    if (!draft) return;
+
+    const newDraftCarts = invoiceDraftCarts.filter(d => d.id !== draftId);
+
+    if (activeInvoiceDraftId === draftId) {
+      const nextDraft = newDraftCarts[0];
+      if (nextDraft) {
+        set({
+          invoiceDraftCarts: newDraftCarts,
+          activeInvoiceDraftId: nextDraft.id,
+          invoiceCart: [...nextDraft.items],
+          invoiceSelectedCustomer: nextDraft.customer,
+        });
+      } else {
+        set({
+          invoiceDraftCarts: [],
+          activeInvoiceDraftId: null,
+          invoiceCart: [],
+          invoiceSelectedCustomer: null,
+        });
+      }
+    } else {
+      set({ invoiceDraftCarts: newDraftCarts });
+    }
+
+    get().saveInvoiceDraftsToStorage();
+    get().showNotification('Đã xóa đơn nháp', 'success');
+  },
+
+  // ============ RETAIL CUSTOMER (KHÁCH LẺ) ============
+
+  // Get or create retail customer
+  getOrCreateRetailCustomer: async () => {
+    const { customers } = get();
+
+    // Find existing retail customer
+    let retailCustomer = customers.find(c => c.short_name === RETAIL_CUSTOMER_NAME);
+
+    if (!retailCustomer) {
+      // Create new retail customer
+      retailCustomer = await customerApi.create({
+        short_name: RETAIL_CUSTOMER_NAME,
+        full_name: 'Khách hàng lẻ',
+        type: CUSTOMER_TYPES.INDIVIDUAL,
+        phone: '',
+        address: '',
+      });
+
+      set(state => ({
+        customers: [...state.customers, retailCustomer],
+      }));
+    }
+
+    return retailCustomer;
+  },
+
+  // Create quick retail order (Real mode)
+  createQuickRetailOrder: async (items) => {
+    if (items.length === 0) {
+      get().showNotification('Vui lòng thêm sản phẩm', 'error');
+      return null;
+    }
+
+    try {
+      // Get retail customer
+      const retailCustomer = await get().getOrCreateRetailCustomer();
+
+      const order = {
+        customer_id: retailCustomer.id,
+        customer_name: retailCustomer.short_name,
+        items: items.map(item => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          subtotal: item.quantity * item.unit_price,
+          note: item.note || '',
+        })),
+        total: items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0),
+        paid: true,
+        paid_at: new Date().toISOString(),
+      };
+
+      const newOrder = await orderApi.create(order);
+
+      const fullOrder = {
+        ...newOrder,
+        customer: retailCustomer,
+        order_items: order.items.map(item => ({
+          ...item,
+          product: get().products.find(p => String(p.id) === String(item.product_id)),
+        })),
+      };
+
+      // Update stock
+      const updatedProducts = get().products.map(product => {
+        const orderItem = items.find(item => String(item.product_id) === String(product.id));
+        if (orderItem) {
+          return {
+            ...product,
+            stock: Math.max(0, product.stock - orderItem.quantity),
+          };
+        }
+        return product;
+      });
+
+      // Update stock in database
+      for (const item of items) {
+        const product = updatedProducts.find(p => String(p.id) === String(item.product_id));
+        if (product) {
+          await productApi.update(item.product_id, { stock: product.stock });
+        }
+      }
+
+      set(state => ({
+        orders: [fullOrder, ...state.orders],
+        products: updatedProducts,
+      }));
+
+      get().showNotification('Tạo đơn bán lẻ thành công!', 'success');
+      return fullOrder;
+    } catch (error) {
+      get().showNotification('Lỗi khi tạo đơn bán lẻ', 'error');
+      throw error;
+    }
+  },
+
+  // Create quick retail order (Invoice mode)
+  createQuickInvoiceRetailOrder: async (items) => {
+    if (items.length === 0) {
+      get().showNotification('Vui lòng thêm sản phẩm', 'error');
+      return null;
+    }
+
+    try {
+      const retailCustomer = await get().getOrCreateRetailCustomer();
+
+      const order = {
+        customer_id: retailCustomer.id,
+        customer_name: retailCustomer.short_name,
+        items: items.map(item => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          subtotal: item.quantity * item.unit_price,
+          note: item.note || '',
+        })),
+        total: items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0),
+        paid: true,
+        paid_at: new Date().toISOString(),
+      };
+
+      const newOrder = await invoiceOrderApi.create(order);
+
+      const fullOrder = {
+        ...newOrder,
+        customer: retailCustomer,
+        order_items: order.items.map(item => ({
+          ...item,
+          product: get().products.find(p => String(p.id) === String(item.product_id)),
+        })),
+      };
+
+      // Update invoice inventory
+      const updatedInventory = [...get().invoiceInventory];
+      for (const item of items) {
+        const invIndex = updatedInventory.findIndex(i => String(i.product_id) === String(item.product_id));
+        if (invIndex !== -1) {
+          updatedInventory[invIndex] = {
+            ...updatedInventory[invIndex],
+            stock: Math.max(0, updatedInventory[invIndex].stock - item.quantity),
+          };
+        }
+      }
+
+      set(state => ({
+        invoiceOrders: [fullOrder, ...state.invoiceOrders],
+        invoiceInventory: updatedInventory,
+      }));
+
+      get().showNotification('Tạo đơn bán lẻ thành công!', 'success');
+      return fullOrder;
+    } catch (error) {
+      get().showNotification('Lỗi khi tạo đơn bán lẻ', 'error');
+      throw error;
+    }
+  },
+
+  // ============ INVENTORY REPORT ============
+
+  // Get inventory report for a month (Real mode)
+  getInventoryReport: (month) => {
+    const { products, orders, purchases } = get();
+
+    // Parse month (format: "YYYY-MM")
+    const [year, monthNum] = month.split('-').map(Number);
+    const startOfMonth = new Date(year, monthNum - 1, 1);
+    const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59, 999);
+
+    // Get retail customer ID
+    const retailCustomer = get().customers.find(c => c.short_name === RETAIL_CUSTOMER_NAME);
+    const retailCustomerId = retailCustomer ? String(retailCustomer.id) : null;
+
+    return products.map(product => {
+      const productId = String(product.id);
+
+      // Calculate purchased quantity in month
+      const purchased = purchases
+        .filter(p => {
+          const date = new Date(p.created_at);
+          return date >= startOfMonth && date <= endOfMonth;
+        })
+        .reduce((sum, p) => {
+          const items = p.purchase_items || p.items || [];
+          const item = items.find(i => String(i.product_id) === productId);
+          return sum + (item ? item.quantity : 0);
+        }, 0);
+
+      // Calculate sold quantity (excluding retail)
+      const soldOrder = orders
+        .filter(o => {
+          const date = new Date(o.created_at);
+          const customerId = String(o.customer_id || o.customer?.id);
+          return date >= startOfMonth && date <= endOfMonth && customerId !== retailCustomerId;
+        })
+        .reduce((sum, o) => {
+          const items = o.order_items || o.items || [];
+          const item = items.find(i => String(i.product_id) === productId);
+          return sum + (item ? item.quantity : 0);
+        }, 0);
+
+      // Calculate retail sold quantity
+      const soldRetail = orders
+        .filter(o => {
+          const date = new Date(o.created_at);
+          const customerId = String(o.customer_id || o.customer?.id);
+          return date >= startOfMonth && date <= endOfMonth && customerId === retailCustomerId;
+        })
+        .reduce((sum, o) => {
+          const items = o.order_items || o.items || [];
+          const item = items.find(i => String(i.product_id) === productId);
+          return sum + (item ? item.quantity : 0);
+        }, 0);
+
+      // Current stock (closing stock)
+      const closingStock = product.stock;
+
+      // Opening stock = Closing - Purchased + Sold
+      const openingStock = closingStock - purchased + soldOrder + soldRetail;
+
+      return {
+        product,
+        openingStock,
+        purchased,
+        soldOrder,
+        soldRetail,
+        closingStock,
+      };
+    });
+  },
+
+  // Get inventory report for a month (Invoice mode)
+  getInvoiceInventoryReport: (month) => {
+    const { products, invoiceOrders, invoicePurchases, invoiceInventory } = get();
+
+    const [year, monthNum] = month.split('-').map(Number);
+    const startOfMonth = new Date(year, monthNum - 1, 1);
+    const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59, 999);
+
+    const retailCustomer = get().customers.find(c => c.short_name === RETAIL_CUSTOMER_NAME);
+    const retailCustomerId = retailCustomer ? String(retailCustomer.id) : null;
+
+    return products.map(product => {
+      const productId = String(product.id);
+
+      // Get current invoice stock
+      const inv = invoiceInventory.find(i => String(i.product_id) === productId);
+      const closingStock = inv ? inv.stock : 0;
+
+      // Calculate purchased quantity in month
+      const purchased = invoicePurchases
+        .filter(p => {
+          const date = new Date(p.created_at);
+          return date >= startOfMonth && date <= endOfMonth;
+        })
+        .reduce((sum, p) => {
+          const items = p.purchase_items || p.items || [];
+          const item = items.find(i => String(i.product_id) === productId);
+          return sum + (item ? item.quantity : 0);
+        }, 0);
+
+      // Calculate sold quantity (excluding retail)
+      const soldOrder = invoiceOrders
+        .filter(o => {
+          const date = new Date(o.created_at);
+          const customerId = String(o.customer_id || o.customer?.id);
+          return date >= startOfMonth && date <= endOfMonth && customerId !== retailCustomerId;
+        })
+        .reduce((sum, o) => {
+          const items = o.order_items || o.items || [];
+          const item = items.find(i => String(i.product_id) === productId);
+          return sum + (item ? item.quantity : 0);
+        }, 0);
+
+      // Calculate retail sold quantity
+      const soldRetail = invoiceOrders
+        .filter(o => {
+          const date = new Date(o.created_at);
+          const customerId = String(o.customer_id || o.customer?.id);
+          return date >= startOfMonth && date <= endOfMonth && customerId === retailCustomerId;
+        })
+        .reduce((sum, o) => {
+          const items = o.order_items || o.items || [];
+          const item = items.find(i => String(i.product_id) === productId);
+          return sum + (item ? item.quantity : 0);
+        }, 0);
+
+      const openingStock = closingStock - purchased + soldOrder + soldRetail;
+
+      return {
+        product,
+        openingStock,
+        purchased,
+        soldOrder,
+        soldRetail,
+        closingStock,
+      };
+    });
+  },
+
+  // Get product movements for a month (Real mode)
+  getProductMovements: (productId, month) => {
+    const { orders, purchases, customers } = get();
+
+    const [year, monthNum] = month.split('-').map(Number);
+    const startOfMonth = new Date(year, monthNum - 1, 1);
+    const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59, 999);
+    const pid = String(productId);
+
+    // Get sales
+    const sales = orders
+      .filter(o => {
+        const date = new Date(o.created_at);
+        if (date < startOfMonth || date > endOfMonth) return false;
+        const items = o.order_items || o.items || [];
+        return items.some(i => String(i.product_id) === pid);
+      })
+      .map(o => {
+        const items = o.order_items || o.items || [];
+        const item = items.find(i => String(i.product_id) === pid);
+        const customer = customers.find(c => String(c.id) === String(o.customer_id)) || o.customer;
+        return {
+          date: o.created_at,
+          type: 'sale',
+          quantity: item.quantity,
+          customerName: customer?.short_name || customer?.name || 'N/A',
+          orderId: o.id,
+        };
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Get purchases
+    const purchasesList = purchases
+      .filter(p => {
+        const date = new Date(p.created_at);
+        if (date < startOfMonth || date > endOfMonth) return false;
+        const items = p.purchase_items || p.items || [];
+        return items.some(i => String(i.product_id) === pid);
+      })
+      .map(p => {
+        const items = p.purchase_items || p.items || [];
+        const item = items.find(i => String(i.product_id) === pid);
+        const supplier = customers.find(c => String(c.id) === String(p.supplier_id)) || p.supplier;
+        return {
+          date: p.created_at,
+          type: 'purchase',
+          quantity: item.quantity,
+          supplierName: supplier?.short_name || supplier?.name || 'N/A',
+          purchaseId: p.id,
+        };
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return { sales, purchases: purchasesList };
+  },
+
+  // Get product movements for a month (Invoice mode)
+  getInvoiceProductMovements: (productId, month) => {
+    const { invoiceOrders, invoicePurchases, customers } = get();
+
+    const [year, monthNum] = month.split('-').map(Number);
+    const startOfMonth = new Date(year, monthNum - 1, 1);
+    const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59, 999);
+    const pid = String(productId);
+
+    const sales = invoiceOrders
+      .filter(o => {
+        const date = new Date(o.created_at);
+        if (date < startOfMonth || date > endOfMonth) return false;
+        const items = o.order_items || o.items || [];
+        return items.some(i => String(i.product_id) === pid);
+      })
+      .map(o => {
+        const items = o.order_items || o.items || [];
+        const item = items.find(i => String(i.product_id) === pid);
+        const customer = customers.find(c => String(c.id) === String(o.customer_id)) || o.customer;
+        return {
+          date: o.created_at,
+          type: 'sale',
+          quantity: item.quantity,
+          customerName: customer?.short_name || customer?.name || 'N/A',
+          orderId: o.id,
+        };
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const purchasesList = invoicePurchases
+      .filter(p => {
+        const date = new Date(p.created_at);
+        if (date < startOfMonth || date > endOfMonth) return false;
+        const items = p.purchase_items || p.items || [];
+        return items.some(i => String(i.product_id) === pid);
+      })
+      .map(p => {
+        const items = p.purchase_items || p.items || [];
+        const item = items.find(i => String(i.product_id) === pid);
+        const supplier = customers.find(c => String(c.id) === String(p.supplier_id)) || p.supplier;
+        return {
+          date: p.created_at,
+          type: 'purchase',
+          quantity: item.quantity,
+          supplierName: supplier?.short_name || supplier?.name || 'N/A',
+          purchaseId: p.id,
+        };
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return { sales, purchases: purchasesList };
+  },
+
+  // Get available months from orders and purchases
+  getAvailableMonths: () => {
+    const { orders, purchases } = get();
+    const months = new Set();
+
+    [...orders, ...purchases].forEach(item => {
+      if (item.created_at) {
+        const date = new Date(item.created_at);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        months.add(monthKey);
+      }
+    });
+
+    // Add current month if not present
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    months.add(currentMonth);
+
+    return Array.from(months).sort().reverse();
+  },
+
+  // Get available months for invoice mode
+  getInvoiceAvailableMonths: () => {
+    const { invoiceOrders, invoicePurchases } = get();
+    const months = new Set();
+
+    [...invoiceOrders, ...invoicePurchases].forEach(item => {
+      if (item.created_at) {
+        const date = new Date(item.created_at);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        months.add(monthKey);
+      }
+    });
+
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    months.add(currentMonth);
+
+    return Array.from(months).sort().reverse();
   },
 }));

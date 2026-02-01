@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Phone, MapPin, Trash2, Edit, X, Store, User, Truck, CreditCard, Mail, FileText, Eye, Calendar, ShoppingBag } from 'lucide-react';
+import { Users, Plus, Phone, MapPin, Trash2, Edit, X, Store, User, Truck, CreditCard, Mail, FileText, Eye, Calendar, ShoppingBag, FileSpreadsheet } from 'lucide-react';
+import CustomerImportExportModal from '../components/customers/CustomerImportExportModal';
 import { useStore } from '../hooks/useStore';
 import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
@@ -73,8 +74,11 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
             </div>
             <div>
               <h2 id="customer-detail-title" className="text-xl font-bold text-gray-900">
-                {customer.name}
+                {customer.short_name || customer.full_name || 'Chưa có tên'}
               </h2>
+              {customer.full_name && (
+                <p className="text-sm text-gray-500">{customer.full_name}</p>
+              )}
               <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeColor()}`}>
                 {CUSTOMER_TYPE_LABELS[customer.type]}
               </span>
@@ -111,21 +115,34 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
             {customer.address && (
               <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                 <MapPin size={18} className="text-gray-400 mt-0.5" />
-                <span className="text-gray-700">{customer.address}</span>
-              </div>
-            )}
-
-            {customer.taxCode && (
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <FileText size={18} className="text-gray-400" />
                 <div>
-                  <span className="text-xs text-gray-400">Mã số thuế</span>
-                  <p className="text-gray-700 font-medium">{customer.taxCode}</p>
+                  <span className="text-xs text-gray-400">Địa chỉ giao hàng</span>
+                  <p className="text-gray-700">{customer.address}</p>
                 </div>
               </div>
             )}
 
-            {!customer.phone && !customer.email && !customer.address && !customer.taxCode && (
+            {customer.billing_address && (
+              <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                <MapPin size={18} className="text-gray-400 mt-0.5" />
+                <div>
+                  <span className="text-xs text-gray-400">Địa chỉ xuất hóa đơn</span>
+                  <p className="text-gray-700">{customer.billing_address}</p>
+                </div>
+              </div>
+            )}
+
+            {customer.tax_code && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <FileText size={18} className="text-gray-400" />
+                <div>
+                  <span className="text-xs text-gray-400">Mã số thuế</span>
+                  <p className="text-gray-700 font-medium">{customer.tax_code}</p>
+                </div>
+              </div>
+            )}
+
+            {!customer.phone && !customer.email && !customer.address && !customer.tax_code && (
               <p className="text-gray-400 text-sm italic">Chưa có thông tin liên hệ</p>
             )}
           </div>
@@ -252,18 +269,20 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
 
 const CustomerForm = ({ onSubmit, onCancel, initialData = null }) => {
   const [formData, setFormData] = useState(initialData || {
-    name: '',
+    short_name: '',
+    full_name: '',
     type: CUSTOMER_TYPES.BAKERY,
     phone: '',
     email: '',
     address: '',
-    taxCode: '',
+    billing_address: '',
+    tax_code: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || isSubmitting) return;
+    if (!formData.short_name.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
@@ -276,12 +295,20 @@ const CustomerForm = ({ onSubmit, onCancel, initialData = null }) => {
   return (
     <Card className="mb-4">
       <form onSubmit={handleSubmit} className="space-y-3">
-        <Input
-          placeholder="Tên khách hàng *"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Input
+            placeholder="Tên viết tắt *"
+            value={formData.short_name}
+            onChange={(e) => setFormData({ ...formData, short_name: e.target.value })}
+            required
+          />
+
+          <Input
+            placeholder="Tên đầy đủ (hóa đơn)"
+            value={formData.full_name || ''}
+            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+          />
+        </div>
 
         <Select
           value={formData.type}
@@ -310,15 +337,21 @@ const CustomerForm = ({ onSubmit, onCancel, initialData = null }) => {
         </div>
 
         <Input
-          placeholder="Địa chỉ"
+          placeholder="Địa chỉ giao hàng"
           value={formData.address}
           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
         />
 
         <Input
+          placeholder="Địa chỉ xuất hóa đơn"
+          value={formData.billing_address || ''}
+          onChange={(e) => setFormData({ ...formData, billing_address: e.target.value })}
+        />
+
+        <Input
           placeholder="Mã số thuế"
-          value={formData.taxCode || ''}
-          onChange={(e) => setFormData({ ...formData, taxCode: e.target.value })}
+          value={formData.tax_code || ''}
+          onChange={(e) => setFormData({ ...formData, tax_code: e.target.value })}
         />
 
         <div className="flex gap-2">
@@ -341,6 +374,7 @@ const CustomersPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [viewingCustomer, setViewingCustomer] = useState(null);
+  const [showImportExport, setShowImportExport] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
   const {
@@ -349,11 +383,11 @@ const CustomersPage = () => {
     addCustomer,
     updateCustomer,
     deleteCustomer,
+    importCustomers,
     getCustomerDebt,
   } = useStore();
 
   const handleAddCustomer = async (data) => {
-    console.log('handleAddCustomer called with:', data);
     await addCustomer(data);
     setShowForm(false);
   };
@@ -385,16 +419,25 @@ const CustomersPage = () => {
 
       <div className="px-4 lg:px-8 py-4 lg:py-6">
         <div className="page-container">
-          {/* Add Button */}
+          {/* Action Buttons */}
           {!showForm && !editingCustomer && (
-            <Button
-              fullWidth
-              icon={Plus}
-              onClick={() => setShowForm(true)}
-              className="mb-4"
-            >
-              Thêm khách hàng mới
-            </Button>
+            <div className="flex gap-2 mb-4">
+              <Button
+                fullWidth
+                icon={Plus}
+                onClick={() => setShowForm(true)}
+              >
+                Thêm khách hàng mới
+              </Button>
+              <Button
+                variant="secondary"
+                icon={FileSpreadsheet}
+                onClick={() => setShowImportExport(true)}
+                className="shrink-0"
+              >
+                Import/Export
+              </Button>
+            </div>
           )}
 
           {/* Add Form */}
@@ -448,7 +491,7 @@ const CustomersPage = () => {
 
                       {/* Info */}
                       <div>
-                        <p className="font-semibold text-gray-800">{customer.name}</p>
+                        <p className="font-semibold text-gray-800">{customer.short_name || customer.full_name || 'Chưa có tên'}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
                           customer.type === CUSTOMER_TYPES.BAKERY
                             ? 'bg-amber-100 text-amber-600'
@@ -510,21 +553,21 @@ const CustomersPage = () => {
                     <button
                       onClick={() => setViewingCustomer(customer)}
                       className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                      aria-label={`Xem chi tiết ${customer.name}`}
+                      aria-label={`Xem chi tiết ${customer.short_name}`}
                     >
                       <Eye size={18} aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => setEditingCustomer(customer)}
                       className="p-2 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-                      aria-label={`Chỉnh sửa ${customer.name}`}
+                      aria-label={`Chỉnh sửa ${customer.short_name}`}
                     >
                       <Edit size={18} aria-hidden="true" />
                     </button>
                     <button
-                      onClick={() => handleDeleteCustomer(customer.id, customer.name)}
+                      onClick={() => handleDeleteCustomer(customer.id, customer.short_name)}
                       className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
-                      aria-label={`Xóa ${customer.name}`}
+                      aria-label={`Xóa ${customer.short_name}`}
                     >
                       <Trash2 size={18} aria-hidden="true" />
                     </button>
@@ -565,6 +608,14 @@ const CustomersPage = () => {
           debt={getCustomerDebt(viewingCustomer.id)}
         />
       )}
+
+      {/* Import/Export Modal */}
+      <CustomerImportExportModal
+        isOpen={showImportExport}
+        onClose={() => setShowImportExport(false)}
+        customers={customers}
+        onImport={importCustomers}
+      />
     </div>
   );
 };

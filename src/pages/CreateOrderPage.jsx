@@ -6,11 +6,12 @@ import { useMode } from '../contexts/ModeContext';
 import { Header } from '../components/layout/Header';
 import { Card, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatQuantityWithBulk } from '../utils/formatters';
 import { smartSearch } from '../utils/smartSearch';
 import { PrintPreview } from '../components/print/PrintPreview';
 import { CustomerSelector } from '../components/common/CustomerSelector';
 import { ProductSelector } from '../components/common/ProductSelector';
+import { DraftCartPanel } from '../components/cart/DraftCartPanel';
 
 const CreateOrderPage = () => {
   const navigate = useNavigate();
@@ -36,6 +37,13 @@ const CreateOrderPage = () => {
     createOrder,
     getCartTotal,
     isCreatingOrder,
+    // Draft cart management
+    draftCarts,
+    activeDraftId,
+    createDraftCart,
+    switchDraftCart,
+    deleteDraftCart,
+    startNewDraft,
     // Invoice mode store
     invoiceCart,
     invoiceSelectedCustomer,
@@ -50,6 +58,13 @@ const CreateOrderPage = () => {
     getInvoiceCartTotal,
     getInvoiceProductStock,
     isCreatingInvoiceOrder,
+    // Invoice draft cart management
+    invoiceDraftCarts,
+    activeInvoiceDraftId,
+    createInvoiceDraftCart,
+    switchInvoiceDraftCart,
+    deleteInvoiceDraftCart,
+    startNewInvoiceDraft,
   } = useStore();
 
   // Select the correct cart based on mode
@@ -95,6 +110,16 @@ const CreateOrderPage = () => {
     }
   };
 
+  // Handle creating new draft (show customer selector)
+  const handleCreateNewDraft = () => {
+    // Use the appropriate action based on mode
+    if (isInvoiceMode) {
+      startNewInvoiceDraft();
+    } else {
+      startNewDraft();
+    }
+  };
+
   // Enhance product with correct price for mode
   const handleProductSelect = (product) => {
     currentAddToCart(product);
@@ -116,6 +141,33 @@ const CreateOrderPage = () => {
           )
         }
       />
+
+      {/* Draft Cart Panel - show when drafts exist */}
+      {isInvoiceMode ? (
+        invoiceDraftCarts.length > 0 && (
+          <DraftCartPanel
+            draftCarts={invoiceDraftCarts}
+            activeDraftId={activeInvoiceDraftId}
+            onSwitchDraft={switchInvoiceDraftCart}
+            onDeleteDraft={deleteInvoiceDraftCart}
+            onCreateDraft={handleCreateNewDraft}
+            bgColor="rose"
+            isInvoiceMode={true}
+          />
+        )
+      ) : (
+        draftCarts.length > 0 && (
+          <DraftCartPanel
+            draftCarts={draftCarts}
+            activeDraftId={activeDraftId}
+            onSwitchDraft={switchDraftCart}
+            onDeleteDraft={deleteDraftCart}
+            onCreateDraft={handleCreateNewDraft}
+            bgColor="violet"
+            isInvoiceMode={false}
+          />
+        )
+      )}
 
       {/* Sticky Customer Bar - only show when customer is selected */}
       {currentCustomer && (
@@ -208,13 +260,20 @@ const CreateOrderPage = () => {
                                 {item.product?.name || item.product_name}
                               </p>
                               <div className="flex items-center gap-2 text-sm">
+                                <span className="text-gray-600 font-medium">
+                                  {formatQuantityWithBulk(item.quantity, item.product)}
+                                </span>
                                 {item.customPrice ? (
                                   <>
+                                    <span>•</span>
                                     <span className="text-gray-400 line-through">{formatCurrency(item.unit_price)}</span>
                                     <span className="text-emerald-600 font-medium">{formatCurrency(item.customPrice)}</span>
                                   </>
                                 ) : (
-                                  <span className="text-gray-500">{formatCurrency(item.unit_price)}/{item.product?.unit}</span>
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-gray-500">{formatCurrency(item.unit_price)}/{item.product?.unit}</span>
+                                  </>
                                 )}
                               </div>
                             </div>

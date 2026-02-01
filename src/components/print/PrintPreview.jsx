@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Printer, FileText } from 'lucide-react';
-import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { formatCurrency, formatDateTime, formatQuantityWithBulk } from '../../utils/formatters';
 import { STORE_INFO } from '../../utils/constants';
 
 export const PrintPreview = ({ order, customer, onClose, onPrint, onPrintOnly }) => {
@@ -136,7 +136,7 @@ export const PrintPreview = ({ order, customer, onClose, onPrint, onPrintOnly })
                       <tr className={item.note ? '' : 'border-b border-gray-200'}>
                         <td className="py-2">{index + 1}</td>
                         <td className="py-2">{item.product_name || item.product?.name}</td>
-                        <td className="text-right py-2">{item.quantity}</td>
+                        <td className="text-right py-2">{formatQuantityWithBulk(item.quantity, item.product)}</td>
                         <td className="text-right py-2">{formatCurrency(item.unit_price)}</td>
                         <td className="text-right py-2 font-medium">{formatCurrency(item.subtotal)}</td>
                       </tr>

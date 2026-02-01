@@ -54,7 +54,8 @@ export const ProductSelector = ({
               <p className="font-medium text-gray-800">{product.name}</p>
               <p className="text-xs text-gray-500">
                 Giá bán: {formatCurrency(product.price)}
-                {showStock && ` • Tồn kho: ${product.stock}`}
+                {showStock && ` • Tồn kho: ${product.stock}${product.unit || ''}`}
+                {product.bulk_unit && product.bulk_quantity && ` • ${product.bulk_quantity}${product.unit}/${product.bulk_unit}`}
               </p>
             </div>
             <Plus size={18} className={`${iconColor} flex-shrink-0`} />

@@ -50,7 +50,6 @@ export const productApi = {
     );
 
     if (recentDuplicate) {
-      console.log('productApi.create - Duplicate detected! Returning existing product:', recentDuplicate);
       return recentDuplicate;
     }
 
@@ -102,7 +101,7 @@ export const customerApi = {
       const { data, error } = await supabase
         .from('customers')
         .select('*')
-        .order('name');
+        .order('short_name');
       if (error) throw error;
       return data;
     }
@@ -119,25 +118,20 @@ export const customerApi = {
       if (error) throw error;
       return data;
     }
-    console.log('customerApi.create - Creating customer:', customer);
-    console.log('customerApi.create - Current customers in localStorage:', localStorageDB.customers.length);
-
     // Check for duplicate within last 2 seconds (prevent double submission)
     const now = new Date().getTime();
     const recentDuplicate = localStorageDB.customers.find(c =>
-      c.name === customer.name &&
+      c.short_name === customer.short_name &&
       (now - new Date(c.created_at).getTime()) < 2000
     );
 
     if (recentDuplicate) {
-      console.log('customerApi.create - Duplicate detected! Returning existing customer:', recentDuplicate);
       return recentDuplicate;
     }
 
     const newCustomer = { ...customer, id: Date.now(), created_at: new Date().toISOString() };
     localStorageDB.customers.push(newCustomer);
     saveToLocalStorage('customers', localStorageDB.customers);
-    console.log('customerApi.create - After save, customers count:', localStorageDB.customers.length);
     return newCustomer;
   },
 
@@ -222,6 +216,7 @@ export const orderApi = {
         quantity: item.quantity,
         unit_price: item.unit_price,
         subtotal: item.subtotal,
+        note: item.note || null,
       }));
 
       const { error: itemsError } = await supabase
@@ -295,11 +290,16 @@ export const orderApi = {
 
   async update(id, updates) {
     if (isSupabaseConfigured()) {
-      // Update order total if items changed
+      // Update order total and note if items changed
       if (updates.items) {
+        const updateData = { total: updates.total };
+        if (updates.note !== undefined) {
+          updateData.note = updates.note;
+        }
+
         const { error: orderError } = await supabase
           .from('orders')
-          .update({ total: updates.total })
+          .update(updateData)
           .eq('id', id);
         if (orderError) throw orderError;
 
@@ -316,6 +316,7 @@ export const orderApi = {
           quantity: item.quantity,
           unit_price: item.unit_price,
           subtotal: item.subtotal,
+          note: item.note || null,
         }));
 
         const { error: itemsError } = await supabase
@@ -682,9 +683,14 @@ export const invoiceOrderApi = {
   async update(id, updates) {
     if (isSupabaseConfigured()) {
       if (updates.items) {
+        const updateData = { total: updates.total };
+        if (updates.note !== undefined) {
+          updateData.note = updates.note;
+        }
+
         const { error: orderError } = await supabase
           .from('invoice_orders')
-          .update({ total: updates.total })
+          .update(updateData)
           .eq('id', id);
         if (orderError) throw orderError;
 

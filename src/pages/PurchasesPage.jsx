@@ -6,7 +6,7 @@ import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
-import { formatCurrency, formatDate, formatRelativeTime } from '../utils/formatters';
+import { formatCurrency, formatDate, formatRelativeTime, formatQuantityWithBulk } from '../utils/formatters';
 
 const PurchasesPage = () => {
   const navigate = useNavigate();
@@ -318,7 +318,7 @@ const PurchasesPage = () => {
                         {item.product_name || item.product?.name}
                       </p>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                        <span>SL: {item.quantity}</span>
+                        <span>SL: {formatQuantityWithBulk(item.quantity, item.product)}</span>
                         <span>•</span>
                         <span>Giá nhập: {formatCurrency(item.unit_price)}</span>
                       </div>

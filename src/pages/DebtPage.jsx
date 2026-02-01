@@ -249,7 +249,7 @@ const DebtPage = () => {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold text-gray-800">{customer.name}</p>
+                            <p className="font-semibold text-gray-800">{customer.short_name || customer.full_name || 'Không tên'}</p>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               customer.type === CUSTOMER_TYPES.BAKERY
                                 ? 'bg-violet-100 text-violet-600'
@@ -315,7 +315,7 @@ const DebtPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
-        title={`Công nợ: ${selectedCustomer?.name || 'Khách hàng'}`}
+        title={`Công nợ: ${selectedCustomer?.short_name || selectedCustomer?.full_name || 'Khách hàng'}`}
         showBack
         onBack={handleBackToList}
       />
@@ -343,7 +343,7 @@ const DebtPage = () => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-gray-800">{selectedCustomer?.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-800">{selectedCustomer?.short_name || selectedCustomer?.full_name || 'Không tên'}</h2>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     selectedCustomer?.type === CUSTOMER_TYPES.BAKERY
                       ? 'bg-violet-100 text-violet-600'

@@ -8,4 +8,10 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    fs: {
+      // Exclude api/ directory from being served/scanned
+      deny: ['**/api/**'],
+    },
+  },
 })

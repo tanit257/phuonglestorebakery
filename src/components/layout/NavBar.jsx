@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, ShoppingCart, CreditCard, Users, Truck, MoreHorizontal, LogOut, X, Package, FileText, Warehouse } from 'lucide-react';
+import { Home, ShoppingCart, CreditCard, Users, Truck, MoreHorizontal, LogOut, X, Package, FileText, Warehouse, Database, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
@@ -13,8 +13,10 @@ const navItems = [
 const moreItems = [
   { path: '/orders', icon: FileText, label: 'Đơn hàng' },
   { path: '/create-purchase', icon: Warehouse, label: 'Tạo phiếu nhập' },
+  { path: '/inventory-report', icon: ClipboardList, label: 'Xuất nhập tồn' },
   { path: '/products', icon: Package, label: 'Sản phẩm' },
   { path: '/customers', icon: Users, label: 'Khách hàng' },
+  { path: '/backup', icon: Database, label: 'Sao lưu' },
 ];
 
 export const NavBar = () => {

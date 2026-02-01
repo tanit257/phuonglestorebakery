@@ -25,6 +25,17 @@ export const PRODUCT_UNITS = [
   { value: 'túi', label: 'Túi' },
 ];
 
+// Bulk units (đơn vị đóng gói lớn)
+export const BULK_UNITS = [
+  { value: '', label: 'Không có' },
+  { value: 'thùng', label: 'Thùng' },
+  { value: 'xô', label: 'Xô' },
+  { value: 'bao', label: 'Bao' },
+  { value: 'kiện', label: 'Kiện' },
+  { value: 'két', label: 'Két' },
+  { value: 'thùng lớn', label: 'Thùng lớn' },
+];
+
 // Order status
 export const ORDER_STATUS = {
   PENDING: 'pending',
@@ -33,6 +44,9 @@ export const ORDER_STATUS = {
 
 // Debt overdue threshold (days)
 export const OVERDUE_DAYS = 30;
+
+// Retail customer name (khách lẻ)
+export const RETAIL_CUSTOMER_NAME = 'Khách lẻ';
 
 // Store information for printing
 export const STORE_INFO = {
