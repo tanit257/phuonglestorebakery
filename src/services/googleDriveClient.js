@@ -102,16 +102,10 @@ export const listBackupsFromDrive = async () => {
  */
 export const uploadBackupToDrive = async (fileName, fileContent) => {
   try {
-    // Convert Uint8Array to base64
-    const base64Content = btoa(
-      Array.from(fileContent)
-        .map(byte => String.fromCharCode(byte))
-        .join('')
-    );
-
+    // fileContent is already base64 string from prepareBackupForUpload
     const response = await securePost(`${API_BASE}/upload-backup`, {
       fileName,
-      fileContent: base64Content,
+      fileContent,
     });
 
     const data = await response.json();
@@ -140,14 +134,8 @@ export const downloadBackupFromDrive = async (fileId) => {
       throw new Error(data.error || 'Failed to download backup');
     }
 
-    // Convert base64 to Uint8Array
-    const binaryString = atob(data.fileContent);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-
-    return bytes;
+    // Return base64 string (used by decrypt API and file download)
+    return data.fileContent;
   } catch (error) {
     throw new Error(`Failed to download backup: ${error.message}`);
   }

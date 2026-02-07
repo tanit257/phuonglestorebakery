@@ -194,9 +194,9 @@ export default async function handler(req, res) {
     const { encrypted, iv } = encryptData(jsonString, encryptionKey);
     const compressed = pako.gzip(encrypted);
 
-    // Generate filename
+    // Generate filename with IV (required for restore)
     const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '');
-    const fileName = `backup-${timestamp}.json.gz`;
+    const fileName = `backup-${timestamp}-iv-${iv}.json.gz`;
 
     // Upload to Google Drive
     const uploadResult = await uploadToGoogleDrive(fileName, compressed);
