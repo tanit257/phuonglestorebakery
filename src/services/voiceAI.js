@@ -104,13 +104,40 @@ const calculateMatchScore = (searchText, itemText) => {
 const findBestMatch = (searchText, items, nameKey = 'name', minScore = 0.6) => {
   if (!searchText || !items || items.length === 0) return null;
 
+  const searchNormalized = normalizeText(searchText);
+
+  // Guard against empty normalized search
+  if (!searchNormalized) return null;
+
   // Filter out items without the nameKey field and calculate scores
   const scoredItems = items
     .filter(item => item && item[nameKey])
-    .map(item => ({
-      item,
-      score: calculateMatchScore(searchText, item[nameKey])
-    }));
+    .map(item => {
+      const itemName = item[nameKey];
+      const itemNormalized = normalizeText(itemName);
+      let score = calculateMatchScore(searchText, itemName);
+
+      // BONUS: Prioritize items whose name CONTAINS the search term
+      // This helps "bột" match "Bột cacao" over "Đường trắng"
+      if (itemNormalized.includes(searchNormalized)) {
+        // Higher bonus if search is at the START of the item name
+        if (itemNormalized.startsWith(searchNormalized)) {
+          score = Math.max(score, 0.95);
+        } else {
+          score = Math.max(score, 0.85);
+        }
+      }
+
+      // BONUS: Exact word match in item name
+      const searchWords = searchNormalized.split(' ').filter(w => w.length > 1);
+      const itemWords = itemNormalized.split(' ').filter(w => w.length > 1);
+      const hasExactWordMatch = searchWords.some(sw => itemWords.includes(sw));
+      if (hasExactWordMatch) {
+        score = Math.max(score, 0.9);
+      }
+
+      return { item, score };
+    });
 
   // Return null if no valid items after filtering
   if (scoredItems.length === 0) return null;
@@ -214,14 +241,21 @@ const parseOrderItems = (text, products, customerName = null) => {
       .trim();
 
     // Skip common Vietnamese particles/noise words that are NOT product names
-    const noiseWords = ['hàng', 'hang', 'cái', 'cai', 'con', 'chiếc', 'chiec', 'với', 'voi', 'và', 'va'];
-    if (!productText || productText.length < 3 || noiseWords.includes(productText.toLowerCase())) {
+    const noiseWords = ['hàng', 'hang', 'cái', 'cai', 'con', 'chiếc', 'chiec', 'với', 'voi', 'và', 'va', 'có', 'co', 'gồm', 'gom', 'là', 'la'];
+
+    // Remove noise words from productText
+    let cleanProductText = productText;
+    for (const noise of noiseWords) {
+      cleanProductText = cleanProductText.replace(new RegExp(`\\b${noise}\\b`, 'gi'), '').trim();
+    }
+
+    if (!cleanProductText || cleanProductText.length < 2 || noiseWords.includes(cleanProductText.toLowerCase())) {
       continue;
     }
 
     // Use improved fuzzy matching to find the best product
     // Increase minScore to 0.6 to reduce false positives
-    const product = findBestMatch(productText, products, 'name', 0.6);
+    const product = findBestMatch(cleanProductText, products, 'name', 0.6);
 
     if (product) {
       items.push({

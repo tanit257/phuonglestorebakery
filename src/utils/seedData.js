@@ -1333,5 +1333,49 @@ export const generateSeedData = () => {
     { product_id: 'prod-10', quantity: 55 },  // Ba Hưng
   ];
 
-  return { customers, products, orders, invoiceOrders, invoiceInventory };
+  // ============ ENRICH ORDERS WITH CUSTOMER_NAME ============
+  // Add denormalized customer_name to prevent "N/A" display issues
+  const enrichOrdersWithCustomerName = (ordersArray) => {
+    return ordersArray.map(order => {
+      const customer = customers.find(c => c.id === order.customer_id);
+      if (!customer) {
+        console.warn(`Customer not found for order ${order.id}: ${order.customer_id}`);
+        return order;
+      }
+
+      return {
+        ...order,
+        customer_name: customer.short_name || customer.full_name || customer.name,
+      };
+    });
+  };
+
+  // ============ ENRICH PURCHASES WITH SUPPLIER_NAME ============
+  // Add denormalized supplier_name to prevent "N/A" display issues
+  const enrichPurchasesWithSupplierName = (purchasesArray) => {
+    return purchasesArray.map(purchase => {
+      const supplier = customers.find(c => c.id === purchase.supplier_id);
+      if (!supplier) {
+        console.warn(`Supplier not found for purchase ${purchase.id}: ${purchase.supplier_id}`);
+        return purchase;
+      }
+
+      return {
+        ...purchase,
+        supplier_name: supplier.short_name || supplier.full_name || supplier.name,
+      };
+    });
+  };
+
+  // Enrich all orders and purchases
+  const enrichedOrders = enrichOrdersWithCustomerName(orders);
+  const enrichedInvoiceOrders = enrichOrdersWithCustomerName(invoiceOrders);
+
+  return {
+    customers,
+    products,
+    orders: enrichedOrders,
+    invoiceOrders: enrichedInvoiceOrders,
+    invoiceInventory,
+  };
 };

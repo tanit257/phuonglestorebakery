@@ -178,7 +178,7 @@ export const orderApi = {
         .from('orders')
         .select(`
           *,
-          customer:customers(id, name, phone),
+          customer:customers(id, short_name, full_name, phone),
           order_items(
             id,
             quantity,
@@ -195,6 +195,11 @@ export const orderApi = {
   },
 
   async create(order) {
+    // VALIDATION: Ensure customer_name exists (prevent "N/A" display issues)
+    if (!order.customer_name || typeof order.customer_name !== 'string' || order.customer_name.trim() === '') {
+      throw new Error('Order must include customer_name. Please provide a valid customer name.');
+    }
+
     if (isSupabaseConfigured()) {
       // Create order
       const { data: orderData, error: orderError } = await supabase
@@ -360,6 +365,86 @@ export const orderApi = {
     saveToLocalStorage('orders', localStorageDB.orders);
     return true;
   },
+
+  /**
+   * Get last prices for products purchased by a specific customer
+   * @param {string|number} customerId - Customer ID
+   * @param {number} monthsBack - Number of months to look back (default: 6)
+   * @returns {Promise<Array>} Array of { product_id, last_price, last_sold_at }
+   */
+  async getCustomerLastPrices(customerId, monthsBack = 6) {
+    if (isSupabaseConfigured()) {
+      // Calculate cutoff date
+      const cutoffDate = new Date();
+      cutoffDate.setMonth(cutoffDate.getMonth() - monthsBack);
+
+      const { data, error } = await supabase
+        .from('order_items')
+        .select(`
+          product_id,
+          unit_price,
+          orders!inner(customer_id, created_at)
+        `)
+        .eq('orders.customer_id', customerId)
+        .gte('orders.created_at', cutoffDate.toISOString())
+        .order('orders.created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by product_id and get the most recent price
+      const priceMap = {};
+      for (const item of data) {
+        if (!priceMap[item.product_id]) {
+          priceMap[item.product_id] = {
+            product_id: item.product_id,
+            last_price: item.unit_price,
+            last_sold_at: item.orders.created_at,
+          };
+        }
+      }
+
+      return Object.values(priceMap);
+    }
+
+    // Local storage implementation
+    const orders = localStorageDB.orders;
+
+    // Calculate cutoff date
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - monthsBack);
+
+    // Filter orders by customer and time range
+    const recentOrders = orders
+      .filter(o => {
+        const orderCustomerId = String(o.customer_id);
+        const targetCustomerId = String(customerId);
+        const orderDate = new Date(o.created_at);
+
+        return orderCustomerId === targetCustomerId && orderDate >= cutoffDate;
+      })
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Build price map (only keep the most recent price for each product)
+    const priceMap = {};
+
+    for (const order of recentOrders) {
+      const items = order.items || order.order_items || [];
+
+      for (const item of items) {
+        const productId = String(item.product_id);
+
+        if (!priceMap[productId]) {
+          priceMap[productId] = {
+            product_id: item.product_id,
+            last_price: item.unit_price,
+            last_sold_at: order.created_at,
+          };
+        }
+      }
+    }
+
+    return Object.values(priceMap);
+  },
 };
 
 // ============ PURCHASES ============
@@ -370,7 +455,7 @@ export const purchaseApi = {
         .from('purchases')
         .select(`
           *,
-          supplier:customers(id, name, phone),
+          supplier:customers(id, short_name, full_name, phone),
           purchase_items(
             id,
             quantity,
@@ -387,6 +472,11 @@ export const purchaseApi = {
   },
 
   async create(purchase) {
+    // VALIDATION: Ensure supplier_name exists (prevent "N/A" display issues)
+    if (!purchase.supplier_name || typeof purchase.supplier_name !== 'string' || purchase.supplier_name.trim() === '') {
+      throw new Error('Purchase must include supplier_name. Please provide a valid supplier name.');
+    }
+
     if (isSupabaseConfigured()) {
       // Create purchase
       const { data: purchaseData, error: purchaseError } = await supabase
@@ -543,7 +633,7 @@ export const invoiceOrderApi = {
         .from('invoice_orders')
         .select(`
           *,
-          customer:customers(id, name, phone),
+          customer:customers(id, short_name, full_name, phone),
           invoice_order_items(
             id,
             quantity,
@@ -563,6 +653,11 @@ export const invoiceOrderApi = {
   },
 
   async create(order) {
+    // VALIDATION: Ensure customer_name exists (prevent "N/A" display issues)
+    if (!order.customer_name || typeof order.customer_name !== 'string' || order.customer_name.trim() === '') {
+      throw new Error('Invoice order must include customer_name. Please provide a valid customer name.');
+    }
+
     if (isSupabaseConfigured()) {
       const { data: orderData, error: orderError } = await supabase
         .from('invoice_orders')
@@ -755,7 +850,7 @@ export const invoicePurchaseApi = {
         .from('invoice_purchases')
         .select(`
           *,
-          supplier:customers(id, name, phone),
+          supplier:customers(id, short_name, full_name, phone),
           invoice_purchase_items(
             id,
             quantity,
@@ -775,6 +870,11 @@ export const invoicePurchaseApi = {
   },
 
   async create(purchase) {
+    // VALIDATION: Ensure supplier_name exists (prevent "N/A" display issues)
+    if (!purchase.supplier_name || typeof purchase.supplier_name !== 'string' || purchase.supplier_name.trim() === '') {
+      throw new Error('Invoice purchase must include supplier_name. Please provide a valid supplier name.');
+    }
+
     if (isSupabaseConfigured()) {
       const { data: purchaseData, error: purchaseError } = await supabase
         .from('invoice_purchases')

@@ -38,7 +38,9 @@ export default function QuickRetailModal({ isOpen, onClose }) {
     } else {
       setItems(prev => [...prev, {
         product_id: selectedProduct.id,
-        product_name: selectedProduct.name,
+        product_name: isInvoiceMode && selectedProduct.invoice_name
+          ? selectedProduct.invoice_name
+          : selectedProduct.name,
         quantity,
         unit_price: price,
         unit: selectedProduct.unit,
@@ -127,11 +129,11 @@ export default function QuickRetailModal({ isOpen, onClose }) {
                         key={product.id}
                         onClick={() => {
                           setSelectedProductId(String(product.id));
-                          setSearchTerm(product.name);
+                          setSearchTerm(isInvoiceMode && product.invoice_name ? product.invoice_name : product.name);
                         }}
                         className="w-full px-3 py-2 text-left hover:bg-amber-50 flex justify-between items-center"
                       >
-                        <span>{product.name}</span>
+                        <span>{isInvoiceMode && product.invoice_name ? product.invoice_name : product.name}</span>
                         <span className="text-sm text-gray-500">
                           {formatCurrency(isInvoiceMode ? (product.invoice_price || product.price) : product.price)}/{product.unit}
                         </span>

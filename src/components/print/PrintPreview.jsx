@@ -3,7 +3,7 @@ import { X, Printer, FileText } from 'lucide-react';
 import { formatCurrency, formatDateTime, formatQuantityWithBulk } from '../../utils/formatters';
 import { STORE_INFO } from '../../utils/constants';
 
-export const PrintPreview = ({ order, customer, onClose, onPrint, onPrintOnly }) => {
+export const PrintPreview = ({ order, customer, isInvoiceMode = false, onClose, onPrint, onPrintOnly }) => {
   const [paperSize, setPaperSize] = useState('A4'); // A4 or A5
   const [note, setNote] = useState('');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -135,7 +135,11 @@ export const PrintPreview = ({ order, customer, onClose, onPrint, onPrintOnly })
                     <React.Fragment key={index}>
                       <tr className={item.note ? '' : 'border-b border-gray-200'}>
                         <td className="py-2">{index + 1}</td>
-                        <td className="py-2">{item.product_name || item.product?.name}</td>
+                        <td className="py-2">
+                          {isInvoiceMode && item.product?.invoice_name
+                            ? item.product.invoice_name
+                            : (item.product_name || item.product?.name)}
+                        </td>
                         <td className="text-right py-2">{formatQuantityWithBulk(item.quantity, item.product)}</td>
                         <td className="text-right py-2">{formatCurrency(item.unit_price)}</td>
                         <td className="text-right py-2 font-medium">{formatCurrency(item.subtotal)}</td>

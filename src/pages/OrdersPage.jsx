@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Package, Trash2, ChevronDown, ChevronUp, Edit, X, Printer, Eye, Copy, FileText, MoreVertical, DollarSign, Plus, Search, StickyNote } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
@@ -9,9 +10,12 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { formatCurrency, formatDate, formatDateTime, formatQuantityWithBulk } from '../utils/formatters';
 import { PrintPreview } from '../components/print/PrintPreview';
 import { CUSTOMER_TYPE_LABELS } from '../utils/constants';
+import { getCustomerName } from '../utils/customerHelpers';
 
 const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef(null);
 
   const handlePaymentToggle = () => {
     if (order.paid) {
@@ -27,23 +31,47 @@ const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
     setIsOpen(false);
   };
 
+  const handleToggle = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.right - 224, // 224px = w-56 (14rem)
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  // Close menu when clicking outside or scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleScroll = () => setIsOpen(false);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, [isOpen]);
+
   return (
     <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        ref={buttonRef}
+        onClick={handleToggle}
         className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
         aria-label="Thêm hành động"
       >
         <MoreVertical size={18} />
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <>
           <div
-            className="fixed inset-0 z-10"
+            className="fixed inset-0 z-[9998]"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
+          <div
+            className="fixed w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-[9999]"
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+          >
             <button
               onClick={handlePaymentToggle}
               className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
@@ -69,7 +97,8 @@ const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
               <span>Xóa đơn hàng</span>
             </button>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
@@ -79,7 +108,7 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
   const [isExpanded, setIsExpanded] = useState(false);
 
   const items = order.order_items || order.items || [];
-  const customer = order.customer || customers.find(c => c.id === order.customer_id);
+  const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
 
   const handleCardClick = (e) => {
     // Không toggle nếu click vào các button actions
@@ -110,7 +139,7 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="font-semibold text-gray-800">
-            {customer?.name || order.customer_name || 'Khách hàng'}
+            {customer?.short_name || customer?.full_name || customer?.name || order.customer_name || 'Khách hàng'}
           </p>
           <p className="text-xs text-gray-400 mt-0.5">
             {formatDateTime(order.created_at)}
@@ -140,7 +169,9 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
             >
               <div className="flex-1">
                 <span className="text-gray-700">
-                  {item.product?.name || item.product_name}
+                  {isInvoiceMode && item.product?.invoice_name
+                    ? item.product.invoice_name
+                    : (item.product?.name || item.product_name)}
                 </span>
                 <span className="text-gray-600 text-xs ml-2 font-medium">
                   {formatQuantityWithBulk(item.quantity, item.product)}
@@ -324,6 +355,7 @@ const OrdersPage = () => {
         ...item,
         product_id: item.product_id || item.product?.id,
         product_name: item.product_name || item.product?.name,
+        product: item.product, // Keep product object for invoice_name
         note: item.note || '',
       }))
     });
@@ -623,7 +655,7 @@ const OrdersPage = () => {
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Chỉnh sửa đơn hàng</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Khách hàng: {editingOrder.customer?.name || editingOrder.customer_name}
+                Khách hàng: {editingOrder.customer?.short_name || editingOrder.customer?.full_name || editingOrder.customer?.name || editingOrder.customer_name}
               </p>
             </div>
 
@@ -633,7 +665,11 @@ const OrdersPage = () => {
                 {editingOrder.items.map((item, index) => (
                   <div key={index} className="border border-gray-200 rounded-xl p-4">
                     <div className="flex items-start justify-between mb-3">
-                      <p className="font-medium text-gray-800">{item.product_name}</p>
+                      <p className="font-medium text-gray-800">
+                        {isInvoiceMode && item.product?.invoice_name
+                          ? item.product.invoice_name
+                          : item.product_name}
+                      </p>
                       <button
                         onClick={() => removeEditingItem(index)}
                         className="p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
@@ -826,7 +862,7 @@ const OrdersPage = () => {
               <div className="mb-6 p-4 bg-violet-50 rounded-xl">
                 <h4 className="font-semibold text-gray-900 mb-2">Khách hàng</h4>
                 <p className="text-gray-700">
-                  {viewingOrder.customer?.name || viewingOrder.customer_name || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.name || 'N/A'}
+                  {getCustomerName(viewingOrder.customer_id, viewingOrder.customer, viewingOrder.customer_name, customers)}
                 </p>
                 {(viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone) && (
                   <p className="text-sm text-gray-600 mt-1">
@@ -842,7 +878,9 @@ const OrdersPage = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">
-                          {item.product_name || item.product?.name}
+                          {isInvoiceMode && item.product?.invoice_name
+                            ? item.product.invoice_name
+                            : (item.product_name || item.product?.name)}
                         </p>
                         <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                           <span>SL: {formatQuantityWithBulk(item.quantity, item.product)}</span>
@@ -930,6 +968,7 @@ const OrdersPage = () => {
         <PrintPreview
           order={printingOrder}
           customer={customers.find(c => c.id === (printingOrder.customer_id || printingOrder.customer?.id))}
+          isInvoiceMode={isInvoiceMode}
           onClose={() => setPrintingOrder(null)}
           onPrint={handlePrint}
         />

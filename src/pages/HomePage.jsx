@@ -418,7 +418,9 @@ const HomePage = () => {
                   <div key={index} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">
-                        {item.product_name || item.product?.name}
+                        {isInvoiceMode && item.product?.invoice_name
+                          ? item.product.invoice_name
+                          : (item.product_name || item.product?.name)}
                       </p>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                         <span>SL: {item.quantity}</span>

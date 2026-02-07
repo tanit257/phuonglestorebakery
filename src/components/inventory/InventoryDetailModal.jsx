@@ -31,7 +31,9 @@ export default function InventoryDetailModal({ isOpen, onClose, product, month, 
           <div className="flex items-center gap-2">
             <Package className="w-5 h-5" />
             <div>
-              <h2 className="text-lg font-semibold">{product.name}</h2>
+              <h2 className="text-lg font-semibold">
+                {isInvoiceMode && product.invoice_name ? product.invoice_name : product.name}
+              </h2>
               <p className="text-sm text-white/80">{formatMonthDisplay(month)}</p>
             </div>
           </div>

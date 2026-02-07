@@ -287,7 +287,7 @@ export const useStore = create((set, get) => ({
 
       const order = {
         customer_id: selectedCustomer.id,
-        customer_name: selectedCustomer.name,
+        customer_name: selectedCustomer.short_name || selectedCustomer.full_name || selectedCustomer.name,
         items: normalizedItems,
         total: cart.reduce((sum, item) => sum + item.subtotal, 0),
       };
@@ -426,6 +426,9 @@ export const useStore = create((set, get) => ({
     // Create draft if customer is selected and no active draft
     if (customer && !get().activeDraftId) {
       get().createDraftCart(customer);
+    } else if (customer && get().activeDraftId) {
+      // Sync customer change to active draft immediately
+      setTimeout(() => get().syncActiveDraft(), 0);
     }
   },
   
@@ -598,7 +601,7 @@ export const useStore = create((set, get) => ({
     try {
       const purchase = {
         supplier_id: selectedSupplier.id,
-        supplier_name: selectedSupplier.name,
+        supplier_name: selectedSupplier.short_name || selectedSupplier.full_name || selectedSupplier.name,
         items: purchaseCart,
         total: purchaseCart.reduce((sum, item) => sum + item.subtotal, 0),
       };
@@ -849,7 +852,7 @@ export const useStore = create((set, get) => ({
 
       const order = {
         customer_id: invoiceSelectedCustomer.id,
-        customer_name: invoiceSelectedCustomer.name,
+        customer_name: invoiceSelectedCustomer.short_name || invoiceSelectedCustomer.full_name || invoiceSelectedCustomer.name,
         items: normalizedItems,
         total: invoiceCart.reduce((sum, item) => sum + item.subtotal, 0),
       };
@@ -978,6 +981,9 @@ export const useStore = create((set, get) => ({
     // Create draft if customer is selected and no active draft
     if (customer && !get().activeInvoiceDraftId) {
       get().createInvoiceDraftCart(customer);
+    } else if (customer && get().activeInvoiceDraftId) {
+      // Sync customer change to active invoice draft immediately
+      setTimeout(() => get().syncActiveInvoiceDraft(), 0);
     }
   },
 
@@ -1125,7 +1131,7 @@ export const useStore = create((set, get) => ({
     try {
       const purchase = {
         supplier_id: invoiceSelectedSupplier.id,
-        supplier_name: invoiceSelectedSupplier.name,
+        supplier_name: invoiceSelectedSupplier.short_name || invoiceSelectedSupplier.full_name || invoiceSelectedSupplier.name,
         items: invoicePurchaseCart,
         total: invoicePurchaseCart.reduce((sum, item) => sum + item.subtotal, 0),
       };

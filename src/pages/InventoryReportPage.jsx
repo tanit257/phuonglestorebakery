@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Package, ShoppingBag, TrendingUp, TrendingDown, ChevronDown, Search } from 'lucide-react';
+import { Package, ShoppingBag, TrendingUp, TrendingDown, ChevronDown, Search, Printer } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { useMode } from '../contexts/ModeContext';
 import { formatCurrency } from '../utils/formatters';
 import QuickRetailModal from '../components/inventory/QuickRetailModal';
 import InventoryDetailModal from '../components/inventory/InventoryDetailModal';
+import { PrintInventoryReport } from '../components/print/PrintInventoryReport';
 
 export default function InventoryReportPage() {
   const {
@@ -13,6 +14,10 @@ export default function InventoryReportPage() {
     getInvoiceInventoryReport,
     getAvailableMonths,
     getInvoiceAvailableMonths,
+    orders,
+    purchases,
+    invoiceOrders,
+    invoicePurchases,
   } = useStore();
   const { isInvoiceMode } = useMode();
 
@@ -25,6 +30,7 @@ export default function InventoryReportPage() {
   const [showRetailModal, setShowRetailModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showPrintReport, setShowPrintReport] = useState(false);
 
   // Get available months
   const availableMonths = useMemo(() => {
@@ -84,13 +90,22 @@ export default function InventoryReportPage() {
             <Package className="w-6 h-6" />
             <h1 className="text-xl font-bold">Xuất nhập tồn</h1>
           </div>
-          <button
-            onClick={() => setShowRetailModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            <span>Bán lẻ nhanh</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowPrintReport(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors"
+            >
+              <Printer className="w-4 h-4" />
+              <span>In báo cáo</span>
+            </button>
+            <button
+              onClick={() => setShowRetailModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Bán lẻ nhanh</span>
+            </button>
+          </div>
         </div>
 
         {/* Month selector */}
@@ -255,6 +270,17 @@ export default function InventoryReportPage() {
         month={selectedMonth}
         reportData={selectedReportData}
       />
+
+      {/* Print Inventory Report Modal */}
+      {showPrintReport && (
+        <PrintInventoryReport
+          month={selectedMonth}
+          isInvoiceMode={isInvoiceMode}
+          purchases={isInvoiceMode ? invoicePurchases : purchases}
+          orders={isInvoiceMode ? invoiceOrders : orders}
+          onClose={() => setShowPrintReport(false)}
+        />
+      )}
     </div>
   );
 }

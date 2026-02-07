@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag, Eye, FileText, Package, StickyNote } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
+import { useCustomerPricing } from '../hooks/useCustomerPricing';
 import { useMode } from '../contexts/ModeContext';
 import { Header } from '../components/layout/Header';
 import { Card, CardTitle } from '../components/ui/Card';
@@ -81,6 +82,12 @@ const CreateOrderPage = () => {
   const cartTotal = isInvoiceMode ? getInvoiceCartTotal() : getCartTotal();
   const isCreating = isInvoiceMode ? isCreatingInvoiceOrder : isCreatingOrder;
 
+  // Fetch customer-specific pricing (6 months history)
+  const { priceCache: realPriceCache } = useCustomerPricing(selectedCustomer?.id, 6);
+  const { priceCache: invoicePriceCache } = useCustomerPricing(invoiceSelectedCustomer?.id, 6);
+
+  const currentPriceCache = isInvoiceMode ? invoicePriceCache : realPriceCache;
+
   const filteredProducts = smartSearch(searchTerm, products, 'name');
 
   const handleCreateOrder = async () => {
@@ -120,9 +127,21 @@ const CreateOrderPage = () => {
     }
   };
 
-  // Enhance product with correct price for mode
+  // Handle product selection with customer-specific pricing
   const handleProductSelect = (product) => {
-    currentAddToCart(product);
+    const priceInfo = currentPriceCache[product.id];
+
+    if (priceInfo?.lastPrice) {
+      // Use customer's last price
+      const productWithCustomPrice = {
+        ...product,
+        price: priceInfo.lastPrice,
+      };
+      currentAddToCart(productWithCustomPrice);
+    } else {
+      // Use default price (new product for this customer)
+      currentAddToCart(product);
+    }
   };
 
   return (
@@ -257,7 +276,9 @@ const CreateOrderPage = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-gray-800 truncate">
-                                {item.product?.name || item.product_name}
+                                {isInvoiceMode && item.product?.invoice_name
+                                  ? item.product.invoice_name
+                                  : (item.product?.name || item.product_name)}
                               </p>
                               <div className="flex items-center gap-2 text-sm">
                                 <span className="text-gray-600 font-medium">
@@ -457,16 +478,16 @@ const CreateOrderPage = () => {
                   title="Thêm sản phẩm"
                   products={filteredProducts.map(p => ({
                     ...p,
-                    displayPrice: isInvoiceMode ? (p.invoice_price || p.price) : p.price,
-                    displayStock: isInvoiceMode ? getInvoiceProductStock(p.id) : p.stock,
+                    price: isInvoiceMode ? (p.invoice_price || p.price) : p.price,
+                    stock: isInvoiceMode ? getInvoiceProductStock(p.id) : p.stock,
                   }))}
                   searchTerm={searchTerm}
                   onSearchChange={(e) => setSearchTerm(e.target.value)}
                   onProductSelect={handleProductSelect}
                   showStock={true}
                   plusButtonColor={isInvoiceMode ? 'rose' : 'violet'}
-                  priceKey="displayPrice"
-                  stockKey="displayStock"
+                  isInvoiceMode={isInvoiceMode}
+                  customerPriceCache={currentPriceCache}
                 />
               </Card>
             </div>
@@ -484,6 +505,7 @@ const CreateOrderPage = () => {
             paid: false,
           }}
           customer={currentCustomer}
+          isInvoiceMode={isInvoiceMode}
           onClose={() => setShowPrintPreview(false)}
           onPrint={handlePrint}
         />
