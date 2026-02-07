@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { productApi, customerApi, orderApi, purchaseApi, invoiceOrderApi, invoicePurchaseApi, invoiceInventoryApi, seedData } from '../services/api';
 import { OVERDUE_DAYS, RETAIL_CUSTOMER_NAME, CUSTOMER_TYPES } from '../utils/constants';
+import { connectionMonitor } from '../services/connectionMonitor';
 
 export const useStore = create((set, get) => ({
   // ============ STATE ============
@@ -13,6 +14,7 @@ export const useStore = create((set, get) => ({
   isCreatingPurchase: false,
   error: null,
   notification: null,
+  connectionStatus: 'online', // 'online' | 'offline'
 
   // Cart state (keeping for backward compatibility)
   cart: [],
@@ -99,11 +101,34 @@ export const useStore = create((set, get) => ({
         activeInvoiceDraftId: loadedInvoiceDraftCarts.activeId,
         isLoading: false,
       });
+      // Subscribe to connection status changes
+      connectionMonitor.onStatusChange((status) => {
+        set({ connectionStatus: status });
+      });
+
     } catch (error) {
-      set({ error: error.message, isLoading: false });
+      // Check if it's a network error
+      const isNetworkError = error.message?.includes('fetch') || error.message?.includes('network') || !navigator.onLine;
+      if (isNetworkError) {
+        connectionMonitor.markOffline();
+        set({ error: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.', isLoading: false, connectionStatus: 'offline' });
+      } else {
+        set({ error: error.message, isLoading: false });
+      }
     }
   },
-  
+
+  // ============ CONNECTION ============
+  retryConnection: async () => {
+    const isOnline = await connectionMonitor.checkConnection();
+    if (isOnline) {
+      set({ connectionStatus: 'online', error: null });
+      get().initialize();
+    } else {
+      get().showNotification('Vẫn không có kết nối mạng', 'error');
+    }
+  },
+
   // ============ NOTIFICATIONS ============
   showNotification: (message, type = 'info') => {
     set({ notification: { message, type } });

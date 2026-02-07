@@ -11,6 +11,7 @@ import NavBar from './components/layout/NavBar';
 import Notification from './components/layout/Notification';
 import VoiceButton from './components/voice/VoiceButton';
 import VoiceDisplay from './components/voice/VoiceDisplay';
+import ConnectionBanner from './components/common/ConnectionBanner';
 
 // Auth components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -75,8 +76,9 @@ const DevModeBanner = () => {
 
 // Protected Layout Component
 const ProtectedLayout = ({ children }) => {
-  const { isLoading, error, initialize } = useStore();
+  const { isLoading, error, initialize, connectionStatus } = useStore();
   const { isDevMode } = useAuth();
+  const hasTopBanner = isDevMode || connectionStatus === 'offline';
 
   // Initialize data on mount
   useEffect(() => {
@@ -96,8 +98,9 @@ const ProtectedLayout = ({ children }) => {
   return (
     <ModeProvider>
       <VoiceProvider>
-        <div className={`min-h-screen bg-gray-50 ${isDevMode ? 'pt-10' : ''}`}>
-          {/* Dev Mode Warning */}
+        <div className={`min-h-screen bg-gray-50 ${hasTopBanner ? 'pt-10' : ''}`}>
+          {/* Connection / Dev Mode Warning */}
+          <ConnectionBanner />
           <DevModeBanner />
 
           {/* Notification */}
