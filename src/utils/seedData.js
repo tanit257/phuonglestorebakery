@@ -14,42 +14,48 @@ export const generateSeedData = () => {
   const customers = [
     {
       id: 'cust-1',
-      name: 'Anh Quân',
+      short_name: 'Tiệm Anh Quân',
+      full_name: 'Tiệm bánh Anh Quân',
       type: 'bakery',
       phone: '0901234567',
       created_at: getDateMonthsAgo(6)
     },
     {
       id: 'cust-2',
-      name: 'Chị Hương',
+      short_name: 'Chị Hương',
+      full_name: 'Nguyễn Thị Hương',
       type: 'individual',
       phone: '0912345678',
       created_at: getDateMonthsAgo(5)
     },
     {
       id: 'cust-3',
-      name: 'Anh Tuấn',
+      short_name: 'Tiệm Anh Tuấn',
+      full_name: 'Tiệm bánh Anh Tuấn',
       type: 'bakery',
-      phone: '0923456789',
+      phone: '0934567890',
       created_at: getDateMonthsAgo(4)
     },
     {
       id: 'cust-4',
-      name: 'Chị Linh',
+      short_name: 'Chị Linh',
+      full_name: 'Trần Thị Linh',
       type: 'individual',
       phone: '0934567890',
       created_at: getDateMonthsAgo(3)
     },
     {
       id: 'cust-5',
-      name: 'Anh Minh',
+      short_name: 'Anh Minh',
+      full_name: 'Lê Văn Minh',
       type: 'individual',
       phone: '0945678901',
       created_at: getDateMonthsAgo(2)
     },
     {
       id: 'supplier-1',
-      name: 'Công ty TNHH Bột Mì Sài Gòn',
+      short_name: 'Bột Mì SG',
+      full_name: 'Công ty TNHH Bột Mì Sài Gòn',
       type: 'supplier',
       phone: '0283456789',
       address: '123 Đường 3/2, Quận 10, TP.HCM',
@@ -57,7 +63,8 @@ export const generateSeedData = () => {
     },
     {
       id: 'supplier-2',
-      name: 'Nhà phân phối Nguyên liệu Á Châu',
+      short_name: 'NL Á Châu',
+      full_name: 'Nhà phân phối Nguyên liệu Á Châu',
       type: 'supplier',
       phone: '0287654321',
       address: '456 Lý Thường Kiệt, Quận 11, TP.HCM',
@@ -1326,5 +1333,49 @@ export const generateSeedData = () => {
     { product_id: 'prod-10', quantity: 55 },  // Ba Hưng
   ];
 
-  return { customers, products, orders, invoiceOrders, invoiceInventory };
+  // ============ ENRICH ORDERS WITH CUSTOMER_NAME ============
+  // Add denormalized customer_name to prevent "N/A" display issues
+  const enrichOrdersWithCustomerName = (ordersArray) => {
+    return ordersArray.map(order => {
+      const customer = customers.find(c => c.id === order.customer_id);
+      if (!customer) {
+        console.warn(`Customer not found for order ${order.id}: ${order.customer_id}`);
+        return order;
+      }
+
+      return {
+        ...order,
+        customer_name: customer.short_name || customer.full_name || customer.name,
+      };
+    });
+  };
+
+  // ============ ENRICH PURCHASES WITH SUPPLIER_NAME ============
+  // Add denormalized supplier_name to prevent "N/A" display issues
+  const enrichPurchasesWithSupplierName = (purchasesArray) => {
+    return purchasesArray.map(purchase => {
+      const supplier = customers.find(c => c.id === purchase.supplier_id);
+      if (!supplier) {
+        console.warn(`Supplier not found for purchase ${purchase.id}: ${purchase.supplier_id}`);
+        return purchase;
+      }
+
+      return {
+        ...purchase,
+        supplier_name: supplier.short_name || supplier.full_name || supplier.name,
+      };
+    });
+  };
+
+  // Enrich all orders and purchases
+  const enrichedOrders = enrichOrdersWithCustomerName(orders);
+  const enrichedInvoiceOrders = enrichOrdersWithCustomerName(invoiceOrders);
+
+  return {
+    customers,
+    products,
+    orders: enrichedOrders,
+    invoiceOrders: enrichedInvoiceOrders,
+    invoiceInventory,
+  };
 };

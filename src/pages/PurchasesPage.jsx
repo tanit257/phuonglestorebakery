@@ -6,7 +6,7 @@ import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
-import { formatCurrency, formatDate, formatRelativeTime } from '../utils/formatters';
+import { formatCurrency, formatDate, formatRelativeTime, formatQuantityWithBulk } from '../utils/formatters';
 
 const PurchasesPage = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const PurchasesPage = () => {
       // Filter by supplier
       if (selectedSupplier !== 'all') {
         const supplierId = purchase.supplier_id || purchase.supplier?.id;
-        if (supplierId !== selectedSupplier) return false;
+        if (String(supplierId) !== String(selectedSupplier)) return false;
       }
 
       // Filter by payment status
@@ -129,6 +129,7 @@ const PurchasesPage = () => {
               >
                 <option value="all">Tất cả nhà cung cấp</option>
                 {suppliers
+                  .filter(s => s && s.name)
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map(supplier => (
                     <option key={supplier.id} value={supplier.id}>
@@ -171,7 +172,7 @@ const PurchasesPage = () => {
           {/* Purchase List */}
           <div className="space-y-3">
             {filteredPurchases.map(purchase => {
-              const supplier = purchase.supplier || customers.find(c => c.id === purchase.supplier_id);
+              const supplier = purchase.supplier || customers.find(c => String(c.id) === String(purchase.supplier_id));
 
               return (
                 <Card key={purchase.id}>
@@ -185,7 +186,7 @@ const PurchasesPage = () => {
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-800">
-                          {supplier?.name || 'N/A'}
+                          {supplier?.short_name || supplier?.full_name || supplier?.name || purchase.supplier_name || 'N/A'}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                           <Calendar size={12} />
@@ -299,14 +300,21 @@ const PurchasesPage = () => {
               {/* Supplier Info */}
               <div className="mb-6 p-4 bg-emerald-50 rounded-xl">
                 <h4 className="font-semibold text-gray-900 mb-2">Nhà cung cấp</h4>
-                <p className="text-gray-700">
-                  {viewingPurchase.supplier?.name || customers.find(c => c.id === viewingPurchase.supplier_id)?.name || 'N/A'}
-                </p>
-                {viewingPurchase.supplier?.phone && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    ☎ {viewingPurchase.supplier.phone}
-                  </p>
-                )}
+                {(() => {
+                  const supplier = viewingPurchase.supplier || customers.find(c => String(c.id) === String(viewingPurchase.supplier_id));
+                  return (
+                    <>
+                      <p className="text-gray-700">
+                        {supplier?.short_name || supplier?.full_name || supplier?.name || viewingPurchase.supplier_name || 'N/A'}
+                      </p>
+                      {supplier?.phone && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          ☎ {supplier.phone}
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Items List */}
@@ -318,7 +326,7 @@ const PurchasesPage = () => {
                         {item.product_name || item.product?.name}
                       </p>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                        <span>SL: {item.quantity}</span>
+                        <span>SL: {formatQuantityWithBulk(item.quantity, item.product)}</span>
                         <span>•</span>
                         <span>Giá nhập: {formatCurrency(item.unit_price)}</span>
                       </div>

@@ -61,8 +61,8 @@ export const CustomerSelector = ({
             <User size={16} className={colors.icon} />
           </div>
           <div className="text-left">
-            <p className={`font-medium ${colors.text}`}>{selectedCustomer.name}</p>
-            <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+            <p className={`font-medium ${colors.text}`}>{selectedCustomer.short_name || selectedCustomer.full_name || selectedCustomer.name || 'Không tên'}</p>
+            {selectedCustomer.phone && <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>}
           </div>
         </button>
         <button
@@ -87,8 +87,8 @@ export const CustomerSelector = ({
             onClick={onDeselect}
             className="text-left hover:opacity-80 transition-opacity"
           >
-            <p className="font-medium text-gray-800">{selectedCustomer.name}</p>
-            <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+            <p className="font-medium text-gray-800">{selectedCustomer.short_name || selectedCustomer.full_name || selectedCustomer.name || 'Không tên'}</p>
+            {selectedCustomer.phone && <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>}
           </button>
           <button
             onClick={onDeselect}
@@ -108,8 +108,8 @@ export const CustomerSelector = ({
                 className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"
               >
                 <div className="text-left">
-                  <p className="font-medium text-gray-800">{customer.name}</p>
-                  <p className="text-xs text-gray-500">{customer.phone}</p>
+                  <p className="font-medium text-gray-800">{customer.short_name || customer.full_name || customer.name || 'Không tên'}</p>
+                  {customer.phone && <p className="text-xs text-gray-500">{customer.phone}</p>}
                 </div>
                 <ChevronRight size={18} className="text-gray-400" />
               </button>

@@ -57,8 +57,7 @@ export const useVoice = () => {
         alternatives: alternativesList,
         suggestions: corrections
       });
-    } catch (error) {
-      console.error('Error processing command:', error);
+    } catch {
       setResult({
         action: 'error',
         message: 'Có lỗi xảy ra. Vui lòng thử lại.',
@@ -76,12 +75,38 @@ export const useVoice = () => {
   useEffect(() => {
     callbackRef.current = (update) => {
       if (update.error) {
-        // Hủy timeout nếu có lỗi
+        // Ignore "no-speech" error when waiting for more input
+        // This happens when recognition restarts but user hasn't spoken yet
+        if (update.error === 'no-speech' && accumulatedTranscriptRef.current) {
+          // User already said something, just process what we have
+          const finalTranscript = accumulatedTranscriptRef.current;
+          const finalConfidence = accumulatedConfidenceRef.current;
+          const finalAlternatives = accumulatedAlternativesRef.current;
+
+          if (processTimeoutRef.current) {
+            clearTimeout(processTimeoutRef.current);
+            processTimeoutRef.current = null;
+          }
+
+          if (finalTranscript) {
+            processCommand(finalTranscript, finalConfidence, finalAlternatives);
+          }
+          setIsListening(false);
+          setIsWaitingForMore(false);
+          return;
+        }
+
+        // For other errors or no-speech without accumulated transcript
         if (processTimeoutRef.current) {
           clearTimeout(processTimeoutRef.current);
           processTimeoutRef.current = null;
         }
-        showNotification(update.message, 'error');
+
+        // Only show notification for real errors, not no-speech during waiting
+        if (update.error !== 'no-speech') {
+          showNotification(update.message, 'error');
+        }
+
         setIsListening(false);
         setIsWaitingForMore(false);
         accumulatedTranscriptRef.current = '';
@@ -137,29 +162,14 @@ export const useVoice = () => {
           const finalAlternatives = accumulatedAlternativesRef.current;
 
           if (finalTranscript) {
-            console.log('Processing after delay:', finalTranscript);
             processCommand(finalTranscript, finalConfidence, finalAlternatives);
           }
           processTimeoutRef.current = null;
+          setIsListening(false);
         }, COMMAND_DELAY_MS);
 
-        // Restart recognition để tiếp tục nghe
-        // (continuous = false nên cần restart thủ công)
-        try {
-          if (recognitionRef.current) {
-            // Đợi một chút trước khi restart
-            setTimeout(() => {
-              try {
-                recognitionRef.current.start();
-              } catch (e) {
-                // Có thể recognition đã bị dừng hoặc đang chạy
-                console.log('Could not restart recognition:', e.message);
-              }
-            }, 100);
-          }
-        } catch (e) {
-          console.log('Error restarting recognition:', e);
-        }
+        // Note: Removed auto-restart of recognition to avoid "no-speech" errors
+        // User can manually restart by pressing the mic button again if needed
       } else {
         // Interim transcript (while speaking)
         // Hiển thị transcript đang tích lũy + interim
@@ -236,9 +246,8 @@ export const useVoice = () => {
 
     try {
       recognitionRef.current.start();
-    } catch (error) {
+    } catch {
       // Recognition might already be running
-      console.error('Error starting recognition:', error);
       setIsListening(false);
     }
   }, [showNotification]);

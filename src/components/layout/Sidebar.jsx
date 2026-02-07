@@ -11,7 +11,9 @@ import {
   TrendingUp,
   Warehouse,
   ArrowLeftRight,
-  LogOut
+  LogOut,
+  Database,
+  ClipboardList
 } from 'lucide-react';
 import { useMode, MODES } from '../../contexts/ModeContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,7 +22,7 @@ export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mode, toggleMode, config } = useMode();
-  const { signOut, user } = useAuth();
+  const { signOut, user, isDevMode } = useAuth();
 
   const isInvoice = mode === MODES.INVOICE;
 
@@ -35,9 +37,11 @@ export const Sidebar = () => {
     { path: '/orders', icon: FileText, label: 'Đơn hàng' },
     { path: '/create-purchase', icon: Truck, label: 'Nhập hàng' },
     { path: '/purchases', icon: Warehouse, label: 'Phiếu nhập' },
+    { path: '/inventory-report', icon: ClipboardList, label: 'Xuất nhập tồn' },
     { path: '/products', icon: Package, label: 'Sản phẩm' },
     { path: '/customers', icon: Users, label: 'Khách hàng' },
     { path: '/debt', icon: CreditCard, label: 'Công nợ' },
+    { path: '/backup', icon: Database, label: 'Sao lưu' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -46,6 +50,7 @@ export const Sidebar = () => {
     <aside className={`
       hidden lg:flex lg:flex-col fixed left-0 top-0 h-screen w-64 border-r z-30
       transition-colors duration-300
+      ${isDevMode ? 'pt-10' : ''}
       ${isInvoice
         ? 'bg-gradient-to-b from-violet-50 to-white border-violet-200'
         : 'bg-white border-gray-200'

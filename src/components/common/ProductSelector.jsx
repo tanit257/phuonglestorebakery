@@ -2,7 +2,7 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 import { CardTitle } from '../ui/Card';
 import { SearchInput } from '../ui/Input';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatDateTime } from '../../utils/formatters';
 
 /**
  * Common component for selecting products
@@ -16,6 +16,8 @@ export const ProductSelector = ({
   onProductSelect,
   showStock = true,
   plusButtonColor = 'violet',
+  isInvoiceMode = false,
+  customerPriceCache = {}, // { product_id: { lastPrice, lastSoldAt } }
 }) => {
   const colorClasses = {
     violet: 'bg-violet-500 hover:bg-violet-600',
@@ -44,22 +46,71 @@ export const ProductSelector = ({
       />
 
       <div className="mt-3 space-y-2 max-h-[400px] overflow-y-auto">
-        {products.map(product => (
-          <button
-            key={product.id}
-            onClick={() => onProductSelect(product)}
-            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"
-          >
-            <div className="text-left flex-1">
-              <p className="font-medium text-gray-800">{product.name}</p>
-              <p className="text-xs text-gray-500">
-                Giá bán: {formatCurrency(product.price)}
-                {showStock && ` • Tồn kho: ${product.stock}`}
-              </p>
-            </div>
-            <Plus size={18} className={`${iconColor} flex-shrink-0`} />
-          </button>
-        ))}
+        {products.map(product => {
+          const priceInfo = customerPriceCache[product.id];
+          const hasHistory = priceInfo !== undefined;
+          const lastPrice = priceInfo?.lastPrice;
+          const defaultPrice = product.price;
+
+          return (
+            <button
+              key={product.id}
+              onClick={() => onProductSelect(product)}
+              className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"
+            >
+              <div className="text-left flex-1">
+                <p className="font-medium text-gray-800">
+                  {isInvoiceMode && product.invoice_name ? product.invoice_name : product.name}
+                </p>
+
+                {/* Price display with customer history */}
+                <div className="flex items-center gap-2 text-xs mt-1">
+                  {hasHistory ? (
+                    <>
+                      <span
+                        className="inline-flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 cursor-help relative group"
+                        title={`Bán lần cuối: ${formatDateTime(priceInfo.lastSoldAt)}`}
+                      >
+                        <span className="text-emerald-700 font-bold">
+                          {formatCurrency(lastPrice)}
+                        </span>
+                        <span className="text-emerald-600">✓ Giá gần nhất</span>
+
+                        {/* Tooltip */}
+                        <span className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10 shadow-lg">
+                          Bán lần cuối: {formatDateTime(priceInfo.lastSoldAt)}
+                          <span className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></span>
+                        </span>
+                      </span>
+                      {lastPrice !== defaultPrice && (
+                        <span className="text-gray-400 text-xs line-through">
+                          {formatCurrency(defaultPrice)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-gray-600 font-medium">
+                      {formatCurrency(defaultPrice)}
+                    </span>
+                  )}
+
+                  {showStock && (
+                    <span className="text-gray-500">
+                      • Tồn: {product.stock}{product.unit || ''}
+                    </span>
+                  )}
+
+                  {product.bulk_unit && product.bulk_quantity && (
+                    <span className="text-gray-500">
+                      • {product.bulk_quantity}{product.unit}/{product.bulk_unit}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <Plus size={18} className={`${iconColor} flex-shrink-0`} />
+            </button>
+          );
+        })}
 
         {products.length === 0 && (
           <p className="text-center text-gray-400 py-4">

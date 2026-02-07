@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useStore } from './hooks/useStore';
 import { VoiceProvider } from './contexts/VoiceContext';
 import { ModeProvider } from './contexts/ModeContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Layout components
 import Sidebar from './components/layout/Sidebar';
@@ -11,6 +11,7 @@ import NavBar from './components/layout/NavBar';
 import Notification from './components/layout/Notification';
 import VoiceButton from './components/voice/VoiceButton';
 import VoiceDisplay from './components/voice/VoiceDisplay';
+import ConnectionBanner from './components/common/ConnectionBanner';
 
 // Auth components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -25,6 +26,8 @@ import PurchasesPage from './pages/PurchasesPage';
 import DebtPage from './pages/DebtPage';
 import CustomersPage from './pages/CustomersPage';
 import ProductsPage from './pages/ProductsPage';
+import BackupPage from './pages/BackupPage';
+import InventoryReportPage from './pages/InventoryReportPage';
 
 // Loading Screen
 const LoadingScreen = () => (
@@ -56,9 +59,26 @@ const ErrorScreen = ({ error }) => (
   </div>
 );
 
+// Dev Mode Warning Banner
+const DevModeBanner = () => {
+  const { isDevMode } = useAuth();
+
+  if (!isDevMode) return null;
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-amber-900 px-4 py-2 text-center text-sm font-medium shadow-md">
+      <span className="mr-2">⚠️</span>
+      DEV MODE - Authentication bypassed. Dữ liệu có thể không được lưu vào Supabase.
+      <span className="ml-2">⚠️</span>
+    </div>
+  );
+};
+
 // Protected Layout Component
 const ProtectedLayout = ({ children }) => {
-  const { isLoading, error, initialize } = useStore();
+  const { isLoading, error, initialize, connectionStatus } = useStore();
+  const { isDevMode } = useAuth();
+  const hasTopBanner = isDevMode || connectionStatus === 'offline';
 
   // Initialize data on mount
   useEffect(() => {
@@ -78,7 +98,11 @@ const ProtectedLayout = ({ children }) => {
   return (
     <ModeProvider>
       <VoiceProvider>
-        <div className="min-h-screen bg-gray-50">
+        <div className={`min-h-screen bg-gray-50 ${hasTopBanner ? 'pt-10' : ''}`}>
+          {/* Connection / Dev Mode Warning */}
+          <ConnectionBanner />
+          <DevModeBanner />
+
           {/* Notification */}
           <Notification />
 
@@ -121,9 +145,11 @@ function App() {
                   <Route path="/orders" element={<OrdersPage />} />
                   <Route path="/create-purchase" element={<CreatePurchasePage />} />
                   <Route path="/purchases" element={<PurchasesPage />} />
+                  <Route path="/inventory-report" element={<InventoryReportPage />} />
                   <Route path="/debt" element={<DebtPage />} />
                   <Route path="/customers" element={<CustomersPage />} />
                   <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/backup" element={<BackupPage />} />
                 </Routes>
               </ProtectedLayout>
             </ProtectedRoute>

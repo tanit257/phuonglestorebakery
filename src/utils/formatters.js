@@ -55,3 +55,26 @@ export const formatPhone = (phone) => {
 export const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
+
+// Format quantity with bulk unit display
+// Example: 40kg (2 thùng) or 45kg (2 thùng + 5kg)
+export const formatQuantityWithBulk = (quantity, product) => {
+  if (!product?.bulk_unit || !product?.bulk_quantity || product.bulk_quantity <= 0) {
+    // No bulk unit, just display regular quantity
+    return `${quantity}${product?.unit || ''}`;
+  }
+
+  const bulkCount = Math.floor(quantity / product.bulk_quantity);
+  const remainder = quantity % product.bulk_quantity;
+
+  if (bulkCount > 0 && remainder > 0) {
+    // Example: "45kg (2 thùng + 5kg)"
+    return `${quantity}${product.unit} (${bulkCount} ${product.bulk_unit} + ${remainder}${product.unit})`;
+  } else if (bulkCount > 0) {
+    // Example: "40kg (2 thùng)"
+    return `${quantity}${product.unit} (${bulkCount} ${product.bulk_unit})`;
+  } else {
+    // Less than 1 bulk unit, just display regular
+    return `${quantity}${product.unit}`;
+  }
+};

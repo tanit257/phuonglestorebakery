@@ -32,15 +32,15 @@ const HomePage = () => {
     getInvoiceOverdueOrders,
     // Cart actions for copy
     setSelectedCustomer,
-    clearCart,
     addToCart,
     updateCartItemDiscount,
     updateCartItemPrice,
+    startNewDraft,
     // Invoice cart actions
     setInvoiceSelectedCustomer,
-    clearInvoiceCart,
     addToInvoiceCart,
     updateInvoiceCartItemPrice,
+    startNewInvoiceDraft,
   } = useStore();
 
   // Mode-specific data
@@ -52,13 +52,19 @@ const HomePage = () => {
   const unpaidOrders = currentOrders.filter(o => !o.paid);
 
   const handleCopyOrder = (order) => {
+    const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
+    const items = order.order_items || order.items || [];
+
     if (isInvoiceMode) {
-      clearInvoiceCart();
-      const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
+      // Start a new invoice draft (don't clear existing drafts)
+      startNewInvoiceDraft();
+
+      // Set customer for new draft
       if (customer) {
         setInvoiceSelectedCustomer(customer);
       }
-      const items = order.order_items || order.items || [];
+
+      // Add items to new draft
       items.forEach(item => {
         const product = item.product || products.find(p => String(p.id) === String(item.product_id));
         if (product) {
@@ -67,12 +73,15 @@ const HomePage = () => {
         }
       });
     } else {
-      clearCart();
-      const customer = order.customer || customers.find(c => String(c.id) === String(order.customer_id));
+      // Start a new draft (don't clear existing drafts)
+      startNewDraft();
+
+      // Set customer for new draft
       if (customer) {
         setSelectedCustomer(customer);
       }
-      const items = order.order_items || order.items || [];
+
+      // Add items to new draft
       items.forEach(item => {
         const product = item.product || products.find(p => String(p.id) === String(item.product_id));
         if (product) {
@@ -409,7 +418,9 @@ const HomePage = () => {
                   <div key={index} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">
-                        {item.product_name || item.product?.name}
+                        {isInvoiceMode && item.product?.invoice_name
+                          ? item.product.invoice_name
+                          : (item.product_name || item.product?.name)}
                       </p>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                         <span>SL: {item.quantity}</span>
