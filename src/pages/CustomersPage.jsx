@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, Plus, Phone, MapPin, Trash2, Edit, X, Store, User, Truck, CreditCard, Mail, FileText, Eye, Calendar, ShoppingBag, FileSpreadsheet } from 'lucide-react';
 import CustomerImportExportModal from '../components/customers/CustomerImportExportModal';
 import { useStore } from '../hooks/useStore';
+import { useMode } from '../contexts/ModeContext';
 import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -12,7 +13,7 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 import { CUSTOMER_TYPES, CUSTOMER_TYPE_LABELS } from '../utils/constants';
 
 // Customer Detail Modal Component
-const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
+const CustomerDetailModal = ({ customer, onClose, orders, debt, isInvoiceMode }) => {
   const navigate = useNavigate();
 
   if (!customer) return null;
@@ -62,7 +63,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
         <div className="relative px-6 pt-6 pb-4 border-b border-gray-100">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            className={`absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-blue-500'}`}
             aria-label="Đóng"
           >
             <X size={20} aria-hidden="true" />
@@ -152,12 +153,12 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Thống kê</h3>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 bg-violet-50 rounded-xl">
-                <div className="flex items-center gap-2 text-violet-600 mb-1">
+              <div className={`p-4 rounded-xl ${isInvoiceMode ? 'bg-amber-50' : 'bg-blue-50'}`}>
+                <div className={`flex items-center gap-2 mb-1 ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>
                   <ShoppingBag size={16} />
                   <span className="text-xs font-medium">Tổng đơn hàng</span>
                 </div>
-                <p className="text-2xl font-bold text-violet-700">{customerOrders.length}</p>
+                <p className={`text-2xl font-bold ${isInvoiceMode ? 'text-amber-700' : 'text-blue-700'}`}>{customerOrders.length}</p>
               </div>
 
               <div className="p-4 bg-emerald-50 rounded-xl">
@@ -168,12 +169,12 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
                 <p className="text-lg font-bold text-emerald-700">{formatCurrency(totalPurchased)}</p>
               </div>
 
-              <div className="p-4 bg-blue-50 rounded-xl">
-                <div className="flex items-center gap-2 text-blue-600 mb-1">
+              <div className={`p-4 rounded-xl ${isInvoiceMode ? 'bg-amber-50' : 'bg-blue-50'}`}>
+                <div className={`flex items-center gap-2 mb-1 ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>
                   <Calendar size={16} />
                   <span className="text-xs font-medium">Đã thanh toán</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-700">{paidOrders.length}</p>
+                <p className={`text-2xl font-bold ${isInvoiceMode ? 'text-amber-700' : 'text-blue-700'}`}>{paidOrders.length}</p>
               </div>
 
               <div className={`p-4 rounded-xl ${debt > 0 ? 'bg-rose-50' : 'bg-gray-50'}`}>
@@ -198,7 +199,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
                     onClose();
                     navigate(`/orders?customer=${customer.id}`);
                   }}
-                  className="text-xs text-violet-600 font-medium hover:text-violet-700"
+                  className={`text-xs font-medium ${isInvoiceMode ? 'text-amber-600 hover:text-amber-700' : 'text-blue-600 hover:text-blue-700'}`}
                 >
                   Xem tất cả
                 </button>
@@ -256,7 +257,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt }) => {
               onClose();
               navigate(`/create-order?customer=${customer.id}`);
             }}
-            className="flex-1 px-4 py-3 bg-violet-500 text-white rounded-xl font-semibold hover:bg-violet-600 transition-colors flex items-center justify-center gap-2"
+            className={`flex-1 px-4 py-3 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
           >
             <Plus size={18} />
             Tạo đơn hàng
@@ -386,6 +387,7 @@ const CustomersPage = () => {
     importCustomers,
     getCustomerDebt,
   } = useStore();
+  const { isInvoiceMode } = useMode();
 
   const handleAddCustomer = async (data) => {
     await addCustomer(data);
@@ -407,11 +409,11 @@ const CustomersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-amber-50/50' : 'bg-gray-50'}`}>
       <Header
         title="Khách hàng"
         rightElement={
-          <span className="text-sm text-gray-500">
+          <span className={`text-sm ${isInvoiceMode ? 'text-amber-500' : 'text-gray-500'}`}>
             {customers.length} khách
           </span>
         }
@@ -524,7 +526,7 @@ const CustomersPage = () => {
                     {customer.phone ? (
                       <a
                         href={`tel:${customer.phone}`}
-                        className="flex items-center gap-2 text-sm text-gray-500 hover:text-violet-600"
+                        className={`flex items-center gap-2 text-sm text-gray-500 ${isInvoiceMode ? 'hover:text-amber-600' : 'hover:text-blue-600'}`}
                       >
                         <Phone size={14} />
                         <span>{customer.phone}</span>
@@ -552,14 +554,14 @@ const CustomersPage = () => {
                   <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
                     <button
                       onClick={() => setViewingCustomer(customer)}
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      className={`p-2 text-gray-400 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
                       aria-label={`Xem chi tiết ${customer.short_name}`}
                     >
                       <Eye size={18} aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => setEditingCustomer(customer)}
-                      className="p-2 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                      className={`p-2 text-gray-400 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
                       aria-label={`Chỉnh sửa ${customer.short_name}`}
                     >
                       <Edit size={18} aria-hidden="true" />
@@ -606,6 +608,7 @@ const CustomersPage = () => {
           onClose={() => setViewingCustomer(null)}
           orders={orders}
           debt={getCustomerDebt(viewingCustomer.id)}
+          isInvoiceMode={isInvoiceMode}
         />
       )}
 

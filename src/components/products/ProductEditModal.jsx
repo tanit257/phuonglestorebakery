@@ -42,7 +42,7 @@ const ProductEditModal = ({
     onClose();
   };
 
-  const themeColor = isInvoiceMode ? 'violet' : 'blue';
+  const themeColor = isInvoiceMode ? 'blue' : 'blue';
   const isEditing = initialData !== null;
 
   return (

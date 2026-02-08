@@ -27,7 +27,7 @@ export default function InventoryDetailModal({ isOpen, onClose, product, month, 
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-violet-500 to-purple-500 text-white">
+        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
           <div className="flex items-center gap-2">
             <Package className="w-5 h-5" />
             <div>
@@ -67,7 +67,7 @@ export default function InventoryDetailModal({ isOpen, onClose, product, month, 
           </div>
           <div className="bg-white p-3 rounded-xl text-center">
             <div className="text-sm text-gray-500">Tồn cuối kỳ</div>
-            <div className="text-lg font-bold text-violet-600">
+            <div className="text-lg font-bold text-blue-600">
               {reportData?.closingStock?.toFixed(1) || 0} {product.unit}
             </div>
           </div>

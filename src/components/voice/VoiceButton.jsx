@@ -36,7 +36,7 @@ export const VoiceButton = ({ onResult }) => {
             ? 'bg-rose-500 voice-pulse scale-110'
             : isProcessing
               ? 'bg-amber-500'
-              : 'bg-gradient-to-br from-violet-500 to-purple-600 hover:scale-110 hover:shadow-violet-500/30'
+              : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:scale-110 hover:shadow-blue-500/30'
           }
         `}
         title={isListening ? 'Dừng nghe' : 'Bấm để nói'}
@@ -63,7 +63,7 @@ export const VoiceButton = ({ onResult }) => {
             ? 'bg-rose-500 voice-pulse scale-110'
             : isProcessing
               ? 'bg-amber-500'
-              : 'bg-gradient-to-br from-violet-500 to-purple-600 hover:scale-110 hover:shadow-violet-500/50'
+              : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:scale-110 hover:shadow-blue-500/50'
           }
         `}
         title={isListening ? 'Dừng nghe' : 'Bấm để nói'}

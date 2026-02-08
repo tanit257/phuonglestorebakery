@@ -85,12 +85,12 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-violet-50/50' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-amber-50/50' : 'bg-gray-50'}`}>
       <Header
         title="Sản phẩm"
         showBack
         rightElement={
-          <span className={`text-sm ${isInvoiceMode ? 'text-violet-500' : 'text-gray-500'}`}>
+          <span className={`text-sm ${isInvoiceMode ? 'text-amber-500' : 'text-gray-500'}`}>
             {products.length} sản phẩm
           </span>
         }
@@ -132,12 +132,12 @@ const ProductsPage = () => {
               const invoiceStock = getInvoiceProductStock(product.id);
 
               return (
-                <Card key={product.id} className={`overflow-hidden ${isInvoiceMode ? 'border-violet-200' : ''}`}>
+                <Card key={product.id} className={`overflow-hidden ${isInvoiceMode ? 'border-amber-200' : ''}`}>
                   {/* Mode indicator stripe */}
                   <div className={`
                     -mx-4 -mt-4 mb-3 px-4 py-1.5 text-xs font-medium flex items-center gap-1.5
                     ${isInvoiceMode
-                      ? 'bg-violet-100 text-violet-700'
+                      ? 'bg-amber-100 text-amber-700'
                       : 'bg-blue-50 text-blue-600'
                     }
                   `}>
@@ -165,13 +165,13 @@ const ProductsPage = () => {
                         </div>
 
                         {/* Invoice price - always show but highlight based on mode */}
-                        <div className={`flex items-center gap-2 ${isInvoiceMode ? 'text-violet-600' : 'text-gray-400'}`}>
+                        <div className={`flex items-center gap-2 ${isInvoiceMode ? 'text-amber-600' : 'text-gray-400'}`}>
                           <FileText size={14} />
                           <span className={`text-sm ${isInvoiceMode ? 'font-semibold' : ''}`}>
                             {formatCurrency(product.invoice_price || Math.round(product.price * 0.8))}/{product.unit}
                           </span>
                           {isInvoiceMode && (
-                            <span className="text-xs bg-violet-100 text-violet-600 px-1.5 py-0.5 rounded">
+                            <span className="text-xs bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded">
                               Tồn: {invoiceStock}{product.unit}
                             </span>
                           )}
@@ -193,7 +193,7 @@ const ProductsPage = () => {
                           p-2 rounded-lg transition-colors
                           focus-visible:outline-none focus-visible:ring-2
                           ${isInvoiceMode
-                            ? 'text-gray-400 hover:text-violet-600 hover:bg-violet-50 focus-visible:ring-violet-500'
+                            ? 'text-gray-400 hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500'
                             : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'
                           }
                         `}

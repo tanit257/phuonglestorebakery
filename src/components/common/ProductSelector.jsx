@@ -23,6 +23,8 @@ export const ProductSelector = ({
     violet: 'bg-violet-500 hover:bg-violet-600',
     emerald: 'bg-emerald-500 hover:bg-emerald-600',
     rose: 'bg-rose-500 hover:bg-rose-600',
+    amber: 'bg-amber-500 hover:bg-amber-600',
+    blue: 'bg-blue-500 hover:bg-blue-600',
   };
 
   const buttonColor = colorClasses[plusButtonColor] || colorClasses.violet;
@@ -31,6 +33,8 @@ export const ProductSelector = ({
     violet: 'text-violet-500',
     emerald: 'text-emerald-500',
     rose: 'text-rose-500',
+    amber: 'text-amber-500',
+    blue: 'text-blue-500',
   };
   const iconColor = iconColorMap[plusButtonColor] || iconColorMap.violet;
 

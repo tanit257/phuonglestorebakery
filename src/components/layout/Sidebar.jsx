@@ -52,21 +52,21 @@ export const Sidebar = () => {
       transition-colors duration-300
       ${isDevMode ? 'pt-10' : ''}
       ${isInvoice
-        ? 'bg-gradient-to-b from-violet-50 to-white border-violet-200'
+        ? 'bg-gradient-to-b from-amber-50 to-white border-amber-200'
         : 'bg-white border-gray-200'
       }
     `}>
       {/* Logo */}
       <div className={`
         px-6 py-5 border-b transition-colors duration-300
-        ${isInvoice ? 'border-violet-200' : 'border-gray-200'}
+        ${isInvoice ? 'border-amber-200' : 'border-gray-200'}
       `}>
         <div className="flex items-center gap-3">
           <div className={`
             w-10 h-10 rounded-xl flex items-center justify-center
             transition-all duration-300
             ${isInvoice
-              ? 'bg-gradient-to-br from-violet-500 to-purple-600'
+              ? 'bg-gradient-to-br from-amber-500 to-orange-500'
               : 'bg-gradient-to-br from-blue-500 to-cyan-500'
             }
           `}>
@@ -75,13 +75,13 @@ export const Sidebar = () => {
           <div>
             <h1 className={`
               text-lg font-bold transition-colors duration-300
-              ${isInvoice ? 'text-violet-900' : 'text-gray-900'}
+              ${isInvoice ? 'text-amber-900' : 'text-gray-900'}
             `}>
               Phương Lê
             </h1>
             <p className={`
               text-xs font-medium transition-colors duration-300
-              ${isInvoice ? 'text-violet-500' : 'text-gray-500'}
+              ${isInvoice ? 'text-amber-500' : 'text-gray-500'}
             `}>
               Store Management
             </p>
@@ -97,7 +97,7 @@ export const Sidebar = () => {
             w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl
             font-medium text-sm transition-all duration-300
             ${isInvoice
-              ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
               : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
             }
             hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]
@@ -130,10 +130,10 @@ export const Sidebar = () => {
                   font-medium text-sm transition-all duration-200
                   ${active
                     ? isInvoice
-                      ? 'bg-violet-100 text-violet-700 shadow-sm'
+                      ? 'bg-amber-100 text-amber-700 shadow-sm'
                       : 'bg-blue-100 text-blue-700 shadow-sm'
                     : isInvoice
-                      ? 'text-violet-700 hover:bg-violet-50'
+                      ? 'text-amber-700 hover:bg-amber-50'
                       : 'text-gray-700 hover:bg-gray-100'
                   }
                 `}
@@ -143,7 +143,7 @@ export const Sidebar = () => {
                 {active && (
                   <div className={`
                     ml-auto w-1.5 h-1.5 rounded-full
-                    ${isInvoice ? 'bg-violet-500' : 'bg-blue-500'}
+                    ${isInvoice ? 'bg-amber-500' : 'bg-blue-500'}
                   `} />
                 )}
               </button>
@@ -155,13 +155,13 @@ export const Sidebar = () => {
       {/* Footer */}
       <div className={`
         px-3 py-4 border-t transition-colors duration-300
-        ${isInvoice ? 'border-violet-200' : 'border-gray-200'}
+        ${isInvoice ? 'border-amber-200' : 'border-gray-200'}
       `}>
         {/* User info */}
         {user && (
           <div className={`
             mb-3 px-3 py-2 rounded-lg text-xs
-            ${isInvoice ? 'bg-violet-50 text-violet-600' : 'bg-gray-50 text-gray-600'}
+            ${isInvoice ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-600'}
           `}>
             <p className="truncate font-medium">{user.email}</p>
           </div>
@@ -174,7 +174,7 @@ export const Sidebar = () => {
             w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
             font-medium text-sm transition-all duration-200
             ${isInvoice
-              ? 'text-violet-600 hover:bg-violet-100 border border-violet-200'
+              ? 'text-amber-600 hover:bg-amber-100 border border-amber-200'
               : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
             }
           `}
@@ -186,7 +186,7 @@ export const Sidebar = () => {
         {/* Copyright */}
         <div className={`
           text-xs text-center mt-3 transition-colors duration-300
-          ${isInvoice ? 'text-violet-400' : 'text-gray-400'}
+          ${isInvoice ? 'text-amber-400' : 'text-gray-400'}
         `}>
           <p>© 2026 Phương Lê Store</p>
         </div>

@@ -7,7 +7,7 @@ const SAMPLE_COMMANDS = [
     {
         category: 'Tạo đơn hàng',
         icon: Package,
-        color: 'violet',
+        color: 'blue',
         commands: [
             { text: 'Tạo đơn cho tiệm Hồng, 5kg bột mì', desc: 'Tạo đơn với khách hàng và sản phẩm' },
             { text: 'Tạo đơn cho Anh Quân, 3kg đường, 2kg bột năng', desc: 'Nhiều sản phẩm' },
@@ -57,24 +57,24 @@ const SAMPLE_COMMANDS = [
 
 const getColorClasses = (color) => {
     const colors = {
-        violet: 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100',
+        blue: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
         emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
         rose: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
         amber: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
         blue: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
     };
-    return colors[color] || colors.violet;
+    return colors[color] || colors.blue;
 };
 
 const getIconBgClasses = (color) => {
     const colors = {
-        violet: 'bg-violet-500',
+        blue: 'bg-blue-500',
         emerald: 'bg-emerald-500',
         rose: 'bg-rose-500',
         amber: 'bg-amber-500',
         blue: 'bg-blue-500',
     };
-    return colors[color] || colors.violet;
+    return colors[color] || colors.blue;
 };
 
 export const VoiceCommandsPanel = ({ className = '' }) => {
@@ -89,10 +89,10 @@ export const VoiceCommandsPanel = ({ className = '' }) => {
             {/* Header */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-colors"
             >
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                         <Lightbulb size={16} className="text-white" />
                     </div>
                     <div className="text-left">
@@ -138,7 +138,7 @@ export const VoiceCommandsPanel = ({ className = '' }) => {
                                                 className="w-full text-left p-2 rounded-lg hover:bg-gray-50 transition-colors group"
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <Mic size={14} className="text-gray-300 group-hover:text-violet-500 transition-colors" />
+                                                    <Mic size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
                                                     <p className="text-sm text-gray-800 font-medium">"{cmd.text}"</p>
                                                 </div>
                                                 <p className="text-xs text-gray-400 mt-0.5 pl-6">{cmd.desc}</p>
@@ -151,8 +151,8 @@ export const VoiceCommandsPanel = ({ className = '' }) => {
                     })}
 
                     {/* Quick tip */}
-                    <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl">
-                        <p className="text-xs text-violet-700 font-medium mb-1">💡 Mẹo:</p>
+                    <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                        <p className="text-xs text-blue-700 font-medium mb-1">💡 Mẹo:</p>
                         <p className="text-xs text-gray-600">
                             Nói rõ ràng, chậm rãi. Có thể nói số lượng bằng số hoặc chữ (5kg hoặc năm ký).
                         </p>

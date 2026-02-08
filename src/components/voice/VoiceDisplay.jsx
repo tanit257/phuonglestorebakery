@@ -126,18 +126,18 @@ export const VoiceDisplay = () => {
       {/* Mobile: Bottom right corner */}
       <div className="lg:hidden fixed bottom-24 right-4 z-40 w-[min(85vw,380px)] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-violet-50 to-purple-50 border-b border-violet-100">
+        <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-blue-100">
           <div className="flex items-center gap-2">
-            <Volume2 size={16} className="text-violet-600" />
-            <span className="text-xs font-semibold text-violet-700">
+            <Volume2 size={16} className="text-blue-600" />
+            <span className="text-xs font-semibold text-blue-700">
               {isListening ? 'Đang nghe...' : isWaitingForMore ? 'Chờ nói thêm...' : 'Kết quả nhận diện'}
             </span>
           </div>
           <button
             onClick={clearResult}
-            className="p-1 hover:bg-violet-200 rounded-lg transition-colors"
+            className="p-1 hover:bg-blue-200 rounded-lg transition-colors"
           >
-            <X size={16} className="text-violet-600" />
+            <X size={16} className="text-blue-600" />
           </button>
         </div>
 
@@ -188,7 +188,7 @@ export const VoiceDisplay = () => {
             <div className="mb-3">
               <button
                 onClick={() => setShowAlternatives(!showAlternatives)}
-                className="text-xs text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1 mb-2"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 mb-2"
               >
                 <RefreshCw size={12} />
                 {showAlternatives ? 'Ẩn' : 'Hiện'} phiên bản khác ({alternatives.length - 1})
@@ -199,10 +199,10 @@ export const VoiceDisplay = () => {
                     <button
                       key={idx}
                       onClick={() => retryWithAlternative(alt.transcript)}
-                      className="w-full p-2 bg-violet-50 hover:bg-violet-100 rounded-lg text-left text-sm text-gray-700 border border-violet-200 transition-colors"
+                      className="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded-lg text-left text-sm text-gray-700 border border-blue-200 transition-colors"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-violet-600 font-medium">#{idx + 2}</span>
+                        <span className="text-xs text-blue-600 font-medium">#{idx + 2}</span>
                         <span className="text-xs text-gray-500">
                           {(alt.confidence * 100).toFixed(0)}%
                         </span>
@@ -251,7 +251,7 @@ export const VoiceDisplay = () => {
                 ? 'bg-amber-50 border-amber-300'
                 : result.action === 'low_confidence'
                   ? 'bg-orange-50 border-orange-300'
-                  : 'bg-violet-50 border-violet-300'
+                  : 'bg-blue-50 border-blue-300'
               }
           `}>
               <div className="flex items-start gap-2">
@@ -260,7 +260,7 @@ export const VoiceDisplay = () => {
                     ? 'text-amber-600'
                     : result.action === 'low_confidence'
                       ? 'text-orange-600'
-                      : 'text-violet-600'
+                      : 'text-blue-600'
                     }`} />
                 )}
                 <div className="flex-1">
@@ -268,7 +268,7 @@ export const VoiceDisplay = () => {
                     ? 'text-amber-800'
                     : result.action === 'low_confidence'
                       ? 'text-orange-800'
-                      : 'text-violet-800'
+                      : 'text-blue-800'
                     }`}>
                     {result.message}
                   </p>
@@ -278,10 +278,10 @@ export const VoiceDisplay = () => {
                     <div className="mt-2 space-y-1">
                       {result.data.items.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs bg-white bg-opacity-50 px-2 py-1 rounded">
-                          <span className="text-violet-700 font-medium">
+                          <span className="text-blue-700 font-medium">
                             • {item.product_name}
                           </span>
-                          <span className="text-violet-600">x {item.quantity}</span>
+                          <span className="text-blue-600">x {item.quantity}</span>
                         </div>
                       ))}
                     </div>
@@ -297,23 +297,23 @@ export const VoiceDisplay = () => {
       {hasContent && (
         <div className="hidden lg:block fixed top-0 right-0 h-screen w-[420px] bg-white shadow-2xl border-l border-gray-200 z-40 animate-fade-in">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-50 to-purple-50 border-b border-violet-100">
+          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-blue-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
                 <Volume2 size={20} className="text-white" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-violet-700">Voice AI Assistant</h2>
-                <p className="text-xs text-violet-600">
+                <h2 className="text-sm font-bold text-blue-700">Voice AI Assistant</h2>
+                <p className="text-xs text-blue-600">
                   {isListening ? '🎤 Đang nghe...' : isWaitingForMore ? '⏳ Chờ nói thêm (2.5s)...' : 'Nhận diện giọng nói'}
                 </p>
               </div>
             </div>
             <button
               onClick={clearResult}
-              className="p-2 hover:bg-violet-200 rounded-xl transition-colors"
+              className="p-2 hover:bg-blue-200 rounded-xl transition-colors"
             >
-              <X size={20} className="text-violet-600" />
+              <X size={20} className="text-blue-600" />
             </button>
           </div>
 
@@ -364,7 +364,7 @@ export const VoiceDisplay = () => {
               <div>
                 <button
                   onClick={() => setShowAlternatives(!showAlternatives)}
-                  className="text-sm text-violet-600 hover:text-violet-700 font-semibold flex items-center gap-2 mb-3 transition-colors"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2 mb-3 transition-colors"
                 >
                   <RefreshCw size={14} />
                   {showAlternatives ? 'Ẩn' : 'Hiện'} phiên bản khác ({alternatives.length - 1})
@@ -375,10 +375,10 @@ export const VoiceDisplay = () => {
                       <button
                         key={idx}
                         onClick={() => retryWithAlternative(alt.transcript)}
-                        className="w-full p-3 bg-violet-50 hover:bg-violet-100 rounded-xl text-left border-2 border-violet-200 transition-all hover:shadow-md"
+                        className="w-full p-3 bg-blue-50 hover:bg-blue-100 rounded-xl text-left border-2 border-blue-200 transition-all hover:shadow-md"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-violet-700 font-bold">Phiên bản #{idx + 2}</span>
+                          <span className="text-sm text-blue-700 font-bold">Phiên bản #{idx + 2}</span>
                           <span className="text-sm text-gray-600 font-medium">
                             {(alt.confidence * 100).toFixed(0)}%
                           </span>
@@ -429,7 +429,7 @@ export const VoiceDisplay = () => {
                   ? 'bg-amber-50 border-amber-400'
                   : result.action === 'low_confidence'
                     ? 'bg-orange-50 border-orange-400'
-                    : 'bg-violet-50 border-violet-400'
+                    : 'bg-blue-50 border-blue-400'
                 }
             `}>
                 <div className="flex items-start gap-3">
@@ -438,13 +438,13 @@ export const VoiceDisplay = () => {
                       ? 'bg-amber-200'
                       : result.action === 'low_confidence'
                         ? 'bg-orange-200'
-                        : 'bg-violet-200'
+                        : 'bg-blue-200'
                       }`}>
                       <ActionIcon size={20} className={`${result.action === 'unknown' || result.action === 'error'
                         ? 'text-amber-700'
                         : result.action === 'low_confidence'
                           ? 'text-orange-700'
-                          : 'text-violet-700'
+                          : 'text-blue-700'
                         }`} />
                     </div>
                   )}
@@ -453,7 +453,7 @@ export const VoiceDisplay = () => {
                       ? 'text-amber-900'
                       : result.action === 'low_confidence'
                         ? 'text-orange-900'
-                        : 'text-violet-900'
+                        : 'text-blue-900'
                       }`}>
                       {result.message}
                     </p>
@@ -462,11 +462,11 @@ export const VoiceDisplay = () => {
                     {result.action === 'create_order' && result.data?.items?.length > 0 && (
                       <div className="mt-3 space-y-2">
                         {result.data.items.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between bg-white bg-opacity-70 px-3 py-2 rounded-lg border border-violet-200">
-                            <span className="text-violet-800 font-semibold text-sm">
+                          <div key={idx} className="flex items-center justify-between bg-white bg-opacity-70 px-3 py-2 rounded-lg border border-blue-200">
+                            <span className="text-blue-800 font-semibold text-sm">
                               • {item.product_name}
                             </span>
-                            <span className="text-violet-700 font-bold text-sm">x {item.quantity}</span>
+                            <span className="text-blue-700 font-bold text-sm">x {item.quantity}</span>
                           </div>
                         ))}
                       </div>

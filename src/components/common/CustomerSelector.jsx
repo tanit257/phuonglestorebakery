@@ -45,6 +45,20 @@ export const CustomerSelector = ({
       text: 'text-rose-700',
       icon: 'text-rose-500',
     },
+    amber: {
+      bg: 'bg-amber-50',
+      hover: 'hover:bg-amber-100',
+      border: 'border-amber-200',
+      text: 'text-amber-700',
+      icon: 'text-amber-500',
+    },
+    blue: {
+      bg: 'bg-blue-50',
+      hover: 'hover:bg-blue-100',
+      border: 'border-blue-200',
+      text: 'text-blue-700',
+      icon: 'text-blue-500',
+    },
   };
 
   const colors = colorClasses[bgColor] || colorClasses.violet;

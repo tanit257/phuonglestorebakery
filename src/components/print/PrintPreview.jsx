@@ -51,7 +51,7 @@ export const PrintPreview = ({ order, customer, isInvoiceMode = false, onClose, 
             <select
               value={paperSize}
               onChange={(e) => setPaperSize(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="A4">A4 (210 x 297 mm)</option>
               <option value="A5">A5 (148 x 210 mm)</option>
@@ -64,7 +64,7 @@ export const PrintPreview = ({ order, customer, isInvoiceMode = false, onClose, 
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Ghi chú đơn hàng (tùy chọn)"
-              className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -205,7 +205,7 @@ export const PrintPreview = ({ order, customer, isInvoiceMode = false, onClose, 
           </button>
           <button
             onClick={handlePrintClick}
-            className="px-6 py-2 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors flex items-center gap-2"
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
           >
             <Printer size={18} />
             In đơn hàng
@@ -230,7 +230,7 @@ export const PrintPreview = ({ order, customer, isInvoiceMode = false, onClose, 
               </button>
               <button
                 onClick={handleConfirmSaveOrder}
-                className="flex-1 px-4 py-2 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors"
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
                 Lưu đơn hàng
               </button>

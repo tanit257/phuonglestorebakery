@@ -14,9 +14,9 @@ const LoginPage = () => {
   // Redirect if already authenticated
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-100 via-purple-50 to-blue-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-cyan-50 to-blue-100">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-violet-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Đang kiểm tra đăng nhập...</p>
         </div>
       </div>
@@ -74,11 +74,11 @@ const LoginPage = () => {
   const displayError = formError || authError;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-100 via-purple-50 to-blue-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-cyan-50 to-blue-100 p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-xl shadow-violet-500/30 mb-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-xl shadow-blue-500/30 mb-4">
             <TrendingUp size={40} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Phương Lê Store</h1>
@@ -86,7 +86,7 @@ const LoginPage = () => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl shadow-violet-500/10 p-8">
+        <div className="bg-white rounded-2xl shadow-xl shadow-blue-500/10 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {displayError && (
@@ -116,7 +116,7 @@ const LoginPage = () => {
                   className="
                     w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl
                     text-gray-900 placeholder-gray-400
-                    focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                     transition-all duration-200
                   "
                   disabled={isSubmitting}
@@ -145,7 +145,7 @@ const LoginPage = () => {
                   className="
                     w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-xl
                     text-gray-900 placeholder-gray-400
-                    focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                     transition-all duration-200
                   "
                   disabled={isSubmitting}
@@ -172,12 +172,12 @@ const LoginPage = () => {
               disabled={isSubmitting}
               className="
                 w-full py-4 px-6 rounded-xl font-semibold text-white
-                bg-gradient-to-r from-violet-500 to-purple-600
-                hover:from-violet-600 hover:to-purple-700
-                focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
+                bg-gradient-to-r from-blue-500 to-cyan-600
+                hover:from-blue-600 hover:to-cyan-700
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 disabled:opacity-50 disabled:cursor-not-allowed
                 transition-all duration-200 transform active:scale-[0.98]
-                shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40
+                shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40
               "
             >
               {isSubmitting ? (

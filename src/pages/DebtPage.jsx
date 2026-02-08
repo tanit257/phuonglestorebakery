@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
+import { useMode } from '../contexts/ModeContext';
 import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '../utils/formatters';
@@ -28,6 +29,7 @@ const DebtPage = () => {
     customers,
     markOrderAsPaid,
   } = useStore();
+  const { isInvoiceMode } = useMode();
 
   // State
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
@@ -212,19 +214,19 @@ const DebtPage = () => {
   // ========== CUSTOMER LIST VIEW ==========
   if (!selectedCustomerId) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-amber-50/50' : 'bg-gray-50'}`}>
         <Header title="Công nợ" />
 
         <div className="px-4 lg:px-8 py-4 lg:py-6">
           <div className="page-container">
             {/* Total Debt Summary */}
-            <div className="bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl p-5 mb-4">
-              <div className="flex items-center gap-2 text-rose-100 mb-1">
+            <div className={`text-white rounded-2xl p-5 mb-4 ${isInvoiceMode ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-rose-500 to-pink-600'}`}>
+              <div className={`flex items-center gap-2 mb-1 ${isInvoiceMode ? 'text-amber-100' : 'text-rose-100'}`}>
                 <CreditCard size={20} />
                 <span className="text-sm">Tổng công nợ hiện tại</span>
               </div>
               <p className="text-3xl font-bold">{formatCurrency(totalDebt)}</p>
-              <p className="text-rose-100 text-sm mt-2">
+              <p className={`text-sm mt-2 ${isInvoiceMode ? 'text-amber-100' : 'text-rose-100'}`}>
                 {customersWithDebt.filter(c => c.currentDebt > 0).length} khách hàng còn nợ
               </p>
             </div>
@@ -237,7 +239,7 @@ const DebtPage = () => {
                   onClick={() => handleSelectCustomer(customer.id)}
                   className="w-full text-left"
                 >
-                  <Card className="hover:border-violet-300 hover:shadow-md transition-all">
+                  <Card className="hover:border-blue-300 hover:shadow-md transition-all">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -252,7 +254,7 @@ const DebtPage = () => {
                             <p className="font-semibold text-gray-800">{customer.short_name || customer.full_name || 'Không tên'}</p>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               customer.type === CUSTOMER_TYPES.BAKERY
-                                ? 'bg-violet-100 text-violet-600'
+                                ? 'bg-amber-100 text-amber-600'
                                 : 'bg-blue-100 text-blue-600'
                             }`}>
                               {CUSTOMER_TYPE_LABELS[customer.type] || 'Cá nhân'}
@@ -313,7 +315,7 @@ const DebtPage = () => {
 
   // ========== CUSTOMER DETAIL VIEW ==========
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-amber-50/50' : 'bg-gray-50'}`}>
       <Header
         title={`Công nợ: ${selectedCustomer?.short_name || selectedCustomer?.full_name || 'Khách hàng'}`}
         showBack
@@ -325,7 +327,7 @@ const DebtPage = () => {
           {/* Back Button */}
           <button
             onClick={handleBackToList}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+            className={`flex items-center gap-2 mb-4 transition-colors ${isInvoiceMode ? 'text-amber-600 hover:text-amber-800' : 'text-gray-600 hover:text-gray-800'}`}
           >
             <ChevronLeft size={20} />
             <span>Quay lại danh sách</span>
@@ -346,7 +348,7 @@ const DebtPage = () => {
                   <h2 className="text-xl font-bold text-gray-800">{selectedCustomer?.short_name || selectedCustomer?.full_name || 'Không tên'}</h2>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     selectedCustomer?.type === CUSTOMER_TYPES.BAKERY
-                      ? 'bg-violet-100 text-violet-600'
+                      ? 'bg-amber-100 text-amber-600'
                       : 'bg-blue-100 text-blue-600'
                   }`}>
                     {CUSTOMER_TYPE_LABELS[selectedCustomer?.type] || 'Cá nhân'}
@@ -355,7 +357,7 @@ const DebtPage = () => {
                 {selectedCustomer?.phone && (
                   <a
                     href={`tel:${selectedCustomer.phone}`}
-                    className="flex items-center gap-1 text-sm text-violet-600 mt-1"
+                    className={`flex items-center gap-1 text-sm mt-1 ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}
                   >
                     <Phone size={14} />
                     {selectedCustomer.phone}
@@ -385,7 +387,7 @@ const DebtPage = () => {
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className={`w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:border-transparent ${isInvoiceMode ? 'focus:ring-amber-500' : 'focus:ring-blue-500'}`}
               >
                 <option value="all">Tất cả các tháng</option>
                 {availableMonths.map(month => (
@@ -400,7 +402,7 @@ const DebtPage = () => {
 
           {/* Period Statistics */}
           {periodStats && selectedMonth !== 'all' && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-4">
+            <div className={`rounded-2xl border p-4 mb-4 ${isInvoiceMode ? 'bg-amber-50/30 border-amber-200' : 'bg-white border-gray-200'}`}>
               <h3 className="text-sm font-semibold text-gray-700 mb-3">
                 Thống kê {formatMonthName(selectedMonth)}
               </h3>
@@ -429,9 +431,9 @@ const DebtPage = () => {
                     -{formatCurrency(periodStats.paidInPeriod)}
                   </p>
                 </div>
-                <div className="text-center p-3 bg-violet-50 rounded-xl">
-                  <p className="text-xs text-violet-600 mb-1">Còn nợ</p>
-                  <p className="text-sm font-bold text-violet-600">
+                <div className={`text-center p-3 rounded-xl ${isInvoiceMode ? 'bg-amber-50' : 'bg-blue-50'}`}>
+                  <p className={`text-xs mb-1 ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>Còn nợ</p>
+                  <p className={`text-sm font-bold ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>
                     {formatCurrency(periodStats.debtAtPeriodEnd)}
                   </p>
                 </div>
@@ -440,7 +442,7 @@ const DebtPage = () => {
           )}
 
           {/* Filter Tabs */}
-          <div className="flex gap-2 mb-4 bg-white p-1 rounded-xl border border-gray-200">
+          <div className={`flex gap-2 mb-4 p-1 rounded-xl ${isInvoiceMode ? 'bg-amber-50/50 border border-amber-200' : 'bg-white border border-gray-200'}`}>
             {[
               { value: 'unpaid', label: 'Đang nợ' },
               { value: 'paid', label: 'Đã thanh toán' },
@@ -451,7 +453,7 @@ const DebtPage = () => {
                 onClick={() => setFilter(tab.value)}
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                   filter === tab.value
-                    ? 'bg-violet-500 text-white'
+                    ? isInvoiceMode ? 'bg-amber-500 text-white' : 'bg-blue-500 text-white'
                     : 'text-gray-500 hover:bg-gray-100'
                 }`}
               >
@@ -508,7 +510,7 @@ const DebtPage = () => {
                       </span>
                       <button
                         onClick={() => setViewingOrder(order)}
-                        className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                        className={`p-2 text-gray-400 rounded-lg transition-colors ${isInvoiceMode ? 'hover:text-amber-500 hover:bg-amber-50' : 'hover:text-blue-500 hover:bg-blue-50'}`}
                         aria-label="Xem chi tiết"
                       >
                         <Eye size={18} />
@@ -551,9 +553,11 @@ const DebtPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div className={`px-6 py-4 border-b flex items-center justify-between ${isInvoiceMode ? 'border-amber-200' : 'border-gray-200'}`}>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Chi tiết đơn hàng</h3>
+                <h3 className="text-lg font-bold text-gray-900">
+                  {isInvoiceMode ? 'Chi tiết hóa đơn' : 'Chi tiết đơn hàng'}
+                </h3>
                 <p className="text-sm text-gray-500 mt-1">
                   {formatDate(viewingOrder.created_at)} • #{viewingOrder.id}
                 </p>
@@ -591,7 +595,7 @@ const DebtPage = () => {
               {/* Items List */}
               <div className="space-y-3">
                 {(viewingOrder.items || viewingOrder.order_items || []).map((item, index) => (
-                  <div key={index} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className={`flex items-start justify-between p-3 rounded-lg ${isInvoiceMode ? 'bg-amber-50/50' : 'bg-gray-50'}`}>
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">
                         {item.product_name || item.product?.name}
@@ -615,7 +619,7 @@ const DebtPage = () => {
               <div className="mt-6 pt-4 border-t-2 border-gray-800">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-gray-900">TỔNG CỘNG:</span>
-                  <span className="text-2xl font-bold text-violet-600">
+                  <span className={`text-2xl font-bold ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>
                     {formatCurrency(viewingOrder.total)}
                   </span>
                 </div>
@@ -623,7 +627,7 @@ const DebtPage = () => {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3">
+            <div className={`px-6 py-4 border-t flex gap-3 ${isInvoiceMode ? 'border-amber-200 bg-amber-50/50' : 'border-gray-200 bg-gray-50'}`}>
               {!viewingOrder.paid && (
                 <button
                   onClick={() => {

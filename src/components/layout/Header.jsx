@@ -15,7 +15,7 @@ export const Header = ({ title, showBack = false, rightElement = null, showModeT
       {/* Invoice Mode Banner */}
       {isInvoice && (
         <div className={`
-          bg-gradient-to-r from-rose-500 to-red-500 text-white px-4 py-2
+          bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2
           transition-all duration-300
           ${isTransitioning ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'}
         `}>
@@ -30,7 +30,7 @@ export const Header = ({ title, showBack = false, rightElement = null, showModeT
         sticky top-0 backdrop-blur-lg border-b px-4 lg:px-8 z-20
         transition-all duration-300
         ${isInvoice
-          ? 'bg-rose-50/90 border-rose-200'
+          ? 'bg-amber-50/90 border-amber-200'
           : 'bg-white/80 border-gray-100'
         }
       `}>
@@ -44,15 +44,15 @@ export const Header = ({ title, showBack = false, rightElement = null, showModeT
                   p-2 -ml-2 rounded-xl transition-colors
                   focus-visible:outline-none focus-visible:ring-2
                   ${isInvoice
-                    ? 'hover:bg-rose-100 focus-visible:ring-rose-500'
-                    : 'hover:bg-gray-100 focus-visible:ring-violet-500'
+                    ? 'hover:bg-amber-100 focus-visible:ring-amber-500'
+                    : 'hover:bg-gray-100 focus-visible:ring-blue-500'
                   }
                 `}
                 aria-label="Quay lại"
               >
                 <ArrowLeft
                   size={24}
-                  className={isInvoice ? 'text-rose-600' : 'text-gray-600'}
+                  className={isInvoice ? 'text-amber-600' : 'text-gray-600'}
                   aria-hidden="true"
                 />
               </button>
@@ -60,14 +60,14 @@ export const Header = ({ title, showBack = false, rightElement = null, showModeT
             <div className="min-w-0">
               <h1 className={`
                 text-xl font-bold truncate
-                ${isInvoice ? 'text-rose-800' : 'text-gray-800'}
+                ${isInvoice ? 'text-amber-800' : 'text-gray-800'}
               `}>
                 {title}
               </h1>
               {/* Mode subtitle on mobile */}
               <p className={`
                 text-xs font-medium md:hidden
-                ${isInvoice ? 'text-rose-500' : 'text-blue-500'}
+                ${isInvoice ? 'text-amber-500' : 'text-blue-500'}
               `}>
                 {config.name}
               </p>

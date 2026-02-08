@@ -65,7 +65,7 @@ export const CartItemList = ({
                     onUpdateQuantity(item.product_id, 1);
                   }
                 }}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-center font-medium"
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-medium"
                 placeholder="1"
                 min="0.01"
                 step="any"
@@ -92,7 +92,7 @@ export const CartItemList = ({
                       onUpdatePrice(item.product_id, 0);
                     }
                   }}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="0"
                   min="0"
                   step="any"
@@ -115,7 +115,7 @@ export const CartItemList = ({
                       onUpdateDiscount(item.product_id, value, item.discountType);
                     }
                   }}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="0"
                   min="0"
                   step="any"
@@ -128,7 +128,7 @@ export const CartItemList = ({
                   onChange={(e) => {
                     onUpdateDiscount(item.product_id, item.discount || 0, e.target.value);
                   }}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="percent">%</option>
                   <option value="fixed">VNĐ</option>

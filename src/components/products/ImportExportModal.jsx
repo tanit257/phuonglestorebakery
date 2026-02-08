@@ -127,7 +127,7 @@ const ImportExportModal = ({
     }
   };
 
-  const themeColor = isInvoiceMode ? 'violet' : 'blue';
+  const themeColor = isInvoiceMode ? 'blue' : 'blue';
 
   return (
     <div

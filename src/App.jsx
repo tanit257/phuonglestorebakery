@@ -12,6 +12,7 @@ import Notification from './components/layout/Notification';
 import VoiceButton from './components/voice/VoiceButton';
 import VoiceDisplay from './components/voice/VoiceDisplay';
 import ConnectionBanner from './components/common/ConnectionBanner';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Auth components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -51,7 +52,7 @@ const ErrorScreen = ({ error }) => (
       <p className="text-gray-600 mb-4">{error}</p>
       <button
         onClick={() => window.location.reload()}
-        className="px-6 py-3 bg-violet-500 text-white rounded-xl font-semibold hover:bg-violet-600 transition-colors"
+        className="px-6 py-3 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors"
       >
         Tải lại trang
       </button>
@@ -66,10 +67,10 @@ const DevModeBanner = () => {
   if (!isDevMode) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-amber-900 px-4 py-2 text-center text-sm font-medium shadow-md">
-      <span className="mr-2">⚠️</span>
+    <div className="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-4 py-2 text-center text-sm font-medium shadow-md">
+      <span className="mr-2">⚙️</span>
       DEV MODE - Authentication bypassed. Dữ liệu có thể không được lưu vào Supabase.
-      <span className="ml-2">⚠️</span>
+      <span className="ml-2">⚙️</span>
     </div>
   );
 };
@@ -118,7 +119,9 @@ const ProtectedLayout = ({ children }) => {
 
           {/* Main Content - with padding for sidebar */}
           <main className="lg:ml-64 min-h-screen pb-20 lg:pb-6">
-            {children}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </main>
         </div>
       </VoiceProvider>

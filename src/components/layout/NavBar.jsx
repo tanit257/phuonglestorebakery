@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, ShoppingCart, CreditCard, Users, Truck, MoreHorizontal, LogOut, X, Package, FileText, Warehouse, Database, ClipboardList } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useMode } from '../../contexts/ModeContext';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Trang chủ' },
@@ -22,7 +23,12 @@ const moreItems = [
 export const NavBar = () => {
   const [showMore, setShowMore] = useState(false);
   const { signOut, user } = useAuth();
+  const { isInvoiceMode } = useMode();
   const navigate = useNavigate();
+
+  const activeColor = isInvoiceMode
+    ? 'text-amber-600 bg-amber-50'
+    : 'text-blue-600 bg-blue-50';
 
   const handleSignOut = async () => {
     await signOut();
@@ -41,8 +47,8 @@ export const NavBar = () => {
           <div className="absolute bottom-20 left-4 right-4 bg-white rounded-2xl shadow-xl p-4 animate-slide-up">
             {/* User info */}
             {user && (
-              <div className="px-3 py-2 mb-2 bg-violet-50 rounded-lg">
-                <p className="text-xs text-violet-600 truncate font-medium">{user.email}</p>
+              <div className={`px-3 py-2 mb-2 rounded-lg ${isInvoiceMode ? 'bg-amber-50' : 'bg-blue-50'}`}>
+                <p className={`text-xs truncate font-medium ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>{user.email}</p>
               </div>
             )}
 
@@ -56,7 +62,7 @@ export const NavBar = () => {
                   className={({ isActive }) => `
                     flex items-center gap-3 p-3 rounded-xl transition-all
                     ${isActive
-                      ? 'text-violet-600 bg-violet-50'
+                      ? activeColor
                       : 'text-gray-600 hover:bg-gray-50'
                     }
                   `}
@@ -89,7 +95,7 @@ export const NavBar = () => {
               className={({ isActive }) => `
                 flex flex-col items-center py-2 px-3 rounded-xl transition-all
                 ${isActive
-                  ? 'text-violet-600 bg-violet-50'
+                  ? activeColor
                   : 'text-gray-400 hover:text-gray-600'
                 }
               `}
@@ -105,7 +111,7 @@ export const NavBar = () => {
             className={`
               flex flex-col items-center py-2 px-3 rounded-xl transition-all
               ${showMore
-                ? 'text-violet-600 bg-violet-50'
+                ? activeColor
                 : 'text-gray-400 hover:text-gray-600'
               }
             `}

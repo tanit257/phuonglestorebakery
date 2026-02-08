@@ -115,7 +115,7 @@ export const PrintInventoryReport = ({
               value={paperSize}
               onChange={(e) => setPaperSize(e.target.value)}
               className={`px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 ${
-                isInvoiceMode ? 'focus:ring-violet-500' : 'focus:ring-emerald-500'
+                isInvoiceMode ? 'focus:ring-blue-500' : 'focus:ring-emerald-500'
               }`}
             >
               <option value="A4">A4 (210 x 297 mm)</option>
@@ -302,7 +302,7 @@ export const PrintInventoryReport = ({
             onClick={handlePrint}
             className={`px-6 py-2 text-white rounded-lg flex items-center gap-2 transition-colors ${
               isInvoiceMode
-                ? 'bg-violet-500 hover:bg-violet-600'
+                ? 'bg-blue-500 hover:bg-blue-600'
                 : 'bg-emerald-500 hover:bg-emerald-600'
             }`}
           >

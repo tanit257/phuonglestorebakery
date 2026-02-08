@@ -176,9 +176,16 @@ const BackupPage = () => {
     try {
       setLoading(true);
 
-      const fileContent = await downloadBackupFromDrive(backup.id);
+      const base64Content = await downloadBackupFromDrive(backup.id);
 
-      const blob = new Blob([fileContent], { type: 'application/gzip' });
+      // Convert base64 to binary for file download
+      const binaryString = atob(base64Content);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const blob = new Blob([bytes], { type: 'application/gzip' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -200,11 +207,10 @@ const BackupPage = () => {
     try {
       setLoading(true);
 
-      // Download encrypted backup from Google Drive
-      const fileContent = await downloadBackupFromDrive(backup.id);
+      // Download encrypted backup from Google Drive (returns base64 string)
+      const base64Content = await downloadBackupFromDrive(backup.id);
 
-      // Extract IV from filename (format: backup-YYYY-MM-DDTHH-mm-ss.json.gz)
-      // IV is stored in the encrypted file metadata, we need to get it from the file
+      // Extract IV from filename (format: backup-YYYY-MM-DDTHH-mm-ss-iv-HEXSTRING.json.gz)
       const ivMatch = backup.name.match(/iv-([a-f0-9]+)/);
       if (!ivMatch) {
         showNotification('Không tìm thấy IV trong tên file backup', 'error');
@@ -213,8 +219,8 @@ const BackupPage = () => {
       }
       const iv = ivMatch[1];
 
-      // Decrypt via server API (key is not exposed to client)
-      const decryptedBackup = await decryptBackupFile(fileContent, iv);
+      // Decrypt via server API (base64 string passed directly)
+      const decryptedBackup = await decryptBackupFile(base64Content, iv);
       const preview = getRestorePreview(decryptedBackup);
       setRestorePreview({ backup: decryptedBackup, preview, backupName: backup.name });
 

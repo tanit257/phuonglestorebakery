@@ -79,12 +79,12 @@ export default function InventoryReportPage() {
     return report.find(item => String(item.product.id) === String(selectedProduct.id));
   }, [selectedProduct, report]);
 
-  const themeColor = isInvoiceMode ? 'violet' : 'emerald';
+  const themeColor = isInvoiceMode ? 'amber' : 'emerald';
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
-      <div className={`bg-gradient-to-r ${isInvoiceMode ? 'from-violet-500 to-purple-500' : 'from-emerald-500 to-teal-500'} text-white p-4 pt-6`}>
+      <div className={`bg-gradient-to-r ${isInvoiceMode ? 'from-amber-500 to-orange-500' : 'from-emerald-500 to-teal-500'} text-white p-4 pt-6`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Package className="w-6 h-6" />

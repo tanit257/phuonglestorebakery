@@ -36,7 +36,7 @@ export const Input = ({
           className={`
             w-full px-4 py-3 bg-gray-50 rounded-xl
             border border-transparent
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-transparent
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent
             placeholder:text-gray-400
             transition-colors duration-200
             ${Icon ? 'pl-10' : ''}
@@ -94,7 +94,7 @@ export const Select = ({
         className={`
           w-full px-4 py-3 bg-gray-50 rounded-xl
           border border-transparent
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-transparent
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent
           transition-colors duration-200
           text-gray-900 bg-white
           ${error ? 'border-rose-500 focus-visible:ring-rose-500' : ''}

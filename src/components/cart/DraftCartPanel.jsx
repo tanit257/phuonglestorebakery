@@ -64,6 +64,28 @@ export const DraftCartPanel = ({
       hover: 'hover:bg-rose-100',
       button: 'bg-rose-500 hover:bg-rose-600',
     },
+    amber: {
+      bg: 'bg-amber-50',
+      bgActive: 'bg-amber-100',
+      border: 'border-amber-200',
+      borderActive: 'border-amber-500',
+      text: 'text-amber-700',
+      textActive: 'text-amber-800',
+      badge: 'bg-amber-500',
+      hover: 'hover:bg-amber-100',
+      button: 'bg-amber-500 hover:bg-amber-600',
+    },
+    blue: {
+      bg: 'bg-blue-50',
+      bgActive: 'bg-blue-100',
+      border: 'border-blue-200',
+      borderActive: 'border-blue-500',
+      text: 'text-blue-700',
+      textActive: 'text-blue-800',
+      badge: 'bg-blue-500',
+      hover: 'hover:bg-blue-100',
+      button: 'bg-blue-500 hover:bg-blue-600',
+    },
   };
 
   const colors = colorClasses[bgColor] || colorClasses.violet;

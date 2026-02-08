@@ -18,7 +18,7 @@ export const ModeToggle = ({ compact = false }) => {
           ${isTransitioning ? 'scale-95 opacity-70' : 'scale-100 opacity-100'}
           ${isReal
             ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
-            : 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-lg shadow-rose-500/30'
+            : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
           }
           hover:shadow-xl active:scale-95
         `}
@@ -43,7 +43,7 @@ export const ModeToggle = ({ compact = false }) => {
         transition-all duration-300
         ${isReal
           ? 'bg-blue-50 text-blue-700'
-          : 'bg-rose-50 text-rose-700'
+          : 'bg-amber-50 text-amber-700'
         }
       `}>
         {isReal ? <Package size={16} /> : <FileText size={16} />}
@@ -59,7 +59,7 @@ export const ModeToggle = ({ compact = false }) => {
           transition-all duration-300
           ${isTransitioning ? 'opacity-70' : 'opacity-100'}
           bg-gray-100 border-2
-          ${isReal ? 'border-blue-300' : 'border-rose-300'}
+          ${isReal ? 'border-blue-300' : 'border-amber-300'}
         `}
         role="switch"
         aria-checked={!isReal}
@@ -87,7 +87,7 @@ export const ModeToggle = ({ compact = false }) => {
             flex items-center justify-center gap-1.5
             ${isReal
               ? 'left-1 bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/40'
-              : 'left-[69px] bg-gradient-to-r from-rose-500 to-red-500 shadow-lg shadow-rose-500/40'
+              : 'left-[69px] bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg shadow-amber-500/40'
             }
           `}
         >
@@ -124,7 +124,7 @@ export const ModeIndicator = () => {
         shadow-xl
         ${isReal
           ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-blue-500/40'
-          : 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-rose-500/40'
+          : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-500/40'
         }
       `}
       title={`Đang ở mode ${config.name} - Click để chuyển`}
@@ -152,7 +152,7 @@ export const ModeBanner = () => {
   if (mode === MODES.REAL) return null;
 
   return (
-    <div className="bg-gradient-to-r from-rose-500 to-red-500 text-white px-4 py-2">
+    <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2">
       <div className="page-container flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText size={18} />

@@ -56,7 +56,7 @@ const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
       <button
         ref={buttonRef}
         onClick={handleToggle}
-        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         aria-label="Thêm hành động"
       >
         <MoreVertical size={18} />
@@ -120,14 +120,14 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
 
   return (
     <Card
-      className={`overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${isInvoiceMode ? 'border-violet-200' : ''}`}
+      className={`overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${isInvoiceMode ? 'border-amber-200' : ''}`}
       onClick={handleCardClick}
     >
       {/* Mode indicator */}
       <div className={`
         -mx-4 -mt-4 mb-3 px-4 py-1.5 text-xs font-medium flex items-center gap-1.5
         ${isInvoiceMode
-          ? 'bg-violet-100 text-violet-700'
+          ? 'bg-amber-100 text-amber-700'
           : 'bg-blue-50 text-blue-600'
         }
       `}>
@@ -214,7 +214,7 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
           </button>
           <button
             onClick={() => onEdit(order)}
-            className="p-2 text-gray-400 hover:text-violet-500 hover:bg-violet-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            className={`p-2 text-gray-400 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-500 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-500 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
             aria-label="Chỉnh sửa đơn hàng"
           >
             <Edit size={18} aria-hidden="true" />
@@ -519,7 +519,7 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-violet-50/50' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isInvoiceMode ? 'bg-amber-50/50' : 'bg-gray-50'}`}>
       <Header title={isInvoiceMode ? 'Đơn hàng (Hóa đơn)' : 'Đơn hàng (Thực tế)'} />
 
       <div className="px-4 lg:px-8 py-4 lg:py-6">
@@ -535,7 +535,7 @@ const OrdersPage = () => {
                 key={tab.value}
                 onClick={() => setFilter(tab.value)}
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${filter === tab.value
-                    ? 'bg-violet-500 text-white'
+                    ? (isInvoiceMode ? 'bg-amber-500 text-white' : 'bg-blue-500 text-white')
                     : 'text-gray-500 hover:bg-gray-100'
                   }`}
               >
@@ -555,7 +555,7 @@ const OrdersPage = () => {
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">Tất cả các tháng</option>
                   {availableMonths.map(month => {
@@ -581,7 +581,7 @@ const OrdersPage = () => {
                 <select
                   value={selectedCustomer}
                   onChange={(e) => setSelectedCustomer(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">Tất cả khách hàng</option>
                   {customers
@@ -605,7 +605,7 @@ const OrdersPage = () => {
                   setSelectedMonth('all');
                   setSelectedCustomer('all');
                 }}
-                className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                className={`text-sm font-medium ${isInvoiceMode ? 'text-amber-600 hover:text-amber-700' : 'text-blue-600 hover:text-blue-700'}`}
               >
                 ✕ Xóa bộ lọc
               </button>
@@ -685,7 +685,7 @@ const OrdersPage = () => {
                           type="number"
                           value={item.quantity}
                           onChange={(e) => updateEditingItem(index, 'quantity', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           min="1"
                         />
                       </div>
@@ -696,7 +696,7 @@ const OrdersPage = () => {
                           type="number"
                           value={item.unit_price}
                           onChange={(e) => updateEditingItem(index, 'unit_price', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           min="0"
                         />
                       </div>
@@ -718,7 +718,7 @@ const OrdersPage = () => {
                           value={item.note || ''}
                           onChange={(e) => updateEditingItemNote(index, e.target.value)}
                           placeholder="Ghi chú cho sản phẩm này..."
-                          className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     )}
@@ -731,13 +731,13 @@ const OrdersPage = () => {
                 {!showProductSearch ? (
                   <button
                     onClick={() => setShowProductSearch(true)}
-                    className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-violet-400 hover:text-violet-600 hover:bg-violet-50 transition-colors flex items-center justify-center gap-2"
+                    className={`w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 transition-colors flex items-center justify-center gap-2 ${isInvoiceMode ? 'hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50' : 'hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'}`}
                   >
                     <Plus size={20} />
                     Thêm sản phẩm
                   </button>
                 ) : (
-                  <div className="border-2 border-violet-300 rounded-xl p-4 bg-violet-50/50">
+                  <div className={`border-2 rounded-xl p-4 ${isInvoiceMode ? 'border-amber-300 bg-amber-50/50' : 'border-blue-300 bg-blue-50/50'}`}>
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-medium text-gray-700">Thêm sản phẩm</span>
                       <button
@@ -759,7 +759,7 @@ const OrdersPage = () => {
                         value={productSearch}
                         onChange={(e) => setProductSearch(e.target.value)}
                         placeholder="Tìm kiếm sản phẩm..."
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         autoFocus
                       />
                     </div>
@@ -781,8 +781,8 @@ const OrdersPage = () => {
                               onClick={() => addEditingItem(product)}
                               className={`w-full p-3 rounded-lg text-left transition-colors flex items-center justify-between ${
                                 isInOrder
-                                  ? 'bg-violet-100 border border-violet-300'
-                                  : 'bg-white border border-gray-200 hover:border-violet-300 hover:bg-violet-50'
+                                  ? (isInvoiceMode ? 'bg-amber-100 border border-amber-300' : 'bg-blue-100 border border-blue-300')
+                                  : (isInvoiceMode ? 'bg-white border border-gray-200 hover:border-amber-300 hover:bg-amber-50' : 'bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50')
                               }`}
                             >
                               <div>
@@ -790,11 +790,11 @@ const OrdersPage = () => {
                                 <p className="text-sm text-gray-500">{formatCurrency(product.price)}</p>
                               </div>
                               {isInOrder ? (
-                                <span className="text-xs bg-violet-500 text-white px-2 py-1 rounded-full">
+                                <span className={`text-xs text-white px-2 py-1 rounded-full ${isInvoiceMode ? 'bg-amber-500' : 'bg-blue-500'}`}>
                                   Đã thêm
                                 </span>
                               ) : (
-                                <Plus size={18} className="text-violet-500" />
+                                <Plus size={18} className={isInvoiceMode ? 'text-amber-500' : 'text-blue-500'} />
                               )}
                             </button>
                           );
@@ -806,10 +806,10 @@ const OrdersPage = () => {
               </div>
 
               {/* Total */}
-              <div className="mt-6 p-4 bg-violet-50 border-2 border-violet-200 rounded-xl">
+              <div className={`mt-6 p-4 border-2 rounded-xl ${isInvoiceMode ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}`}>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold text-gray-700">Tổng cộng:</span>
-                  <span className="text-2xl font-bold text-violet-600">
+                  <span className={`text-2xl font-bold ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>
                     {formatCurrency(editingOrder.items.reduce((sum, item) => sum + item.subtotal, 0))}
                   </span>
                 </div>
@@ -827,7 +827,7 @@ const OrdersPage = () => {
               <button
                 onClick={handleUpdateOrder}
                 disabled={editingOrder.items.length === 0}
-                className="flex-1 px-4 py-2.5 bg-violet-500 text-white rounded-xl font-medium hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex-1 px-4 py-2.5 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
               >
                 Lưu thay đổi
               </button>
@@ -859,7 +859,7 @@ const OrdersPage = () => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6">
               {/* Customer Info */}
-              <div className="mb-6 p-4 bg-violet-50 rounded-xl">
+              <div className={`mb-6 p-4 rounded-xl ${isInvoiceMode ? 'bg-amber-50' : 'bg-blue-50'}`}>
                 <h4 className="font-semibold text-gray-900 mb-2">Khách hàng</h4>
                 <p className="text-gray-700">
                   {getCustomerName(viewingOrder.customer_id, viewingOrder.customer, viewingOrder.customer_name, customers)}
@@ -917,7 +917,7 @@ const OrdersPage = () => {
               <div className="mt-6 pt-4 border-t-2 border-gray-800">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-gray-900">TỔNG CỘNG:</span>
-                  <span className="text-2xl font-bold text-violet-600">
+                  <span className={`text-2xl font-bold ${isInvoiceMode ? 'text-amber-600' : 'text-blue-600'}`}>
                     {formatCurrency(viewingOrder.total)}
                   </span>
                 </div>
@@ -947,7 +947,7 @@ const OrdersPage = () => {
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3">
               <button
                 onClick={() => handleCopyOrder(viewingOrder)}
-                className="flex-1 px-4 py-2 bg-violet-500 text-white rounded-xl font-medium hover:bg-violet-600 transition-colors flex items-center justify-center gap-2"
+                className={`flex-1 px-4 py-2 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
               >
                 <Copy size={18} />
                 Copy đơn hàng

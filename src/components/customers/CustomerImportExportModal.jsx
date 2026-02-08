@@ -144,15 +144,15 @@ const CustomerImportExportModal = ({
         <div className="relative px-6 pt-6 pb-4 border-b border-gray-100">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Đóng"
           >
             <X size={20} aria-hidden="true" />
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-              <Users size={24} className="text-violet-600" aria-hidden="true" />
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Users size={24} className="text-blue-600" aria-hidden="true" />
             </div>
             <h2
               id="customer-import-export-title"
@@ -168,7 +168,7 @@ const CustomerImportExportModal = ({
               onClick={() => setActiveTab('export')}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 activeTab === 'export'
-                  ? 'bg-violet-500 text-white'
+                  ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -179,7 +179,7 @@ const CustomerImportExportModal = ({
               onClick={() => setActiveTab('import')}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 activeTab === 'import'
-                  ? 'bg-violet-500 text-white'
+                  ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -208,7 +208,7 @@ const CustomerImportExportModal = ({
                 fullWidth
                 icon={Download}
                 onClick={handleExport}
-                className="bg-violet-500 hover:bg-violet-600"
+                className="bg-blue-500 hover:bg-blue-600"
               >
                 Tải xuống file Excel
               </Button>
@@ -216,13 +216,13 @@ const CustomerImportExportModal = ({
           ) : (
             <div className="space-y-4">
               {/* Template download */}
-              <div className="bg-violet-50 rounded-xl p-4">
-                <p className="text-violet-800 text-sm mb-2">
+              <div className="bg-blue-50 rounded-xl p-4">
+                <p className="text-blue-800 text-sm mb-2">
                   Chưa có file mẫu? Tải file mẫu để điền khách hàng.
                 </p>
                 <button
                   onClick={downloadCustomerExcelTemplate}
-                  className="text-violet-600 hover:text-violet-700 font-medium text-sm flex items-center gap-1"
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1"
                 >
                   <FileDown size={16} />
                   Tải file mẫu
@@ -264,7 +264,7 @@ const CustomerImportExportModal = ({
                   className={`mt-3 px-4 py-2 rounded-lg font-medium transition-colors ${
                     importFile
                       ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                      : 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   }`}
                 >
                   {importFile ? 'Chọn file khác' : 'Chọn file'}
@@ -274,7 +274,7 @@ const CustomerImportExportModal = ({
               {/* Processing indicator */}
               {isProcessing && (
                 <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500 mx-auto"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
                   <p className="text-gray-500 text-sm mt-2">Đang xử lý...</p>
                 </div>
               )}
@@ -338,7 +338,7 @@ const CustomerImportExportModal = ({
                       <label
                         className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
                           importMode === 'add_new'
-                            ? 'border-violet-500 bg-violet-50'
+                            ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -348,7 +348,7 @@ const CustomerImportExportModal = ({
                           value="add_new"
                           checked={importMode === 'add_new'}
                           onChange={() => setImportMode('add_new')}
-                          className="w-4 h-4 text-violet-600"
+                          className="w-4 h-4 text-blue-600"
                         />
                         <div>
                           <p className="font-medium text-gray-800">
@@ -363,7 +363,7 @@ const CustomerImportExportModal = ({
                       <label
                         className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
                           importMode === 'override'
-                            ? 'border-violet-500 bg-violet-50'
+                            ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -373,7 +373,7 @@ const CustomerImportExportModal = ({
                           value="override"
                           checked={importMode === 'override'}
                           onChange={() => setImportMode('override')}
-                          className="w-4 h-4 text-violet-600"
+                          className="w-4 h-4 text-blue-600"
                         />
                         <div>
                           <p className="font-medium text-gray-800">
@@ -398,7 +398,7 @@ const CustomerImportExportModal = ({
                         icon={Upload}
                         onClick={handleImportConfirm}
                         disabled={isProcessing}
-                        className="bg-violet-500 hover:bg-violet-600"
+                        className="bg-blue-500 hover:bg-blue-600"
                       >
                         {importMode === 'add_new'
                           ? `Thêm ${categorized.newCount} khách hàng mới`
