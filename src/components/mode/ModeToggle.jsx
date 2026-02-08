@@ -15,12 +15,12 @@ export const ModeToggle = ({ compact = false }) => {
         className={`
           relative flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm
           transition-all duration-300 transform
-          ${isTransitioning ? 'scale-95 opacity-70' : 'scale-100 opacity-100'}
+          ${isTransitioning ? 'opacity-70' : 'opacity-100'}
           ${isReal
             ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
             : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
           }
-          hover:shadow-xl active:scale-95
+          hover:shadow-xl hover:brightness-110 active:brightness-95 cursor-pointer
         `}
         title={`Chuyển sang mode ${isReal ? 'Hóa đơn' : 'Thực tế'}`}
       >
@@ -55,7 +55,7 @@ export const ModeToggle = ({ compact = false }) => {
         onClick={toggleMode}
         disabled={isTransitioning}
         className={`
-          relative flex items-center w-[140px] h-10 p-1 rounded-full
+          relative flex items-center w-[140px] h-10 p-1 rounded-full cursor-pointer
           transition-all duration-300
           ${isTransitioning ? 'opacity-70' : 'opacity-100'}
           bg-gray-100 border-2
@@ -120,8 +120,8 @@ export const ModeIndicator = () => {
         fixed bottom-24 lg:bottom-6 right-4 z-40
         flex items-center gap-2 px-4 py-2.5 rounded-full
         font-semibold text-sm
-        transition-all duration-300 transform hover:scale-105 active:scale-95
-        shadow-xl
+        transition-all duration-300 cursor-pointer
+        shadow-xl hover:shadow-2xl hover:brightness-110 active:brightness-95
         ${isReal
           ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-blue-500/40'
           : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-500/40'
@@ -162,7 +162,7 @@ export const ModeBanner = () => {
         </div>
         <button
           onClick={toggleMode}
-          className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors"
+          className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors cursor-pointer"
         >
           Chuyển về Thực tế
         </button>

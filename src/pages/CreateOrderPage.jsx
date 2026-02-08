@@ -153,7 +153,7 @@ const CreateOrderPage = () => {
           currentCart.length > 0 && (
             <button
               onClick={currentClearCart}
-              className="text-sm text-rose-500 font-medium"
+              className="text-sm text-rose-500 font-medium cursor-pointer"
             >
               Xóa tất cả
             </button>
@@ -302,7 +302,7 @@ const CreateOrderPage = () => {
                             <div className="flex items-center gap-2 ml-3">
                               <button
                                 onClick={() => currentUpdateQuantity(item.product_id, item.quantity - 1)}
-                                className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors"
+                                className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
                               >
                                 <Minus size={16} />
                               </button>
@@ -322,7 +322,7 @@ const CreateOrderPage = () => {
                               />
                               <button
                                 onClick={() => currentUpdateQuantity(item.product_id, item.quantity + 1)}
-                                className={`w-8 h-8 text-white rounded-lg flex items-center justify-center transition-colors ${
+                                className={`w-8 h-8 text-white rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
                                   isInvoiceMode
                                     ? 'bg-amber-500 hover:bg-amber-600'
                                     : 'bg-blue-500 hover:bg-blue-600'
@@ -332,7 +332,7 @@ const CreateOrderPage = () => {
                               </button>
                               <button
                                 onClick={() => currentRemoveFromCart(item.product_id)}
-                                className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors ml-1"
+                                className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer ml-1"
                               >
                                 <Trash2 size={18} />
                               </button>

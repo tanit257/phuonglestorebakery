@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Mic, TrendingUp, CreditCard, Bell, Plus, Package,
-  ChevronRight, Calendar, FileText, ArrowLeftRight, X, Copy
+  ChevronRight, Calendar, FileText, ArrowLeftRight, X, Copy, Phone, Check, Clock
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { useVoiceContext } from '../contexts/VoiceContext';
@@ -170,7 +170,7 @@ const HomePage = () => {
           </div>
           <button
             onClick={toggleMode}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-medium transition-colors cursor-pointer"
           >
             Chuyển mode
           </button>
@@ -181,7 +181,7 @@ const HomePage = () => {
         <div className="page-container space-y-6">
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className={`${isInvoiceMode ? 'border-amber-200 bg-white' : 'border-blue-200 bg-white'}`}>
+            <Card className={`cursor-pointer shadow-card hover:shadow-card-hover transition-shadow ${isInvoiceMode ? 'border-amber-200 bg-white' : 'border-blue-200 bg-white'}`}>
               <div className={`flex items-center gap-2 mb-2 ${isInvoiceMode ? 'text-amber-400' : 'text-blue-400'}`}>
                 <TrendingUp size={18} />
                 <span className="text-xs">Doanh thu hôm nay</span>
@@ -200,7 +200,7 @@ const HomePage = () => {
               </div>
             </Card>
 
-            <Card className={`${isInvoiceMode ? 'border-amber-200 bg-white' : 'border-blue-200 bg-white'}`}>
+            <Card className={`cursor-pointer shadow-card hover:shadow-card-hover transition-shadow ${isInvoiceMode ? 'border-amber-200 bg-white' : 'border-blue-200 bg-white'}`}>
               <div className="flex items-center gap-2 text-rose-400 mb-2">
                 <CreditCard size={18} />
                 <span className="text-xs">Tổng công nợ</span>
@@ -236,7 +236,7 @@ const HomePage = () => {
                   </p>
                   <button
                     onClick={() => navigate('/debt')}
-                    className="px-4 py-2 bg-rose-600 text-white rounded-xl font-medium text-sm hover:bg-rose-700 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-rose-600 text-white rounded-xl font-medium text-sm hover:bg-rose-700 transition-colors flex items-center gap-2 cursor-pointer"
                   >
                     Xem chi tiết <ChevronRight size={16} />
                   </button>
@@ -251,7 +251,7 @@ const HomePage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   <button
                     onClick={() => navigate('/create-order')}
-                    className={`flex items-center gap-3 p-4 rounded-xl hover:shadow-lg transition-all border-2 ${
+                    className={`flex items-center gap-3 p-4 rounded-xl hover:shadow-lg transition-all border-2 cursor-pointer ${
                       isInvoiceMode
                         ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300'
                         : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 hover:border-blue-300'
@@ -274,7 +274,7 @@ const HomePage = () => {
 
                   <button
                     onClick={() => navigate('/products')}
-                    className="flex items-center gap-3 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl hover:shadow-lg transition-all border-2 border-amber-200 hover:border-amber-300"
+                    className="flex items-center gap-3 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl hover:shadow-lg transition-all border-2 border-amber-200 hover:border-amber-300 cursor-pointer"
                   >
                     <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
                       <Package size={24} className="text-white" />
@@ -344,7 +344,7 @@ const HomePage = () => {
                           ? 'bg-emerald-100 text-emerald-700'
                           : 'bg-rose-100 text-rose-700'
                           }`}>
-                          {order.paid ? '✓ Đã thanh toán' : '◷ Chưa thanh toán'}
+                          <span className="inline-flex items-center gap-1">{order.paid ? <><Check size={12} /> Đã thanh toán</> : <><Clock size={12} /> Chưa thanh toán</>}</span>
                         </span>
                       </div>
                     </div>
@@ -362,7 +362,7 @@ const HomePage = () => {
                   </p>
                   <button
                     onClick={() => navigate('/create-order')}
-                    className={`mt-4 px-4 py-2 text-white rounded-xl text-sm font-medium transition-colors ${
+                    className={`mt-4 px-4 py-2 text-white rounded-xl text-sm font-medium transition-colors cursor-pointer ${
                       isInvoiceMode
                         ? 'bg-amber-500 hover:bg-amber-600'
                         : 'bg-blue-500 hover:bg-blue-600'
@@ -379,7 +379,7 @@ const HomePage = () => {
 
       {/* View Order Detail Modal */}
       {viewingOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -391,7 +391,7 @@ const HomePage = () => {
               </div>
               <button
                 onClick={() => setViewingOrder(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -406,8 +406,9 @@ const HomePage = () => {
                   {viewingOrder.customer?.name || viewingOrder.customer_name || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.name || 'N/A'}
                 </p>
                 {(viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone) && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    ☎ {viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone}
+                  <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                    <Phone size={14} className="inline-block" />
+                    {viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone}
                   </p>
                 )}
               </div>
@@ -479,7 +480,7 @@ const HomePage = () => {
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3">
               <button
                 onClick={() => handleCopyOrder(viewingOrder)}
-                className={`flex-1 px-4 py-2 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
+                className={`flex-1 px-4 py-2 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer ${
                   isInvoiceMode
                     ? 'bg-amber-500 hover:bg-amber-600'
                     : 'bg-blue-500 hover:bg-blue-600'
@@ -490,7 +491,7 @@ const HomePage = () => {
               </button>
               <button
                 onClick={() => setViewingOrder(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors cursor-pointer"
               >
                 Đóng
               </button>

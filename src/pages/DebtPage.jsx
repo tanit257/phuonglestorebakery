@@ -237,9 +237,9 @@ const DebtPage = () => {
                 <button
                   key={customer.id}
                   onClick={() => handleSelectCustomer(customer.id)}
-                  className="w-full text-left"
+                  className="w-full text-left cursor-pointer"
                 >
-                  <Card className="hover:border-blue-300 hover:shadow-md transition-all">
+                  <Card className="hover:border-blue-300 hover:shadow-md transition-all cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -327,7 +327,7 @@ const DebtPage = () => {
           {/* Back Button */}
           <button
             onClick={handleBackToList}
-            className={`flex items-center gap-2 mb-4 transition-colors ${isInvoiceMode ? 'text-amber-600 hover:text-amber-800' : 'text-gray-600 hover:text-gray-800'}`}
+            className={`flex items-center gap-2 mb-4 transition-colors cursor-pointer ${isInvoiceMode ? 'text-amber-600 hover:text-amber-800' : 'text-gray-600 hover:text-gray-800'}`}
           >
             <ChevronLeft size={20} />
             <span>Quay lại danh sách</span>
@@ -451,7 +451,7 @@ const DebtPage = () => {
               <button
                 key={tab.value}
                 onClick={() => setFilter(tab.value)}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   filter === tab.value
                     ? isInvoiceMode ? 'bg-amber-500 text-white' : 'bg-blue-500 text-white'
                     : 'text-gray-500 hover:bg-gray-100'
@@ -510,7 +510,7 @@ const DebtPage = () => {
                       </span>
                       <button
                         onClick={() => setViewingOrder(order)}
-                        className={`p-2 text-gray-400 rounded-lg transition-colors ${isInvoiceMode ? 'hover:text-amber-500 hover:bg-amber-50' : 'hover:text-blue-500 hover:bg-blue-50'}`}
+                        className={`p-2 text-gray-400 rounded-lg transition-colors cursor-pointer ${isInvoiceMode ? 'hover:text-amber-500 hover:bg-amber-50' : 'hover:text-blue-500 hover:bg-blue-50'}`}
                         aria-label="Xem chi tiết"
                       >
                         <Eye size={18} />
@@ -518,7 +518,7 @@ const DebtPage = () => {
                       {!order.paid && (
                         <button
                           onClick={() => markOrderAsPaid(order.id)}
-                          className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                          className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors cursor-pointer"
                           aria-label="Đánh dấu đã thanh toán"
                         >
                           <Check size={18} />
@@ -550,7 +550,7 @@ const DebtPage = () => {
 
       {/* Order Detail Modal */}
       {viewingOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className={`px-6 py-4 border-b flex items-center justify-between ${isInvoiceMode ? 'border-amber-200' : 'border-gray-200'}`}>
@@ -564,7 +564,7 @@ const DebtPage = () => {
               </div>
               <button
                 onClick={() => setViewingOrder(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -634,7 +634,7 @@ const DebtPage = () => {
                     markOrderAsPaid(viewingOrder.id);
                     setViewingOrder(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Check size={18} />
                   Đánh dấu đã thanh toán
@@ -642,7 +642,7 @@ const DebtPage = () => {
               )}
               <button
                 onClick={() => setViewingOrder(null)}
-                className={`${viewingOrder.paid ? 'flex-1' : ''} px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors`}
+                className={`${viewingOrder.paid ? 'flex-1' : ''} px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors cursor-pointer`}
               >
                 Đóng
               </button>

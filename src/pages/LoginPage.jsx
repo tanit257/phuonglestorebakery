@@ -154,7 +154,7 @@ const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -171,7 +171,7 @@ const LoginPage = () => {
               type="submit"
               disabled={isSubmitting}
               className="
-                w-full py-4 px-6 rounded-xl font-semibold text-white
+                w-full py-4 px-6 rounded-xl font-semibold text-white cursor-pointer
                 bg-gradient-to-r from-blue-500 to-cyan-600
                 hover:from-blue-600 hover:to-cyan-700
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2

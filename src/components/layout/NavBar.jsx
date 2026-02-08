@@ -44,7 +44,7 @@ export const NavBar = () => {
             className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             onClick={() => setShowMore(false)}
           />
-          <div className="absolute bottom-20 left-4 right-4 bg-white rounded-2xl shadow-xl p-4 animate-slide-up">
+          <div className="absolute bottom-20 left-4 right-4 bg-white rounded-2xl shadow-modal p-4 animate-slide-up">
             {/* User info */}
             {user && (
               <div className={`px-3 py-2 mb-2 rounded-lg ${isInvoiceMode ? 'bg-amber-50' : 'bg-blue-50'}`}>
@@ -60,7 +60,7 @@ export const NavBar = () => {
                   to={item.path}
                   onClick={() => setShowMore(false)}
                   className={({ isActive }) => `
-                    flex items-center gap-3 p-3 rounded-xl transition-all
+                    flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer
                     ${isActive
                       ? activeColor
                       : 'text-gray-600 hover:bg-gray-50'
@@ -76,7 +76,7 @@ export const NavBar = () => {
             {/* Logout button */}
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center justify-center gap-2 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-all border border-red-200"
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-all border border-red-200 cursor-pointer"
             >
               <LogOut size={20} />
               <span className="text-sm font-medium">Đăng xuất</span>
@@ -93,15 +93,15 @@ export const NavBar = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) => `
-                flex flex-col items-center py-2 px-3 rounded-xl transition-all
+                flex flex-col items-center py-2 px-3 min-w-[3rem] min-h-[2.75rem] rounded-xl transition-all cursor-pointer
                 ${isActive
                   ? activeColor
                   : 'text-gray-400 hover:text-gray-600'
                 }
               `}
             >
-              <item.icon size={24} />
-              <span className="text-xs mt-1 font-medium">{item.label}</span>
+              <item.icon size={22} />
+              <span className="text-[0.65rem] mt-0.5 font-medium">{item.label}</span>
             </NavLink>
           ))}
 
@@ -109,15 +109,15 @@ export const NavBar = () => {
           <button
             onClick={() => setShowMore(!showMore)}
             className={`
-              flex flex-col items-center py-2 px-3 rounded-xl transition-all
+              flex flex-col items-center py-2 px-3 min-w-[3rem] min-h-[2.75rem] rounded-xl transition-all cursor-pointer
               ${showMore
                 ? activeColor
                 : 'text-gray-400 hover:text-gray-600'
               }
             `}
           >
-            {showMore ? <X size={24} /> : <MoreHorizontal size={24} />}
-            <span className="text-xs mt-1 font-medium">Thêm</span>
+            {showMore ? <X size={22} /> : <MoreHorizontal size={22} />}
+            <span className="text-[0.65rem] mt-0.5 font-medium">Thêm</span>
           </button>
         </div>
       </nav>

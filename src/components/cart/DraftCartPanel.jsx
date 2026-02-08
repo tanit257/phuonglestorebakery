@@ -144,7 +144,7 @@ export const DraftCartPanel = ({
                     e.stopPropagation();
                     handleDeleteClick(draft);
                   }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-700 text-white rounded-full flex items-center justify-center hover:bg-gray-900 transition-colors z-10"
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-700 text-white rounded-full flex items-center justify-center hover:bg-gray-900 transition-colors z-10 cursor-pointer"
                   title="Xóa đơn nháp"
                 >
                   <X size={12} />
@@ -188,7 +188,7 @@ export const DraftCartPanel = ({
             <button
               onClick={onCreateDraft}
               className={`
-                flex-shrink-0 w-32 min-h-[100px] rounded-lg border-2 border-dashed
+                flex-shrink-0 w-32 min-h-[100px] rounded-lg border-2 border-dashed cursor-pointer
                 ${colors.border} ${colors.hover}
                 flex flex-col items-center justify-center gap-1
                 transition-all

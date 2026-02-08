@@ -55,14 +55,14 @@ const ProductEditModal = ({
       aria-labelledby="product-modal-title"
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-fade-in max-h-[90vh] flex flex-col"
+        className="bg-white rounded-2xl shadow-modal max-w-lg w-full overflow-hidden animate-scale-in max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="relative px-6 pt-6 pb-4 border-b border-gray-100">
           <button
             onClick={onClose}
-            className={`absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-${themeColor}-500`}
+            className={`absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-${themeColor}-500`}
             aria-label="Đóng"
           >
             <X size={20} aria-hidden="true" />

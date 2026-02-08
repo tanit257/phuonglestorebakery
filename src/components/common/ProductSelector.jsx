@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { CardTitle } from '../ui/Card';
 import { SearchInput } from '../ui/Input';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
@@ -60,7 +60,7 @@ export const ProductSelector = ({
             <button
               key={product.id}
               onClick={() => onProductSelect(product)}
-              className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"
+              className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-200/60 transition-all cursor-pointer"
             >
               <div className="text-left flex-1">
                 <p className="font-medium text-gray-800">
@@ -78,7 +78,8 @@ export const ProductSelector = ({
                         <span className="text-emerald-700 font-bold">
                           {formatCurrency(lastPrice)}
                         </span>
-                        <span className="text-emerald-600">✓ Giá gần nhất</span>
+                        <Check size={12} className="text-emerald-600 inline" />
+                        <span className="text-emerald-600">Giá gần nhất</span>
 
                         {/* Tooltip */}
                         <span className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10 shadow-lg">

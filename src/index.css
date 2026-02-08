@@ -8,6 +8,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Be Vietnam Pro', sans-serif;
   background-color: #f9fafb;
@@ -17,13 +21,12 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -84,10 +87,10 @@ input[type="number"] {
 /* Voice button pulse */
 @keyframes voice-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
   }
   50% {
-    box-shadow: 0 0 0 20px rgba(139, 92, 246, 0);
+    box-shadow: 0 0 0 16px rgba(59, 130, 246, 0);
   }
 }
 

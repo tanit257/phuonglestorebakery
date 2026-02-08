@@ -63,7 +63,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt, isInvoiceMode })
         <div className="relative px-6 pt-6 pb-4 border-b border-gray-100">
           <button
             onClick={onClose}
-            className={`absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-blue-500'}`}
+            className={`absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-blue-500'}`}
             aria-label="Đóng"
           >
             <X size={20} aria-hidden="true" />
@@ -199,7 +199,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt, isInvoiceMode })
                     onClose();
                     navigate(`/orders?customer=${customer.id}`);
                   }}
-                  className={`text-xs font-medium ${isInvoiceMode ? 'text-amber-600 hover:text-amber-700' : 'text-blue-600 hover:text-blue-700'}`}
+                  className={`text-xs font-medium cursor-pointer ${isInvoiceMode ? 'text-amber-600 hover:text-amber-700' : 'text-blue-600 hover:text-blue-700'}`}
                 >
                   Xem tất cả
                 </button>
@@ -243,7 +243,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt, isInvoiceMode })
               onClose();
               navigate(`/debt?customer=${customer.id}`);
             }}
-            className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
+            className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2 ${
               debt > 0
                 ? 'bg-rose-500 text-white hover:bg-rose-600'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -257,7 +257,7 @@ const CustomerDetailModal = ({ customer, onClose, orders, debt, isInvoiceMode })
               onClose();
               navigate(`/create-order?customer=${customer.id}`);
             }}
-            className={`flex-1 px-4 py-3 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+            className={`flex-1 px-4 py-3 text-white rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2 ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
           >
             <Plus size={18} />
             Tạo đơn hàng
@@ -465,7 +465,7 @@ const CustomersPage = () => {
               const debt = getCustomerDebt(customer.id);
 
               return (
-                <Card key={customer.id} className="group relative">
+                <Card key={customer.id} className="group relative cursor-pointer">
                   {/* Debt amount tooltip on hover */}
                   {debt > 0 && (
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-rose-500 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg z-10">
@@ -509,7 +509,7 @@ const CustomersPage = () => {
                     {/* Debt Button - Always show "Công nợ" text */}
                     <button
                       onClick={() => navigate(`/debt?customer=${customer.id}`)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                         debt > 0
                           ? 'bg-rose-50 text-rose-600 hover:bg-rose-100'
                           : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
@@ -554,21 +554,21 @@ const CustomersPage = () => {
                   <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
                     <button
                       onClick={() => setViewingCustomer(customer)}
-                      className={`p-2 text-gray-400 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
+                      className={`p-2 text-gray-400 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
                       aria-label={`Xem chi tiết ${customer.short_name}`}
                     >
                       <Eye size={18} aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => setEditingCustomer(customer)}
-                      className={`p-2 text-gray-400 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
+                      className={`p-2 text-gray-400 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
                       aria-label={`Chỉnh sửa ${customer.short_name}`}
                     >
                       <Edit size={18} aria-hidden="true" />
                     </button>
                     <button
                       onClick={() => handleDeleteCustomer(customer.id, customer.short_name)}
-                      className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                      className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                       aria-label={`Xóa ${customer.short_name}`}
                     >
                       <Trash2 size={18} aria-hidden="true" />

@@ -93,14 +93,14 @@ export default function InventoryReportPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowPrintReport(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               <span>In báo cáo</span>
             </button>
             <button
               onClick={() => setShowRetailModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Bán lẻ nhanh</span>
@@ -127,7 +127,7 @@ export default function InventoryReportPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3 p-4 -mt-2">
-        <div className="bg-white rounded-xl p-3 shadow-sm">
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-200/60">
           <div className="flex items-center gap-1 text-emerald-600 mb-1">
             <TrendingUp className="w-4 h-4" />
             <span className="text-xs">Nhập</span>
@@ -136,7 +136,7 @@ export default function InventoryReportPage() {
             {totals.purchased.toFixed(1)}
           </div>
         </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm">
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-200/60">
           <div className="flex items-center gap-1 text-blue-600 mb-1">
             <TrendingDown className="w-4 h-4" />
             <span className="text-xs">Xuất đơn</span>
@@ -145,7 +145,7 @@ export default function InventoryReportPage() {
             {totals.soldOrder.toFixed(1)}
           </div>
         </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm">
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-200/60">
           <div className="flex items-center gap-1 text-amber-600 mb-1">
             <ShoppingBag className="w-4 h-4" />
             <span className="text-xs">Xuất lẻ</span>
@@ -196,7 +196,7 @@ export default function InventoryReportPage() {
               <div
                 key={item.product.id}
                 onClick={() => handleProductClick(item)}
-                className={`bg-white rounded-xl p-3 shadow-sm cursor-pointer transition-all hover:shadow-md ${
+                className={`bg-white rounded-xl p-3 shadow-sm border border-gray-200/60 cursor-pointer transition-all hover:shadow-md ${
                   hasMovement ? 'border-l-4 border-l-' + themeColor + '-500' : ''
                 }`}
               >

@@ -81,14 +81,14 @@ export const ConfirmDialog = ({
       aria-describedby="confirm-dialog-description"
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-fade-in"
+        className="bg-white rounded-2xl shadow-modal max-w-sm w-full overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with close button */}
         <div className="relative px-6 pt-6 pb-4">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="absolute top-4 right-4 p-1 cursor-pointer text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Đóng"
           >
             <X size={20} aria-hidden="true" />
@@ -124,7 +124,7 @@ export const ConfirmDialog = ({
         <div className="px-6 pb-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
+            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold cursor-pointer hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
           >
             {cancelText}
           </button>
@@ -134,7 +134,7 @@ export const ConfirmDialog = ({
               onConfirm();
               onClose();
             }}
-            className={`flex-1 px-4 py-3 text-white rounded-xl font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${currentVariant.confirmBg}`}
+            className={`flex-1 px-4 py-3 text-white rounded-xl font-semibold cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${currentVariant.confirmBg}`}
           >
             {confirmText}
           </button>

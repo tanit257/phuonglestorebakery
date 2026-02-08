@@ -1,11 +1,12 @@
 import React from 'react';
 
-export const Card = ({ children, className = '', padding = true, ...props }) => {
+export const Card = ({ children, className = '', padding = true, hoverable = false, ...props }) => {
   return (
     <div
       className={`
-        bg-white rounded-2xl shadow-sm border border-gray-100
+        bg-white rounded-2xl shadow-card border border-gray-200/60
         ${padding ? 'p-4' : ''}
+        ${hoverable ? 'hover:shadow-card-hover transition-shadow duration-200' : ''}
         ${className}
       `}
       {...props}

@@ -461,7 +461,7 @@ const BackupPage = () => {
                   {backups.map((backup) => (
                     <div
                       key={backup.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200/60 hover:bg-gray-100 transition-colors"
                     >
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900">{backup.name}</p>

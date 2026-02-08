@@ -18,26 +18,28 @@ const styles = {
 
 export const Notification = () => {
   const { notification, clearNotification } = useStore();
-  
+
   if (!notification) return null;
-  
+
   const Icon = icons[notification.type] || Info;
   const style = styles[notification.type] || styles.info;
-  
+
   return (
     <div className={`
       fixed top-4 left-4 right-4 z-50
       max-w-lg mx-auto
-      px-4 py-3 rounded-2xl shadow-lg
+      px-4 py-3 rounded-2xl shadow-modal border border-white/20
       flex items-center gap-3
       animate-slide-in
       ${style}
     `}>
-      <Icon size={20} className="flex-shrink-0" />
-      <span className="font-medium flex-1">{notification.message}</span>
-      <button 
+      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+        <Icon size={18} />
+      </div>
+      <span className="font-medium flex-1 text-sm">{notification.message}</span>
+      <button
         onClick={clearNotification}
-        className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+        className="p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
       >
         <X size={18} />
       </button>

@@ -69,7 +69,7 @@ export const CustomerSelector = ({
       <div className={`flex items-center justify-between px-4 py-3 ${colors.bg} border-b ${colors.border}`}>
         <button
           onClick={onDeselect}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
         >
           <div className={`w-8 h-8 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
             <User size={16} className={colors.icon} />
@@ -81,7 +81,7 @@ export const CustomerSelector = ({
         </button>
         <button
           onClick={onDeselect}
-          className={`flex items-center gap-1.5 px-3 py-1.5 ${colors.hover} rounded-lg transition-colors text-sm ${colors.text}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 ${colors.hover} rounded-lg transition-colors text-sm ${colors.text} cursor-pointer`}
         >
           <Pencil size={14} />
           <span>Đổi khách</span>
@@ -106,7 +106,7 @@ export const CustomerSelector = ({
           </button>
           <button
             onClick={onDeselect}
-            className={`flex items-center gap-1.5 px-3 py-1.5 ${colors.hover} rounded-lg transition-colors text-sm ${colors.text}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 ${colors.hover} rounded-lg transition-colors text-sm ${colors.text} cursor-pointer`}
           >
             <Pencil size={14} />
             <span>Đổi khách</span>
@@ -119,7 +119,7 @@ export const CustomerSelector = ({
               <button
                 key={customer.id}
                 onClick={() => onSelect(customer)}
-                className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors"
+                className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl border border-gray-200/60 transition-colors cursor-pointer"
               >
                 <div className="text-left">
                   <p className="font-medium text-gray-800">{customer.short_name || customer.full_name || customer.name || 'Không tên'}</p>

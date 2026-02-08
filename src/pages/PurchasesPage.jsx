@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Truck, Calendar, Check, ChevronDown, Eye, X, Trash2 } from 'lucide-react';
+import { Plus, Truck, Calendar, Check, Clock, ChevronDown, Eye, X, Trash2, Phone } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
@@ -163,7 +163,7 @@ const PurchasesPage = () => {
                 setSelectedSupplier('all');
                 setPaymentFilter('all');
               }}
-              className="mb-4 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+              className="mb-4 text-sm text-emerald-600 hover:text-emerald-700 font-medium cursor-pointer"
             >
               Xóa bộ lọc
             </button>
@@ -205,21 +205,21 @@ const PurchasesPage = () => {
                       <p className="font-bold text-gray-900 mb-2">
                         {formatCurrency(purchase.total)}
                       </p>
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center gap-1 ${
                         purchase.paid
                           ? 'bg-emerald-100 text-emerald-700'
                           : 'bg-amber-100 text-amber-700'
                       }`}>
-                        {purchase.paid ? '✓ Đã thanh toán' : '◷ Chưa thanh toán'}
+                        {purchase.paid ? <><Check size={14} /> Đã thanh toán</> : <><Clock size={14} /> Chưa thanh toán</>}
                       </span>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200/60">
                     <button
                       onClick={() => setViewingPurchase(purchase)}
-                      className="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                      className="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Eye size={16} />
                       Xem chi tiết
@@ -227,7 +227,7 @@ const PurchasesPage = () => {
                     {!purchase.paid ? (
                       <button
                         onClick={() => markPurchaseAsPaid(purchase.id)}
-                        className="flex-1 px-3 py-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                        className="flex-1 px-3 py-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Check size={16} />
                         Đã thanh toán
@@ -235,14 +235,14 @@ const PurchasesPage = () => {
                     ) : (
                       <button
                         onClick={() => markPurchaseAsUnpaid(purchase.id)}
-                        className="flex-1 px-3 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors text-sm font-medium"
+                        className="flex-1 px-3 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors text-sm font-medium cursor-pointer"
                       >
                         Chưa thanh toán
                       </button>
                     )}
                     <button
                       onClick={() => handleDeletePurchase(purchase.id)}
-                      className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                       title="Xóa phiếu nhập"
                     >
                       <Trash2 size={18} />
@@ -265,7 +265,7 @@ const PurchasesPage = () => {
               ) : (
                 <button
                   onClick={() => navigate('/create-purchase')}
-                  className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 transition-colors"
+                  className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 transition-colors cursor-pointer"
                 >
                   Tạo phiếu nhập đầu tiên
                 </button>
@@ -277,7 +277,7 @@ const PurchasesPage = () => {
 
       {/* Purchase Detail Modal */}
       {viewingPurchase && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -289,7 +289,7 @@ const PurchasesPage = () => {
               </div>
               <button
                 onClick={() => setViewingPurchase(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -308,8 +308,8 @@ const PurchasesPage = () => {
                         {supplier?.short_name || supplier?.full_name || supplier?.name || viewingPurchase.supplier_name || 'N/A'}
                       </p>
                       {supplier?.phone && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          ☎ {supplier.phone}
+                        <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                          <Phone size={14} /> {supplier.phone}
                         </p>
                       )}
                     </>
@@ -369,7 +369,7 @@ const PurchasesPage = () => {
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
               <button
                 onClick={() => setViewingPurchase(null)}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors cursor-pointer"
               >
                 Đóng
               </button>

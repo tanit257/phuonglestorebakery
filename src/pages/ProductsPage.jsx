@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, Plus, Trash2, Edit, FileText, FileSpreadsheet } from 'lucide-react';
+import { Package, Plus, Trash2, Edit, FileText, FileSpreadsheet, BoxSelect } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { useMode } from '../contexts/ModeContext';
 import { Header } from '../components/layout/Header';
@@ -132,7 +132,7 @@ const ProductsPage = () => {
               const invoiceStock = getInvoiceProductStock(product.id);
 
               return (
-                <Card key={product.id} className={`overflow-hidden ${isInvoiceMode ? 'border-amber-200' : ''}`}>
+                <Card key={product.id} className={`overflow-hidden cursor-pointer ${isInvoiceMode ? 'border-amber-200' : ''}`}>
                   {/* Mode indicator stripe */}
                   <div className={`
                     -mx-4 -mt-4 mb-3 px-4 py-1.5 text-xs font-medium flex items-center gap-1.5
@@ -180,7 +180,8 @@ const ProductsPage = () => {
                         {/* Bulk unit info */}
                         {product.bulk_unit && product.bulk_quantity && (
                           <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                            <span>📦 Bao bì: {product.bulk_quantity}{product.unit}/{product.bulk_unit}</span>
+                            <BoxSelect size={12} className="inline-block" />
+                            <span> Bao bì: {product.bulk_quantity}{product.unit}/{product.bulk_unit}</span>
                           </div>
                         )}
                       </div>
@@ -190,7 +191,7 @@ const ProductsPage = () => {
                       <button
                         onClick={() => setEditingProduct(product)}
                         className={`
-                          p-2 rounded-lg transition-colors
+                          p-2 rounded-lg transition-colors cursor-pointer
                           focus-visible:outline-none focus-visible:ring-2
                           ${isInvoiceMode
                             ? 'text-gray-400 hover:text-amber-600 hover:bg-amber-50 focus-visible:ring-amber-500'
@@ -203,7 +204,7 @@ const ProductsPage = () => {
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(product.id, product.name)}
-                        className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                        className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                         aria-label={`Xóa ${product.name}`}
                       >
                         <Trash2 size={18} aria-hidden="true" />

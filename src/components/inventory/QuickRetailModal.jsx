@@ -84,7 +84,7 @@ export default function QuickRetailModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-amber-500 to-orange-500 text-white">
@@ -94,7 +94,7 @@ export default function QuickRetailModal({ isOpen, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+            className="p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -131,7 +131,7 @@ export default function QuickRetailModal({ isOpen, onClose }) {
                           setSelectedProductId(String(product.id));
                           setSearchTerm(isInvoiceMode && product.invoice_name ? product.invoice_name : product.name);
                         }}
-                        className="w-full px-3 py-2 text-left hover:bg-amber-50 flex justify-between items-center"
+                        className="w-full px-3 py-2 text-left hover:bg-amber-50 flex justify-between items-center cursor-pointer"
                       >
                         <span>{isInvoiceMode && product.invoice_name ? product.invoice_name : product.name}</span>
                         <span className="text-sm text-gray-500">
@@ -192,7 +192,7 @@ export default function QuickRetailModal({ isOpen, onClose }) {
             <button
               onClick={handleAddItem}
               disabled={!selectedProductId || quantity <= 0}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Thêm sản phẩm
@@ -224,7 +224,7 @@ export default function QuickRetailModal({ isOpen, onClose }) {
                       </span>
                       <button
                         onClick={() => handleRemoveItem(index)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -247,14 +247,14 @@ export default function QuickRetailModal({ isOpen, onClose }) {
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={items.length === 0 || isSubmitting}
-              className="flex-1 px-4 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-4 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
             >
               {isSubmitting ? 'Đang tạo...' : 'Tạo đơn lẻ'}
             </button>

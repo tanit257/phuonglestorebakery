@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Package, Trash2, ChevronDown, ChevronUp, Edit, X, Printer, Eye, Copy, FileText, MoreVertical, DollarSign, Plus, Search, StickyNote } from 'lucide-react';
+import { Package, Trash2, ChevronDown, ChevronUp, Edit, X, Printer, Eye, Copy, FileText, MoreVertical, DollarSign, Plus, Search, StickyNote, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
 import { useMode } from '../contexts/ModeContext';
@@ -56,7 +56,7 @@ const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
       <button
         ref={buttonRef}
         onClick={handleToggle}
-        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         aria-label="Thêm hành động"
       >
         <MoreVertical size={18} />
@@ -74,7 +74,7 @@ const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
           >
             <button
               onClick={handlePaymentToggle}
-              className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+              className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 cursor-pointer"
             >
               {order.paid ? (
                 <>
@@ -91,7 +91,7 @@ const MoreActionsMenu = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete }) => {
             <div className="border-t border-gray-100 my-1" />
             <button
               onClick={handleDelete}
-              className="w-full px-4 py-2.5 text-left text-sm hover:bg-rose-50 text-rose-600 flex items-center gap-3"
+              className="w-full px-4 py-2.5 text-left text-sm hover:bg-rose-50 text-rose-600 flex items-center gap-3 cursor-pointer"
             >
               <Trash2 size={16} />
               <span>Xóa đơn hàng</span>
@@ -161,7 +161,7 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
 
       {/* Items List */}
       {isExpanded && (
-        <div className="space-y-2 pb-3 border-b border-gray-100">
+        <div className="space-y-2 pb-3 border-b border-gray-200/60">
           {items.map((item, idx) => (
             <div
               key={idx}
@@ -200,28 +200,28 @@ const OrderItem = ({ order, onMarkAsPaid, onMarkAsUnpaid, onDelete, onEdit, onPr
         <div className="flex items-center gap-1 actions-area" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => onView(order)}
-            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Xem chi tiết"
           >
             <Eye size={18} aria-hidden="true" />
           </button>
           <button
             onClick={() => onPrint(order)}
-            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="In đơn hàng"
           >
             <Printer size={18} aria-hidden="true" />
           </button>
           <button
             onClick={() => onEdit(order)}
-            className={`p-2 text-gray-400 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-500 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-500 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
+            className={`p-2 text-gray-400 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${isInvoiceMode ? 'hover:text-amber-500 hover:bg-amber-50 focus-visible:ring-amber-500' : 'hover:text-blue-500 hover:bg-blue-50 focus-visible:ring-blue-500'}`}
             aria-label="Chỉnh sửa đơn hàng"
           >
             <Edit size={18} aria-hidden="true" />
           </button>
           <button
             onClick={() => onDelete(order.id)}
-            className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+            className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
             aria-label="Xóa đơn hàng"
           >
             <Trash2 size={18} aria-hidden="true" />
@@ -534,7 +534,7 @@ const OrdersPage = () => {
               <button
                 key={tab.value}
                 onClick={() => setFilter(tab.value)}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${filter === tab.value
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${filter === tab.value
                     ? (isInvoiceMode ? 'bg-amber-500 text-white' : 'bg-blue-500 text-white')
                     : 'text-gray-500 hover:bg-gray-100'
                   }`}
@@ -605,9 +605,9 @@ const OrdersPage = () => {
                   setSelectedMonth('all');
                   setSelectedCustomer('all');
                 }}
-                className={`text-sm font-medium ${isInvoiceMode ? 'text-amber-600 hover:text-amber-700' : 'text-blue-600 hover:text-blue-700'}`}
+                className={`text-sm font-medium cursor-pointer flex items-center gap-1 ${isInvoiceMode ? 'text-amber-600 hover:text-amber-700' : 'text-blue-600 hover:text-blue-700'}`}
               >
-                ✕ Xóa bộ lọc
+                <X size={14} /> Xóa bộ lọc
               </button>
             </div>
           )}
@@ -649,7 +649,7 @@ const OrdersPage = () => {
 
       {/* Edit Order Modal */}
       {editingOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-gray-200">
@@ -672,7 +672,7 @@ const OrdersPage = () => {
                       </p>
                       <button
                         onClick={() => removeEditingItem(index)}
-                        className="p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                        className="p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -731,7 +731,7 @@ const OrdersPage = () => {
                 {!showProductSearch ? (
                   <button
                     onClick={() => setShowProductSearch(true)}
-                    className={`w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 transition-colors flex items-center justify-center gap-2 ${isInvoiceMode ? 'hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50' : 'hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                    className={`w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 transition-colors cursor-pointer flex items-center justify-center gap-2 ${isInvoiceMode ? 'hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50' : 'hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50'}`}
                   >
                     <Plus size={20} />
                     Thêm sản phẩm
@@ -745,7 +745,7 @@ const OrdersPage = () => {
                           setShowProductSearch(false);
                           setProductSearch('');
                         }}
-                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
                       >
                         <X size={18} />
                       </button>
@@ -820,14 +820,14 @@ const OrdersPage = () => {
             <div className="px-6 py-4 border-t border-gray-200 flex items-center gap-3">
               <button
                 onClick={() => setEditingOrder(null)}
-                className="flex-1 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors cursor-pointer"
               >
                 Hủy
               </button>
               <button
                 onClick={handleUpdateOrder}
                 disabled={editingOrder.items.length === 0}
-                className={`flex-1 px-4 py-2.5 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+                className={`flex-1 px-4 py-2.5 text-white rounded-xl font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
               >
                 Lưu thay đổi
               </button>
@@ -838,7 +838,7 @@ const OrdersPage = () => {
 
       {/* View Order Detail Modal */}
       {viewingOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -850,7 +850,7 @@ const OrdersPage = () => {
               </div>
               <button
                 onClick={() => setViewingOrder(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -865,8 +865,8 @@ const OrdersPage = () => {
                   {getCustomerName(viewingOrder.customer_id, viewingOrder.customer, viewingOrder.customer_name, customers)}
                 </p>
                 {(viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone) && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    ☎ {viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone}
+                  <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                    <Phone size={14} /> {viewingOrder.customer?.phone || customers.find(c => String(c.id) === String(viewingOrder.customer_id))?.phone}
                   </p>
                 )}
               </div>
@@ -947,14 +947,14 @@ const OrdersPage = () => {
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3">
               <button
                 onClick={() => handleCopyOrder(viewingOrder)}
-                className={`flex-1 px-4 py-2 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+                className={`flex-1 px-4 py-2 text-white rounded-xl font-medium transition-colors cursor-pointer flex items-center justify-center gap-2 ${isInvoiceMode ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-600'}`}
               >
                 <Copy size={18} />
                 Copy đơn hàng
               </button>
               <button
                 onClick={() => setViewingOrder(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors cursor-pointer"
               >
                 Đóng
               </button>

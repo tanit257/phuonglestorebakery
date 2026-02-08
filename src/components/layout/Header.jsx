@@ -28,10 +28,10 @@ export const Header = ({ title, showBack = false, rightElement = null, showModeT
 
       <header className={`
         sticky top-0 backdrop-blur-lg border-b px-4 lg:px-8 z-20
-        transition-all duration-300
+        transition-all duration-300 shadow-sm
         ${isInvoice
-          ? 'bg-amber-50/90 border-amber-200'
-          : 'bg-white/80 border-gray-100'
+          ? 'bg-amber-50/90 border-amber-200/80'
+          : 'bg-white/85 border-gray-200/60'
         }
       `}>
         <div className="page-container flex items-center justify-between h-16 gap-4">
@@ -41,7 +41,7 @@ export const Header = ({ title, showBack = false, rightElement = null, showModeT
               <button
                 onClick={() => navigate(-1)}
                 className={`
-                  p-2 -ml-2 rounded-xl transition-colors
+                  p-2 -ml-2 rounded-xl transition-colors cursor-pointer
                   focus-visible:outline-none focus-visible:ring-2
                   ${isInvoice
                     ? 'hover:bg-amber-100 focus-visible:ring-amber-500'

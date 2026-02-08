@@ -34,11 +34,11 @@ export const Input = ({
           id={inputId}
           name={name}
           className={`
-            w-full px-4 py-3 bg-gray-50 rounded-xl
-            border border-transparent
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent
+            w-full px-4 py-3 bg-gray-50/80 rounded-xl
+            border border-gray-200/60
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500
             placeholder:text-gray-400
-            transition-colors duration-200
+            transition-all duration-200
             ${Icon ? 'pl-10' : ''}
             ${error ? 'border-rose-500 focus-visible:ring-rose-500' : ''}
             ${className}
@@ -92,11 +92,11 @@ export const Select = ({
         id={selectId}
         name={name}
         className={`
-          w-full px-4 py-3 bg-gray-50 rounded-xl
-          border border-transparent
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent
-          transition-colors duration-200
-          text-gray-900 bg-white
+          w-full px-4 py-3 bg-gray-50/80 rounded-xl
+          border border-gray-200/60 cursor-pointer
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500
+          transition-all duration-200
+          text-gray-900
           ${error ? 'border-rose-500 focus-visible:ring-rose-500' : ''}
           ${className}
         `}

@@ -94,13 +94,13 @@ export const Sidebar = () => {
         <button
           onClick={toggleMode}
           className={`
-            w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl
+            w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl cursor-pointer
             font-medium text-sm transition-all duration-300
             ${isInvoice
               ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
               : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
             }
-            hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]
+            hover:shadow-xl hover:brightness-110 active:brightness-95
           `}
         >
           <div className="flex items-center gap-2">
@@ -126,26 +126,26 @@ export const Sidebar = () => {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`
-                  w-full flex items-center gap-3 px-4 py-3 rounded-xl
-                  font-medium text-sm transition-all duration-200
+                  w-full flex items-center gap-3 px-4 py-2.5 rounded-xl cursor-pointer
+                  font-medium text-sm transition-all duration-200 relative
                   ${active
                     ? isInvoice
-                      ? 'bg-amber-100 text-amber-700 shadow-sm'
-                      : 'bg-blue-100 text-blue-700 shadow-sm'
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-blue-50 text-blue-700'
                     : isInvoice
                       ? 'text-amber-700 hover:bg-amber-50'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      : 'text-gray-600 hover:bg-gray-50'
                   }
                 `}
               >
-                <Icon size={20} />
-                <span>{item.label}</span>
                 {active && (
                   <div className={`
-                    ml-auto w-1.5 h-1.5 rounded-full
+                    absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full
                     ${isInvoice ? 'bg-amber-500' : 'bg-blue-500'}
                   `} />
                 )}
+                <Icon size={20} />
+                <span>{item.label}</span>
               </button>
             );
           })}
@@ -171,7 +171,7 @@ export const Sidebar = () => {
         <button
           onClick={handleSignOut}
           className={`
-            w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+            w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer
             font-medium text-sm transition-all duration-200
             ${isInvoice
               ? 'text-amber-600 hover:bg-amber-100 border border-amber-200'

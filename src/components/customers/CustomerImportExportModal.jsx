@@ -137,14 +137,14 @@ const CustomerImportExportModal = ({
       aria-labelledby="customer-import-export-title"
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-fade-in max-h-[90vh] flex flex-col"
+        className="bg-white rounded-2xl shadow-modal max-w-lg w-full overflow-hidden animate-scale-in max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="relative px-6 pt-6 pb-4 border-b border-gray-100">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Đóng"
           >
             <X size={20} aria-hidden="true" />
@@ -166,7 +166,7 @@ const CustomerImportExportModal = ({
           <div className="flex gap-2 mt-4">
             <button
               onClick={() => setActiveTab('export')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer ${
                 activeTab === 'export'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -177,7 +177,7 @@ const CustomerImportExportModal = ({
             </button>
             <button
               onClick={() => setActiveTab('import')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer ${
                 activeTab === 'import'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -222,7 +222,7 @@ const CustomerImportExportModal = ({
                 </p>
                 <button
                   onClick={downloadCustomerExcelTemplate}
-                  className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1"
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1 cursor-pointer"
                 >
                   <FileDown size={16} />
                   Tải file mẫu
@@ -261,7 +261,7 @@ const CustomerImportExportModal = ({
 
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className={`mt-3 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`mt-3 px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
                     importFile
                       ? 'bg-green-100 text-green-700 hover:bg-green-200'
                       : 'bg-blue-100 text-blue-700 hover:bg-blue-200'

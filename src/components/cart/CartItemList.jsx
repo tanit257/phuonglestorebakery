@@ -38,7 +38,7 @@ export const CartItemList = ({
             </div>
             <button
               onClick={() => onRemove(item.product_id)}
-              className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+              className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
             >
               <Trash2 size={18} />
             </button>

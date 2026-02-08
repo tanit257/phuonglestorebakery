@@ -9,7 +9,9 @@ import {
   Volume2,
   AlertTriangle,
   CheckCircle,
-  RefreshCw
+  RefreshCw,
+  Package,
+  User
 } from 'lucide-react';
 import { useVoiceContext } from '../../contexts/VoiceContext';
 import { useStore } from '../../hooks/useStore';
@@ -407,7 +409,7 @@ export const VoiceDisplay = () => {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-bold text-amber-800">
-                          {sug.type === 'product' ? '📦 Sản phẩm' : '👤 Khách hàng'}
+                          <span className="inline-flex items-center gap-1">{sug.type === 'product' ? <><Package size={14} /> Sản phẩm</> : <><User size={14} /> Khách hàng</>}</span>
                         </span>
                         <span className="text-sm text-gray-600 font-medium">
                           {(sug.similarity * 100).toFixed(0)}% khớp

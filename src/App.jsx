@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Settings, AlertTriangle } from 'lucide-react';
 import { useStore } from './hooks/useStore';
 import { VoiceProvider } from './contexts/VoiceContext';
 import { ModeProvider } from './contexts/ModeContext';
@@ -46,13 +47,13 @@ const ErrorScreen = ({ error }) => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-rose-50 to-white p-4">
     <div className="text-center">
       <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <span className="text-3xl">⚠️</span>
+        <AlertTriangle size={32} className="text-rose-500" />
       </div>
       <h1 className="text-xl font-bold text-gray-800 mb-2">Có lỗi xảy ra</h1>
       <p className="text-gray-600 mb-4">{error}</p>
       <button
         onClick={() => window.location.reload()}
-        className="px-6 py-3 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors"
+        className="px-6 py-3 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors cursor-pointer"
       >
         Tải lại trang
       </button>
@@ -68,9 +69,9 @@ const DevModeBanner = () => {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white px-4 py-2 text-center text-sm font-medium shadow-md">
-      <span className="mr-2">⚙️</span>
+      <Settings size={16} className="inline-block mr-2 align-text-bottom" />
       DEV MODE - Authentication bypassed. Dữ liệu có thể không được lưu vào Supabase.
-      <span className="ml-2">⚙️</span>
+      <Settings size={16} className="inline-block ml-2 align-text-bottom" />
     </div>
   );
 };

@@ -54,7 +54,7 @@ const CreatePurchasePage = () => {
           purchaseCart.length > 0 && (
             <button
               onClick={clearPurchaseCart}
-              className="text-sm text-rose-500 font-medium"
+              className="text-sm text-rose-500 font-medium cursor-pointer"
             >
               Xóa tất cả
             </button>

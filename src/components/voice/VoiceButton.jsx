@@ -28,15 +28,15 @@ export const VoiceButton = ({ onResult }) => {
         onClick={handleClick}
         disabled={isProcessing}
         className={`
-          lg:hidden fixed bottom-6 right-4 z-40
+          lg:hidden fixed bottom-6 right-4 z-40 cursor-pointer
           w-16 h-16 rounded-full shadow-2xl
           flex items-center justify-center
           transition-all duration-300
           ${isListening
-            ? 'bg-rose-500 voice-pulse scale-110'
+            ? 'bg-rose-500 voice-pulse'
             : isProcessing
               ? 'bg-amber-500'
-              : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:scale-110 hover:shadow-blue-500/30'
+              : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:shadow-blue-500/40 hover:brightness-110'
           }
         `}
         title={isListening ? 'Dừng nghe' : 'Bấm để nói'}
@@ -55,15 +55,15 @@ export const VoiceButton = ({ onResult }) => {
         onClick={handleClick}
         disabled={isProcessing}
         className={`
-          hidden lg:flex fixed bottom-8 right-8 z-50
+          hidden lg:flex fixed bottom-8 right-8 z-50 cursor-pointer
           w-20 h-20 rounded-2xl shadow-2xl
           items-center justify-center
           transition-all duration-300
           ${isListening
-            ? 'bg-rose-500 voice-pulse scale-110'
+            ? 'bg-rose-500 voice-pulse'
             : isProcessing
               ? 'bg-amber-500'
-              : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:scale-110 hover:shadow-blue-500/50'
+              : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:shadow-blue-500/50 hover:brightness-110'
           }
         `}
         title={isListening ? 'Dừng nghe' : 'Bấm để nói'}
