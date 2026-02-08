@@ -4,6 +4,7 @@
  */
 
 import { google } from 'googleapis';
+import { Readable } from 'stream';
 import { parse, serialize } from 'cookie';
 import {
   encryptToken,
@@ -209,8 +210,8 @@ async function handleUploadBackup(req, res) {
     const buffer = Buffer.from(fileContent, 'base64');
 
     const response = await drive.files.create({
-      resource: { name: fileName, parents: [folderId] },
-      media: { mimeType: 'application/gzip', body: buffer },
+      requestBody: { name: fileName, parents: [folderId] },
+      media: { mimeType: 'application/gzip', body: Readable.from(buffer) },
       fields: 'id, name, size, createdTime',
     });
 

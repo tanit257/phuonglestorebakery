@@ -510,9 +510,9 @@ const BackupPage = () => {
         title={confirmDialog.title}
         message={confirmDialog.message}
         onConfirm={confirmDialog.onConfirm}
-        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
         confirmText={confirmDialog.danger ? 'Xác nhận' : 'OK'}
-        danger={confirmDialog.danger}
+        variant={confirmDialog.danger ? 'danger' : 'info'}
       />
     </div>
   );
