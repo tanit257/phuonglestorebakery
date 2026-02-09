@@ -5,6 +5,7 @@ import {
   processVoiceCommandWithConfidence,
   suggestCorrections
 } from '../services/voiceAI';
+import { buildProductIndex } from '../services/hybridSearch';
 import { useStore } from './useStore';
 
 // Thời gian chờ trước khi xử lý lệnh (ms)
@@ -23,6 +24,7 @@ export const useVoice = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [transcriptHistory, setTranscriptHistory] = useState([]);
   const [isWaitingForMore, setIsWaitingForMore] = useState(false); // Đang chờ người dùng nói thêm
+  const [tfidfIndex, setTfidfIndex] = useState(null); // TF-IDF index for better product matching
 
   const recognitionRef = useRef(null);
   const callbackRef = useRef(null);
@@ -32,19 +34,37 @@ export const useVoice = () => {
   const accumulatedAlternativesRef = useRef([]);
   const { products, customers, showNotification } = useStore();
 
+  // Build TF-IDF index when products change
+  useEffect(() => {
+    if (products && products.length > 0) {
+      console.log('🔄 Building TF-IDF index for voice search...');
+      try {
+        const index = buildProductIndex(products);
+        setTfidfIndex(index);
+        console.log('✅ TF-IDF index ready for voice commands');
+      } catch (error) {
+        console.error('❌ Failed to build TF-IDF index:', error);
+        setTfidfIndex(null);
+      }
+    } else {
+      setTfidfIndex(null);
+    }
+  }, [products]);
+
   // Process voice command with confidence and suggestions
   const processCommand = useCallback((text, confidenceScore, alternativesList) => {
     setIsProcessing(true);
     setIsWaitingForMore(false);
 
     try {
-      // Use confidence-aware processing
+      // Use confidence-aware processing with TF-IDF index
       const commandResult = processVoiceCommandWithConfidence(
         text,
         confidenceScore,
         products,
         customers,
-        0.65 // Lower threshold for Vietnamese
+        0.65, // Lower threshold for Vietnamese
+        tfidfIndex // Pass TF-IDF index for better matching
       );
 
       // Get smart suggestions for correction
@@ -69,7 +89,7 @@ export const useVoice = () => {
       accumulatedConfidenceRef.current = 0;
       accumulatedAlternativesRef.current = [];
     }
-  }, [products, customers]);
+  }, [products, customers, tfidfIndex]);
 
   // Store latest callback in ref
   useEffect(() => {
