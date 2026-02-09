@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { productApi, customerApi, orderApi, purchaseApi, invoiceOrderApi, invoicePurchaseApi, invoiceInventoryApi, seedData } from '../services/api';
+import { productApi, customerApi, orderApi, purchaseApi, invoiceOrderApi, invoicePurchaseApi, invoiceInventoryApi } from '../services/api';
 import { OVERDUE_DAYS, RETAIL_CUSTOMER_NAME, CUSTOMER_TYPES } from '../utils/constants';
 import { connectionMonitor } from '../services/connectionMonitor';
 
@@ -64,8 +64,8 @@ export const useStore = create((set, get) => ({
         invoiceInventoryApi.getAll(),
       ]);
 
-      // If no orders exist, load sample seed data
-      if (orders.length === 0) {
+      // Only seed sample data in development mode
+      if (orders.length === 0 && import.meta.env.VITE_DEV_MODE === 'true') {
         const { generateSeedData } = await import('../utils/seedData');
         const seedDataResult = generateSeedData();
 

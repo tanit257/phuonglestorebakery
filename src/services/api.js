@@ -1083,40 +1083,13 @@ export const invoiceInventoryApi = {
   },
 };
 
-// ============ SEED DATA ============
-export const seedData = async (products, customers) => {
-  if (isSupabaseConfigured()) {
-    // Check if data already exists
-    const { data: existingProducts } = await supabase.from('products').select('id').limit(1);
-    if (existingProducts && existingProducts.length > 0) return;
+// ============ PRODUCTION GUARD ============
+const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
 
-    // Seed products with invoice_price
-    const productsWithInvoicePrice = products.map(p => ({
-      ...p,
-      invoice_price: Math.round(p.price * 0.8), // Invoice price is 80% of real price by default
-    }));
-    await supabase.from('products').insert(productsWithInvoicePrice);
-
-    // Seed customers
-    await supabase.from('customers').insert(customers);
-  } else {
-    // Local storage seed
-    if (localStorageDB.products.length === 0) {
-      const seededProducts = products.map((p, i) => ({
-        ...p,
-        id: Date.now() + i,
-        invoice_price: Math.round(p.price * 0.8),
-        created_at: new Date().toISOString(),
-      }));
-      saveToLocalStorage('products', seededProducts);
-    }
-    if (localStorageDB.customers.length === 0) {
-      const seededCustomers = customers.map((c, i) => ({
-        ...c,
-        id: Date.now() + i + 1000,
-        created_at: new Date().toISOString(),
-      }));
-      saveToLocalStorage('customers', seededCustomers);
-    }
-  }
-};
+if (!isSupabaseConfigured() && !isDevMode) {
+  console.error(
+    '[CRITICAL] Supabase is not configured and app is not in dev mode. ' +
+    'Data operations will use empty localStorage. ' +
+    'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, or set VITE_DEV_MODE=true for local development.'
+  );
+}

@@ -15,8 +15,12 @@ const isValidSupabaseUrl = (url) => {
 
 const hasValidCredentials = isValidSupabaseUrl(supabaseUrl) && supabaseAnonKey && supabaseAnonKey.length > 20;
 
-if (!hasValidCredentials) {
-  console.warn('Supabase credentials not found or invalid. Using local storage fallback.');
+const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
+
+if (!hasValidCredentials && !isDevMode) {
+  console.error('[CRITICAL] Supabase credentials missing in production! Data will not load.');
+} else if (!hasValidCredentials) {
+  console.warn('Supabase credentials not found. Using local storage fallback (dev mode).');
 }
 
 export const supabase = hasValidCredentials
