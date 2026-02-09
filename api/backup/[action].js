@@ -70,6 +70,7 @@ async function encryptHandler(req, res) {
       metadata: { ...backup.metadata, iv: ivHex, encrypted: true, compressed: true },
     });
   } catch (error) {
+    console.error('[backup/encrypt] Error:', error);
     return res.status(500).json({ error: sanitizeError(error), success: false });
   }
 }
@@ -117,6 +118,7 @@ async function decryptHandler(req, res) {
 
     return res.status(200).json({ success: true, backup });
   } catch (error) {
+    console.error('[backup/decrypt] Error:', error);
     if (error.message?.includes('bad decrypt') || error.message?.includes('wrong final block')) {
       return res.status(400).json({ error: 'Failed to decrypt backup. The encryption key may have changed.', success: false });
     }

@@ -177,7 +177,8 @@ export const getTokensFromCookie = (req) => {
     const decrypted = decryptToken(encryptedTokens);
     const tokenData = JSON.parse(decrypted);
     return tokenData;
-  } catch {
+  } catch (error) {
+    console.error('[getTokensFromCookie] Error:', error);
     return null;
   }
 };

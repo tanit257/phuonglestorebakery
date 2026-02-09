@@ -55,6 +55,7 @@ async function handleAuthUrl(req, res) {
 
     return res.status(200).json({ authUrl });
   } catch (error) {
+    console.error('[auth-url] Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
@@ -83,6 +84,7 @@ async function handleGetTokens(req, res) {
 
     return res.status(200).json({ tokens });
   } catch (error) {
+    console.error('[get-tokens] Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
@@ -132,6 +134,7 @@ async function handleAuthCallback(req, res) {
     res.setHeader('Set-Cookie', cookie);
     return res.status(200).json({ success: true, message: 'Authentication successful' });
   } catch (error) {
+    console.error('[auth-callback] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
@@ -155,7 +158,8 @@ async function handleAuthStatus(req, res) {
     const isExpired = tokenData.expiry_date && Date.now() > tokenData.expiry_date - 5 * 60 * 1000;
 
     return res.status(200).json({ authenticated: isValid, needsRefresh: isExpired, success: true });
-  } catch {
+  } catch (error) {
+    console.error('[auth-status] Error:', error);
     return res.status(200).json({ authenticated: false, success: true });
   }
 }
@@ -177,6 +181,7 @@ async function handleAuthLogout(req, res) {
     res.setHeader('Set-Cookie', cookie);
     return res.status(200).json({ success: true, message: 'Logged out successfully' });
   } catch (error) {
+    console.error('[auth-logout] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
@@ -217,6 +222,7 @@ async function handleUploadBackup(req, res) {
 
     return res.status(200).json({ file: response.data, success: true });
   } catch (error) {
+    console.error('[upload-backup] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
@@ -243,6 +249,7 @@ async function handleDownloadBackup(req, res) {
     const base64 = Buffer.from(response.data).toString('base64');
     return res.status(200).json({ fileContent: base64, success: true });
   } catch (error) {
+    console.error('[download-backup] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
@@ -264,6 +271,7 @@ async function handleDeleteBackup(req, res) {
     await drive.files.delete({ fileId });
     return res.status(200).json({ success: true });
   } catch (error) {
+    console.error('[delete-backup] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
@@ -287,6 +295,7 @@ async function handleListBackups(req, res) {
 
     return res.status(200).json({ files: response.data.files || [], success: true });
   } catch (error) {
+    console.error('[list-backups] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
@@ -311,6 +320,7 @@ async function handleStorageInfo(req, res) {
 
     return res.status(200).json({ storageInfo, success: true });
   } catch (error) {
+    console.error('[storage-info] Error:', error);
     return errorResponse(res, 500, sanitizeErrorMessage(error));
   }
 }
