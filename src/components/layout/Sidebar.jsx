@@ -13,7 +13,8 @@ import {
   ArrowLeftRight,
   LogOut,
   Database,
-  ClipboardList
+  ClipboardList,
+  ScrollText
 } from 'lucide-react';
 import { useMode, MODES } from '../../contexts/ModeContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -42,6 +43,7 @@ export const Sidebar = () => {
     { path: '/customers', icon: Users, label: 'Khách hàng' },
     { path: '/debt', icon: CreditCard, label: 'Công nợ' },
     { path: '/backup', icon: Database, label: 'Sao lưu' },
+    { path: '/logs', icon: ScrollText, label: 'Nhật ký' },
   ];
 
   const isActive = (path) => location.pathname === path;

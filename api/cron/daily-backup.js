@@ -16,7 +16,9 @@ import { google } from 'googleapis';
 import sgMail from '@sendgrid/mail';
 import pako from 'pako';
 import crypto from 'crypto';
+import { serverLogger } from '../lib/serverLogger.js';
 
+const SOURCE = 'cron/daily-backup';
 const BACKUP_VERSION = '1.0';
 const BACKUP_FOLDER_NAME = 'PhuongLeStore-Backups';
 
@@ -168,6 +170,9 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  const startTime = Date.now();
+  await serverLogger.info(SOURCE, 'Daily backup started');
+
   try {
     // Initialize Supabase
     const supabase = createClient(
@@ -176,8 +181,10 @@ export default async function handler(req, res) {
     );
 
     // Export data
+    await serverLogger.info(SOURCE, 'Exporting database tables...');
     const data = await exportSupabaseData(supabase);
     const metadata = calculateMetadata(data);
+    await serverLogger.info(SOURCE, 'Database export complete', metadata);
 
     // Create backup object
     const backup = {
@@ -199,23 +206,43 @@ export default async function handler(req, res) {
     const fileName = `backup-${timestamp}-iv-${iv}.json.gz`;
 
     // Upload to Google Drive
+    await serverLogger.info(SOURCE, 'Uploading to Google Drive...');
     const uploadResult = await uploadToGoogleDrive(fileName, compressed);
+    await serverLogger.info(SOURCE, 'Upload complete', {
+      fileName,
+      fileId: uploadResult.id,
+      size: uploadResult.size,
+    });
 
     // Cleanup old backups
     const deletedCount = await cleanupOldBackups(30);
+    if (deletedCount > 0) {
+      await serverLogger.info(SOURCE, `Cleaned up ${deletedCount} old backup(s)`);
+    }
+
+    const durationMs = Date.now() - startTime;
+    await serverLogger.success(SOURCE, `Backup completed in ${(durationMs / 1000).toFixed(1)}s`, {
+      fileName,
+      size: uploadResult.size,
+      deletedCount,
+      durationMs,
+      metadata,
+    });
 
     // Send success email
     try {
       await sendEmail(
-        '✅ PhuongLe Store - Daily Backup Successful',
+        'PhuongLe Store - Daily Backup Successful',
         `Backup completed successfully at ${new Date().toLocaleString('vi-VN')}`,
-        `<h2>✅ Daily Backup Successful</h2>
+        `<h2>Daily Backup Successful</h2>
          <p>Backup file: ${fileName}</p>
          <p>Size: ${(uploadResult.size / 1024).toFixed(2)} KB</p>
          <p>Old backups deleted: ${deletedCount}</p>`
       );
     } catch (emailError) {
-      console.error('Failed to send success email:', emailError);
+      await serverLogger.warn(SOURCE, 'Failed to send success email', {
+        error: emailError.message,
+      });
     }
 
     return res.status(200).json({
@@ -231,19 +258,26 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-    console.error('Backup failed:', error);
+    const durationMs = Date.now() - startTime;
+    await serverLogger.error(SOURCE, `Backup failed: ${error.message}`, {
+      error: error.message,
+      stack: error.stack,
+      durationMs,
+    });
 
     // Send failure email
     try {
       await sendEmail(
-        '⚠️ PhuongLe Store - Daily Backup Failed',
+        'PhuongLe Store - Daily Backup Failed',
         `Backup failed: ${error.message}`,
-        `<h2>⚠️ Daily Backup Failed</h2>
+        `<h2>Daily Backup Failed</h2>
          <p><strong>Error:</strong> ${error.message}</p>
          <pre>${error.stack}</pre>`
       );
     } catch (emailError) {
-      console.error('Failed to send failure email:', emailError);
+      await serverLogger.warn(SOURCE, 'Failed to send failure email', {
+        error: emailError.message,
+      });
     }
 
     return res.status(500).json({

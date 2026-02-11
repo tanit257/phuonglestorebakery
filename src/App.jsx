@@ -30,6 +30,7 @@ import CustomersPage from './pages/CustomersPage';
 import ProductsPage from './pages/ProductsPage';
 import BackupPage from './pages/BackupPage';
 import InventoryReportPage from './pages/InventoryReportPage';
+import LogsPage from './pages/LogsPage';
 
 // Loading Screen
 const LoadingScreen = () => (
@@ -154,6 +155,7 @@ function App() {
                   <Route path="/customers" element={<CustomersPage />} />
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/backup" element={<BackupPage />} />
+                  <Route path="/logs" element={<LogsPage />} />
                 </Routes>
               </ProtectedLayout>
             </ProtectedRoute>
